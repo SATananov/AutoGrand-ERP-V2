@@ -59,6 +59,28 @@ app.engine('hbs', engine({
     },
     inc(value) {
       return Number(value || 0) + 1;
+    },
+    formatNumber(value) {
+      return new Intl.NumberFormat('bg-BG').format(Number(value || 0));
+    },
+    formatBytes(value) {
+      const bytes = Number(value || 0);
+      if (!Number.isFinite(bytes) || bytes <= 0) {
+        return '0 B';
+      }
+
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let size = bytes;
+      let unitIndex = 0;
+
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+      }
+
+      return `${new Intl.NumberFormat('bg-BG', {
+        maximumFractionDigits: unitIndex === 0 ? 0 : 1
+      }).format(size)} ${units[unitIndex]}`;
     }
   }
 }));
@@ -195,7 +217,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '2-2-sales-posting-stock-movement'
+    step: '2-3-sales-payments-cash-register'
   });
 });
 

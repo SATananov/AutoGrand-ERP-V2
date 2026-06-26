@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 — Moneta-like desktop ERP shell with AutoGrand light green theme and Prisma core.",
+  "description": "AutoGrand ERP V2 Step 2.3 — Sales Payments + Cash Register clean checkpoint.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
