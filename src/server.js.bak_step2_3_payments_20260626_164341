@@ -13,8 +13,7 @@ import {
   updateSalesDocumentLine,
   deleteSalesDocumentLine,
   recalculateSalesDocumentTotals,
-  updateSalesDocumentStatus,
-  createSalesDocumentPayment
+  updateSalesDocumentStatus
 } from './services/sales-actions-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -177,10 +176,6 @@ app.post('/document/sales/:documentId/status', async (req, res) => {
   redirectWithAction(res, req.params.documentId, result?.code || 'status_failed');
 });
 
-app.post('/document/sales/:documentId/payments', async (req, res) => {
-  const result = await createSalesDocumentPayment(req.params.documentId, req.body);
-  redirectWithAction(res, req.params.documentId, result?.code || 'payment_failed');
-});
 app.get('/reference', (req, res) => {
   res.render('reference-local', {
     ...baseViewData({

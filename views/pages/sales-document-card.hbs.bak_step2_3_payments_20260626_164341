@@ -3,7 +3,7 @@
     <div>
       <div class="screen-kicker">Продажби / Документна карта</div>
       <h1>{{documentCard.title}}</h1>
-      <p>{{documentCard.number}} · {{documentCard.docDateText}} · {{documentCard.statusText}} · {{documentCard.paymentSummary.statusText}}</p>
+      <p>{{documentCard.number}} · {{documentCard.docDateText}} · {{documentCard.statusText}}</p>
     </div>
 
     <div class="document-card-actions">
@@ -209,55 +209,10 @@
         </article>
 
         <article class="document-tab-panel" data-card-panel="payments">
-          <div class="document-tab-inner payments-tab">
+          <div class="document-tab-inner">
             <h2>Плащания по документа</h2>
-
-            <section class="payment-summary-grid">
-              <div>
-                <span>Статус</span>
-                <strong>{{documentCard.paymentSummary.statusText}}</strong>
-              </div>
-              <div>
-                <span>Платено</span>
-                <strong>{{documentCard.paymentSummary.paidAmountText}}</strong>
-              </div>
-              <div>
-                <span>Остатък</span>
-                <strong>{{documentCard.paymentSummary.remainingAmountText}}</strong>
-              </div>
-            </section>
-
-            {{#if documentCard.canAddPayment}}
-              <form class="payment-form" method="post" action="/document/sales/{{documentCard.id}}/payments">
-                <label>
-                  <span>Сума</span>
-                  <input name="amount" type="number" step="0.01" min="0.01" value="{{documentCard.paymentSummary.suggestedAmount}}" required />
-                </label>
-
-                <label>
-                  <span>Метод</span>
-                  <select name="paymentMethod">
-                    {{#each documentCard.paymentMethods}}
-                      <option value="{{value}}">{{label}}</option>
-                    {{/each}}
-                  </select>
-                </label>
-
-                <label class="payment-note-label">
-                  <span>Описание</span>
-                  <input name="note" type="text" placeholder="Плащане по документа..." />
-                </label>
-
-                <button type="submit">Запиши плащане</button>
-              </form>
-            {{else}}
-              <div class="payment-locked-note">
-                Плащане може да се добави само към осчетоводена продажба с остатък за плащане.
-              </div>
-            {{/if}}
-
             {{#each documentCard.paymentRows}}
-              <div class="payment-row">
+              <div class="tab-list-row">
                 <strong>{{number}}</strong>
                 <span>{{dateText}}</span>
                 <span>{{amountText}}</span>

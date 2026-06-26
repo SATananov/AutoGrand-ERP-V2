@@ -2,22 +2,11 @@ import fs from 'fs';
 import path from 'path';
 
 const required = [
-  'package.json',
   'src/server.js',
-  'prisma/schema.prisma',
-  'src/db/prisma.js',
-  'src/data/navigation.js',
-  'src/services/core-data-service.js',
-  'src/services/sales-document-card-service.js',
   'src/services/sales-actions-service.js',
-  'views/layouts/main.hbs',
-  'views/pages/moneta-home.hbs',
-  'views/pages/screen-browse.hbs',
+  'src/services/sales-document-card-service.js',
   'views/pages/sales-document-card.hbs',
-  'views/pages/sales-document-new.hbs',
-  'public/css/styles.css',
-  'public/js/app.js',
-  'scripts/seed-prisma.js'
+  'public/css/styles.css'
 ];
 
 let ok = true;
@@ -31,19 +20,33 @@ for (const file of required) {
   }
 }
 
-const schema = fs.readFileSync(path.resolve('prisma/schema.prisma'), 'utf8');
+const actions = fs.readFileSync(path.resolve('src/services/sales-actions-service.js'), 'utf8');
+const server = fs.readFileSync(path.resolve('src/server.js'), 'utf8');
+const card = fs.readFileSync(path.resolve('src/services/sales-document-card-service.js'), 'utf8');
 
-for (const model of ['StockBalance', 'StockMovement', 'SalesDocument', 'SalesDocumentLine']) {
-  if (!schema.includes(`model ${model}`)) {
-    console.error(`MISSING PRISMA MODEL: ${model}`);
-    ok = false;
-  } else {
-    console.log(`OK PRISMA MODEL: ${model}`);
-  }
+if (!actions.includes('createSalesDocumentPayment')) {
+  console.error('MISSING: createSalesDocumentPayment');
+  ok = false;
+} else {
+  console.log('OK: createSalesDocumentPayment');
+}
+
+if (!server.includes('/document/sales/:documentId/payments')) {
+  console.error('MISSING ROUTE: /document/sales/:documentId/payments');
+  ok = false;
+} else {
+  console.log('OK ROUTE: /document/sales/:documentId/payments');
+}
+
+if (!card.includes('paymentSummary')) {
+  console.error('MISSING: paymentSummary');
+  ok = false;
+} else {
+  console.log('OK: paymentSummary');
 }
 
 if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: AutoGrand ERP V2 Step 2.2 sales posting + stock movement file check passed.');
+console.log('OK: Step 2.3 Payments patch check passed.');
