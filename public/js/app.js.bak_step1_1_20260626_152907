@@ -1,0 +1,8 @@
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.ribbon-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const label = button.innerText.trim().replace(/\s+/g, ' ');
+      console.log(`AutoGrand ribbon action: ${label}`);
+    });
+  });
+});

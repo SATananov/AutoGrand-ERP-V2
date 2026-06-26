@@ -1,0 +1,123 @@
+<div class="sales-screen">
+  <header class="sales-screen-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">{{screen.group}}</div>
+      <h1>{{screen.title}}</h1>
+      <p>Moneta-like browse + detail workspace / AutoGrand ERP V2</p>
+    </div>
+
+    <div class="screen-command-strip">
+      <button type="button">Функция...</button>
+      <button type="button">Нов ред</button>
+      <button type="button">Копирай ред</button>
+      <button type="button">Детайли</button>
+      <button type="button">Печат</button>
+    </div>
+  </header>
+
+  {{#unless screen.dbReady}}
+    <div class="db-warning">
+      <strong>Prisma базата още не е готова.</strong>
+      <span>{{screen.error}}</span>
+    </div>
+  {{/unless}}
+
+  <section class="moneta-filter-bar">
+    <label>
+      <span>Филтър по поле</span>
+      <select id="agFilterField">
+        <option value="all">Всички полета</option>
+        {{#each screen.columns}}
+          <option value="{{key}}">{{label}}</option>
+        {{/each}}
+      </select>
+    </label>
+
+    <label>
+      <span>Оператор</span>
+      <select id="agFilterOperator">
+        <option value="contains">съдържа</option>
+        <option value="starts">започва с</option>
+        <option value="equals">е равно на</option>
+      </select>
+    </label>
+
+    <label class="filter-value">
+      <span>Стойност</span>
+      <input id="agFilterValue" type="text" placeholder="Въведи текст за търсене..." />
+    </label>
+
+    <button id="agClearFilter" type="button">Покажи всички</button>
+  </section>
+
+  <section class="sales-workbench">
+    <div class="sales-grid-panel">
+      <div class="panel-caption">
+        <strong>{{screen.title}}</strong>
+        <span>{{screen.rows.length}} реда</span>
+      </div>
+
+      <div class="browse-frame sales-browse-frame">
+        <table class="browse-grid sales-grid" id="agSalesGrid">
+          <thead>
+            <tr>
+              <th class="row-number">#</th>
+              {{#each screen.columns}}
+                <th data-field="{{key}}">{{label}}</th>
+              {{/each}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#each screen.rows}}
+              <tr class="selectable-row {{#if @first}}active{{/if}}" data-row-id="{{id}}">
+                <td class="row-number">{{inc @index}}</td>
+                {{#each ../screen.columns}}
+                  <td data-field="{{key}}">{{cell ../this key}}</td>
+                {{/each}}
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="grid-status-line">
+        <span>Готов</span>
+        <span>Редове: {{screen.rows.length}}</span>
+        <span>Екран: {{screen.title}}</span>
+      </footer>
+    </div>
+
+    <aside class="sales-detail-panel">
+      <div class="panel-caption detail-caption">
+        <strong>Детайл / Preview</strong>
+        <span>избран ред</span>
+      </div>
+
+      <div class="detail-preview-stack">
+        {{#each screen.rows}}
+          <article class="detail-preview {{#if @first}}active{{/if}}" data-preview-id="{{id}}">
+            <div class="preview-head">
+              <span>AutoGrand ERP</span>
+              <strong>{{../screen.title}}</strong>
+            </div>
+
+            <div class="preview-fields">
+              {{#each ../screen.columns}}
+                <div class="preview-field">
+                  <span>{{label}}</span>
+                  <strong>{{cell ../this key}}</strong>
+                </div>
+              {{/each}}
+            </div>
+
+            <div class="preview-actions">
+              <button type="button">Отвори карта</button>
+              <button type="button">История</button>
+              <button type="button">Ревизии</button>
+            </div>
+          </article>
+        {{/each}}
+      </div>
+    </aside>
+  </section>
+</div>

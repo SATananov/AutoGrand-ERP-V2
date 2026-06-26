@@ -1,0 +1,1097 @@
+{
+  "privacy_policy": "Public generated docs are safe summaries. Private raw diagnostic logs are generated only under docs/reference/private when enabled by the owner.",
+  "log_files": 200,
+  "date_min": "2015-07-07",
+  "date_max": "2018-04-07",
+  "matched_diagnostic_lines": 78174,
+  "patterns": {
+    "Exception": 77768,
+    "Access violation": 1200,
+    "Validation issue": 1134,
+    "Connection issue": 845,
+    "ParentConnection is not assigned": 755,
+    "Dataset issue": 560,
+    "Dataset not in edit or insert mode": 266,
+    "SQL/Database issue": 201,
+    "Diagnostic": 140,
+    "Transaction issue": 50,
+    "Server issue": 21
+  },
+  "files_with_pattern": {
+    "Exception": 198,
+    "Validation issue": 149,
+    "Dataset issue": 132,
+    "Access violation": 109,
+    "Dataset not in edit or insert mode": 103,
+    "Connection issue": 53,
+    "SQL/Database issue": 42,
+    "ParentConnection is not assigned": 20,
+    "Transaction issue": 17,
+    "Server issue": 13,
+    "Diagnostic": 4
+  },
+  "top_error_signatures": [
+    {
+      "signature": "Exception::3976BB5849",
+      "count": 25826,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::71EC8269AA",
+      "count": 25696,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::54317FEC0F",
+      "count": 20940,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Connection issue::8086A2D690",
+      "count": 755,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::CDC67AEBC3",
+      "count": 718,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::8390EF197B",
+      "count": 286,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Dataset issue::44A8BE9F2C",
+      "count": 265,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::1705738469",
+      "count": 253,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Dataset issue::44C3019DF9",
+      "count": 203,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::70DC709380",
+      "count": 185,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::756B285B64",
+      "count": 145,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Diagnostic::EB00156700",
+      "count": 130,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::5BE3203C3E",
+      "count": 129,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::FBB001443F",
+      "count": 124,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::975E4DF3AC",
+      "count": 118,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::28F83ECB56",
+      "count": 112,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::4AEEC19D5D",
+      "count": 111,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::98043B74F6",
+      "count": 110,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::9680F08172",
+      "count": 101,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Dataset issue::53C4F21FA5",
+      "count": 90,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::4CB0DFC584",
+      "count": 87,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::D48ED27226",
+      "count": 71,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::F17068BD46",
+      "count": 69,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::7134E46025",
+      "count": 66,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::488307BDF8",
+      "count": 51,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Connection issue::96C888E63A",
+      "count": 46,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::071CBD8FDA",
+      "count": 44,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::A8791408C3",
+      "count": 43,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Connection issue::7F4526FB04",
+      "count": 41,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::64EB6A4BEB",
+      "count": 40,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::AC421435FD",
+      "count": 39,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::ECED147770",
+      "count": 37,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::B1BA12D12A",
+      "count": 30,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::04D066EEFA",
+      "count": 30,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::8AD2C80DE9",
+      "count": 30,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::34DEBDA079",
+      "count": 29,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::180E2D6CD8",
+      "count": 27,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::8BDCCA9D8D",
+      "count": 24,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::522E9EE549",
+      "count": 24,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::6F9CECF2DD",
+      "count": 22,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Transaction issue::B5EC590170",
+      "count": 20,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::3963890367",
+      "count": 19,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "SQL/Database issue::246656B723",
+      "count": 19,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::6483683546",
+      "count": 19,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::11E919F726",
+      "count": 19,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::C924586CE8",
+      "count": 18,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::79A275479E",
+      "count": 18,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::FEE21755C6",
+      "count": 17,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::FD0F49E090",
+      "count": 17,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::2AC42700B2",
+      "count": 16,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::BAB4162164",
+      "count": 16,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::1D14A7AC93",
+      "count": 16,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::4488EE00A1",
+      "count": 16,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::F8B1B92B31",
+      "count": 14,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::CD44EC48CA",
+      "count": 14,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::FB7AE8BD38",
+      "count": 14,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::5D4772AC58",
+      "count": 14,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::A404FC87B4",
+      "count": 14,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::B1BEDDB9D0",
+      "count": 13,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::40432E1BFA",
+      "count": 13,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::0625AFB0E4",
+      "count": 12,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "SQL/Database issue::6F09D13331",
+      "count": 12,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::5B7F7BB550",
+      "count": 12,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::A5775C1DD2",
+      "count": 12,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::260FDBF669",
+      "count": 12,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::EA7464552E",
+      "count": 10,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::3C3D34EAD0",
+      "count": 10,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::438F6330B6",
+      "count": 9,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::F88E29E4F4",
+      "count": 8,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::7EB1BC8333",
+      "count": 8,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Access violation::36EB1415E5",
+      "count": 8,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::374198FD5E",
+      "count": 7,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::F6BFDAD05B",
+      "count": 7,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::C6F6FDDC62",
+      "count": 7,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::DF16811826",
+      "count": 7,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::BD9324C895",
+      "count": 6,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::E84CCD35B8",
+      "count": 6,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::5D49A4E6E0",
+      "count": 6,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::9AC4304F65",
+      "count": 4,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    },
+    {
+      "signature": "Exception::B4D80B9470",
+      "count": 4,
+      "privacy": "raw line stored only in docs/reference/private when enabled"
+    }
+  ],
+  "sources": [
+    {
+      "source_zip": "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "log_files": 194,
+      "date_min": "2015-07-07",
+      "date_max": "2016-02-24",
+      "matched_diagnostic_lines": 76803,
+      "patterns": {
+        "Exception": 76531,
+        "Access violation": 1200,
+        "Validation issue": 1106,
+        "Connection issue": 845,
+        "ParentConnection is not assigned": 755,
+        "Dataset issue": 560,
+        "Dataset not in edit or insert mode": 266,
+        "SQL/Database issue": 105,
+        "Transaction issue": 27,
+        "Server issue": 19,
+        "Diagnostic": 7
+      },
+      "files_with_pattern": {
+        "Exception": 192,
+        "Validation issue": 145,
+        "Dataset issue": 132,
+        "Access violation": 109,
+        "Dataset not in edit or insert mode": 103,
+        "Connection issue": 53,
+        "SQL/Database issue": 38,
+        "ParentConnection is not assigned": 20,
+        "Transaction issue": 14,
+        "Server issue": 11,
+        "Diagnostic": 2
+      },
+      "top_error_signatures": [
+        {
+          "signature": "Exception::3976BB5849",
+          "count": 25421,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::71EC8269AA",
+          "count": 25421,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::54317FEC0F",
+          "count": 20940,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Connection issue::8086A2D690",
+          "count": 755,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::CDC67AEBC3",
+          "count": 718,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::8390EF197B",
+          "count": 286,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Dataset issue::44A8BE9F2C",
+          "count": 265,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::1705738469",
+          "count": 253,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Dataset issue::44C3019DF9",
+          "count": 203,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::70DC709380",
+          "count": 180,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::756B285B64",
+          "count": 145,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::5BE3203C3E",
+          "count": 129,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::FBB001443F",
+          "count": 124,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::28F83ECB56",
+          "count": 112,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::4AEEC19D5D",
+          "count": 111,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::98043B74F6",
+          "count": 110,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Dataset issue::53C4F21FA5",
+          "count": 90,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::4CB0DFC584",
+          "count": 87,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::F17068BD46",
+          "count": 69,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::7134E46025",
+          "count": 66,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::488307BDF8",
+          "count": 51,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Connection issue::96C888E63A",
+          "count": 46,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::071CBD8FDA",
+          "count": 44,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::A8791408C3",
+          "count": 43,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Connection issue::7F4526FB04",
+          "count": 41,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::64EB6A4BEB",
+          "count": 40,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::AC421435FD",
+          "count": 39,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::ECED147770",
+          "count": 37,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::9680F08172",
+          "count": 36,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::B1BA12D12A",
+          "count": 30,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::04D066EEFA",
+          "count": 30,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::8AD2C80DE9",
+          "count": 30,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::34DEBDA079",
+          "count": 29,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::180E2D6CD8",
+          "count": 27,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::8BDCCA9D8D",
+          "count": 24,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Transaction issue::B5EC590170",
+          "count": 20,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::3963890367",
+          "count": 19,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "SQL/Database issue::246656B723",
+          "count": 19,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::6483683546",
+          "count": 19,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::C924586CE8",
+          "count": 18,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::79A275479E",
+          "count": 18,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::FEE21755C6",
+          "count": 17,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::FD0F49E090",
+          "count": 17,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::2AC42700B2",
+          "count": 16,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::BAB4162164",
+          "count": 16,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::1D14A7AC93",
+          "count": 16,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::4488EE00A1",
+          "count": 15,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::F8B1B92B31",
+          "count": 14,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::CD44EC48CA",
+          "count": 14,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::FB7AE8BD38",
+          "count": 14,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::B1BEDDB9D0",
+          "count": 13,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::40432E1BFA",
+          "count": 13,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::0625AFB0E4",
+          "count": 12,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "SQL/Database issue::6F09D13331",
+          "count": 12,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::EA7464552E",
+          "count": 10,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::3C3D34EAD0",
+          "count": 10,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::438F6330B6",
+          "count": 9,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::F88E29E4F4",
+          "count": 8,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::7EB1BC8333",
+          "count": 8,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Access violation::36EB1415E5",
+          "count": 8,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        }
+      ]
+    },
+    {
+      "source_zip": "ZipMasterR23.zip",
+      "log_files": 6,
+      "date_min": "2016-07-04",
+      "date_max": "2018-04-07",
+      "matched_diagnostic_lines": 1371,
+      "patterns": {
+        "Exception": 1237,
+        "Diagnostic": 133,
+        "SQL/Database issue": 96,
+        "Validation issue": 28,
+        "Transaction issue": 23,
+        "Server issue": 2
+      },
+      "files_with_pattern": {
+        "Exception": 6,
+        "Validation issue": 4,
+        "SQL/Database issue": 4,
+        "Transaction issue": 3,
+        "Server issue": 2,
+        "Diagnostic": 2
+      },
+      "top_error_signatures": [
+        {
+          "signature": "Exception::3976BB5849",
+          "count": 405,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::71EC8269AA",
+          "count": 275,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Diagnostic::EB00156700",
+          "count": 130,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::975E4DF3AC",
+          "count": 118,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::D48ED27226",
+          "count": 71,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::9680F08172",
+          "count": 65,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::522E9EE549",
+          "count": 24,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::6F9CECF2DD",
+          "count": 22,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::11E919F726",
+          "count": 19,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::5D4772AC58",
+          "count": 14,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::A404FC87B4",
+          "count": 14,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::5B7F7BB550",
+          "count": 12,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::A5775C1DD2",
+          "count": 12,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::260FDBF669",
+          "count": 12,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::374198FD5E",
+          "count": 7,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::F6BFDAD05B",
+          "count": 7,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::C6F6FDDC62",
+          "count": 7,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::DF16811826",
+          "count": 7,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::BD9324C895",
+          "count": 6,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::E84CCD35B8",
+          "count": 6,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::5D49A4E6E0",
+          "count": 6,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::70DC709380",
+          "count": 5,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::9AC4304F65",
+          "count": 4,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::B4D80B9470",
+          "count": 4,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::BF3EF93141",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::59C811988F",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::A3117C2601",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::58F0FAAF98",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::AD2A7B8F09",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::83862DFC67",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::4AC0F04344",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::A5B29F49A7",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::03620E6769",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::95B32ED614",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::6418C1C9CD",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::374FA0F12B",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::B35F6345B8",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::7A3BA6D657",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::4AB2B9D6EF",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::E114082CF4",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::C83C336172",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::3DFF8AB98A",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::46B7FA3A6D",
+          "count": 3,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::C87BE9564A",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::42A1EC0124",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::4B8C1E961E",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::3C2BB39C8E",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::B53BB2B218",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::281CC9C879",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::7E20E045D1",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::CD9CC0E877",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::62A3CED90C",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::7D7F5D5822",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::39837F1C93",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Diagnostic::AC4AFD0B63",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::100852704F",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::908B959C9A",
+          "count": 2,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::4488EE00A1",
+          "count": 1,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Exception::54BF80F4CF",
+          "count": 1,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        },
+        {
+          "signature": "Transaction issue::51EE0F9796",
+          "count": 1,
+          "privacy": "raw line stored only in docs/reference/private when enabled"
+        }
+      ]
+    }
+  ]
+}

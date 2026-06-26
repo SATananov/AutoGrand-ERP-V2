@@ -1,0 +1,48 @@
+<div class="home-screen">
+  <section class="home-hero">
+    <h1>AutoGrand ERP V2</h1>
+    <p>
+      Moneta-подобна ERP работна среда с AutoGrand светло зелена визия.
+      Този екран е Step 1: desktop shell, ribbon, дървовидно меню и Prisma core.
+    </p>
+
+    {{#unless dashboard.dbReady}}
+      <div class="db-warning">
+        <strong>Базата още не е инициализирана.</strong>
+        <span>Пусни: npm install → npx prisma migrate dev --name init → npm run db:seed</span>
+      </div>
+    {{/unless}}
+  </section>
+
+  <section class="dashboard-cards">
+    {{#each dashboard.cards}}
+      <article class="dashboard-card">
+        <strong>{{value}}</strong>
+        <span>{{title}}</span>
+        <small>{{subtitle}}</small>
+      </article>
+    {{/each}}
+  </section>
+
+  <section class="step-panel">
+    <h2>Заключен визуален стандарт</h2>
+    <div class="step-grid">
+      <article>
+        <h3>1 Moneta структура</h3>
+        <p>Ribbon toolbar, ляво дървовидно меню, работна зона, tabs и долен status bar.</p>
+      </article>
+      <article>
+        <h3>2 AutoGrand визия</h3>
+        <p>Светло зелено, olive headers, compact ERP buttons и clean Windows desktop усещане.</p>
+      </article>
+      <article>
+        <h3>3 Prisma core</h3>
+        <p>SQLite база с клиенти, артикули, складове, ценови листи, документи, каса и автомобили.</p>
+      </article>
+      <article>
+        <h3>4 Следващ етап</h3>
+        <p>Реални CRUD екрани: Оферта, Поръчки от клиенти, Плащания продажби и Дневна каса.</p>
+      </article>
+    </div>
+  </section>
+</div>

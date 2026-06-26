@@ -1,0 +1,38 @@
+import fs from 'fs';
+import path from 'path';
+
+const required = [
+  'package.json',
+  'src/server.js',
+  'prisma/schema.prisma',
+  'src/db/prisma.js',
+  'src/data/navigation.js',
+  'src/services/core-data-service.js',
+  'src/services/sales-document-card-service.js',
+  'src/services/sales-actions-service.js',
+  'views/layouts/main.hbs',
+  'views/pages/moneta-home.hbs',
+  'views/pages/screen-browse.hbs',
+  'views/pages/sales-document-card.hbs',
+  'views/pages/sales-document-new.hbs',
+  'public/css/styles.css',
+  'public/js/app.js',
+  'scripts/seed-prisma.js'
+];
+
+let ok = true;
+
+for (const file of required) {
+  if (!fs.existsSync(path.resolve(file))) {
+    console.error(`MISSING: ${file}`);
+    ok = false;
+  } else {
+    console.log(`OK: ${file}`);
+  }
+}
+
+if (!ok) {
+  process.exit(1);
+}
+
+console.log('OK: AutoGrand ERP V2 Step 2.1 sales line edit/delete + safety file check passed.');

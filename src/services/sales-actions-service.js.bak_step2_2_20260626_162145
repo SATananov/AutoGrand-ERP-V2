@@ -1,0 +1,269 @@
+import prisma from '../db/prisma.js';
+
+export const salesDocTypeMeta = {
+  OFFER: { label: 'Оферта', prefix: 'OF', screenId: 'offers', returnUrl: '/screen/offers' },
+  CUSTOMER_ORDER: { label: 'Поръчка от клиент', prefix: 'PO', screenId: 'customer-orders', returnUrl: '/screen/customer-orders' },
+  SALE: { label: 'Продажба', prefix: 'SL', screenId: 'sales', returnUrl: '/screen/sales' },
+  CREDIT_NOTE: { label: 'Кредитно известие', prefix: 'CN', screenId: 'credit-note', returnUrl: '/screen/credit-note' },
+  DEBIT_NOTE: { label: 'Дебитно известие', prefix: 'DN', screenId: 'debit-note', returnUrl: '/screen/debit-note' },
+  SALE_BY_ORDER: { label: 'Продажба по поръчка', prefix: 'SBO', screenId: 'sale-by-order', returnUrl: '/screen/sale-by-order' },
+  FREE_CREDIT_NOTE_SALE: { label: 'Свободно КИ продажба', prefix: 'FCN', screenId: 'free-credit-note-sale', returnUrl: '/screen/free-credit-note-sale' },
+  FREE_INVOICE_SALE: { label: 'Свободна фактура продажби', prefix: 'FI', screenId: 'free-invoice-sales', returnUrl: '/screen/free-invoice-sales' },
+  WARRANTY_CARD: { label: 'Гаранционна карта', prefix: 'WC', screenId: 'warranty-cards', returnUrl: '/screen/warranty-cards' }
+};
+
+function toInt(value) {
+  const parsed = Number.parseInt(String(value || ''), 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function toNumber(value, fallback = 0) {
+  const parsed = Number.parseFloat(String(value || '').replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function normalizeDocType(value) {
+  return salesDocTypeMeta[value] ? value : 'SALE';
+}
+
+async function getEditableDocument(documentId) {
+  const id = toInt(documentId);
+
+  if (!id) {
+    return null;
+  }
+
+  const document = await prisma.salesDocument.findUnique({
+    where: { id }
+  });
+
+  if (!document) {
+    return null;
+  }
+
+  if (document.status !== 'DRAFT') {
+    return null;
+  }
+
+  return document;
+}
+
+export async function generateSalesDocumentNumber(docType) {
+  const normalizedDocType = normalizeDocType(docType);
+  const meta = salesDocTypeMeta[normalizedDocType];
+  const prefix = meta.prefix;
+
+  const count = await prisma.salesDocument.count({
+    where: {
+      number: {
+        startsWith: `${prefix}-`
+      }
+    }
+  });
+
+  let next = count + 1;
+
+  while (true) {
+    const number = `${prefix}-${String(next).padStart(6, '0')}`;
+    const existing = await prisma.salesDocument.findUnique({ where: { number } });
+
+    if (!existing) {
+      return number;
+    }
+
+    next += 1;
+  }
+}
+
+export async function getSalesNewDocumentFormData(docType) {
+  const normalizedDocType = normalizeDocType(docType);
+  const meta = salesDocTypeMeta[normalizedDocType];
+
+  const [counterparties, warehouses] = await Promise.all([
+    prisma.counterparty.findMany({
+      where: { kind: 'CUSTOMER' },
+      orderBy: { name: 'asc' }
+    }),
+    prisma.warehouse.findMany({
+      orderBy: { code: 'asc' }
+    })
+  ]);
+
+  return {
+    docType: normalizedDocType,
+    title: meta.label,
+    returnUrl: meta.returnUrl,
+    counterparties,
+    warehouses
+  };
+}
+
+export async function createSalesDocumentFromForm(body) {
+  const docType = normalizeDocType(body.docType);
+  const number = await generateSalesDocumentNumber(docType);
+
+  const counterpartyId = toInt(body.counterpartyId);
+  const warehouseId = toInt(body.warehouseId);
+
+  return prisma.salesDocument.create({
+    data: {
+      number,
+      docType,
+      counterpartyId,
+      warehouseId,
+      status: 'DRAFT',
+      totalNet: 0,
+      totalVat: 0,
+      totalGross: 0,
+      note: body.note || ''
+    }
+  });
+}
+
+export async function recalculateSalesDocumentTotals(documentId) {
+  const id = toInt(documentId);
+
+  if (!id) {
+    return null;
+  }
+
+  const lines = await prisma.salesDocumentLine.findMany({
+    where: { documentId: id }
+  });
+
+  const totalGross = Number(lines.reduce((sum, line) => sum + Number(line.lineTotal || 0), 0).toFixed(2));
+  const totalNet = Number((totalGross / 1.2).toFixed(2));
+  const totalVat = Number((totalGross - totalNet).toFixed(2));
+
+  return prisma.salesDocument.update({
+    where: { id },
+    data: {
+      totalNet,
+      totalVat,
+      totalGross
+    }
+  });
+}
+
+export async function addSalesDocumentLine(documentId, body) {
+  const document = await getEditableDocument(documentId);
+  const itemId = toInt(body.itemId);
+  const quantity = toNumber(body.quantity, 1);
+
+  if (!document || !itemId) {
+    return null;
+  }
+
+  const item = await prisma.item.findUnique({
+    where: { id: itemId }
+  });
+
+  if (!item) {
+    return null;
+  }
+
+  const warehouseId = toInt(body.warehouseId) || document.warehouseId;
+  const price = toNumber(body.price, Number(item.retailPrice || 0));
+  const discountPercent = toNumber(body.discountPercent, 0);
+  const lineTotal = Number((quantity * price * (1 - discountPercent / 100)).toFixed(2));
+
+  await prisma.salesDocumentLine.create({
+    data: {
+      documentId: document.id,
+      itemId,
+      warehouseId,
+      quantity,
+      price,
+      discountPercent,
+      lineTotal
+    }
+  });
+
+  await recalculateSalesDocumentTotals(document.id);
+
+  return prisma.salesDocument.findUnique({ where: { id: document.id } });
+}
+
+export async function updateSalesDocumentLine(documentId, lineId, body) {
+  const document = await getEditableDocument(documentId);
+  const id = toInt(lineId);
+
+  if (!document || !id) {
+    return null;
+  }
+
+  const line = await prisma.salesDocumentLine.findFirst({
+    where: {
+      id,
+      documentId: document.id
+    },
+    include: {
+      item: true
+    }
+  });
+
+  if (!line) {
+    return null;
+  }
+
+  const quantity = toNumber(body.quantity, Number(line.quantity || 1));
+  const price = toNumber(body.price, Number(line.price || line.item?.retailPrice || 0));
+  const discountPercent = toNumber(body.discountPercent, Number(line.discountPercent || 0));
+  const lineTotal = Number((quantity * price * (1 - discountPercent / 100)).toFixed(2));
+
+  await prisma.salesDocumentLine.update({
+    where: { id },
+    data: {
+      quantity,
+      price,
+      discountPercent,
+      lineTotal
+    }
+  });
+
+  await recalculateSalesDocumentTotals(document.id);
+
+  return prisma.salesDocument.findUnique({ where: { id: document.id } });
+}
+
+export async function deleteSalesDocumentLine(documentId, lineId) {
+  const document = await getEditableDocument(documentId);
+  const id = toInt(lineId);
+
+  if (!document || !id) {
+    return null;
+  }
+
+  const line = await prisma.salesDocumentLine.findFirst({
+    where: {
+      id,
+      documentId: document.id
+    }
+  });
+
+  if (!line) {
+    return null;
+  }
+
+  await prisma.salesDocumentLine.delete({
+    where: { id }
+  });
+
+  await recalculateSalesDocumentTotals(document.id);
+
+  return prisma.salesDocument.findUnique({ where: { id: document.id } });
+}
+
+export async function updateSalesDocumentStatus(documentId, status) {
+  const id = toInt(documentId);
+  const allowed = ['DRAFT', 'POSTED', 'CANCELLED'];
+
+  if (!id || !allowed.includes(status)) {
+    return null;
+  }
+
+  return prisma.salesDocument.update({
+    where: { id },
+    data: { status }
+  });
+}

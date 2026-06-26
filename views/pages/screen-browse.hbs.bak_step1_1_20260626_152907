@@ -1,0 +1,45 @@
+<div class="generated-screen">
+  <header class="screen-header">
+    <div>
+      <h1>{{screen.title}}</h1>
+      <p>{{screen.group}} / generated Moneta-like browse screen</p>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button">Функция...</button>
+      <button type="button">Филтър по поле</button>
+      <button type="button">Оператор</button>
+      <button type="button">Стойност</button>
+    </div>
+  </header>
+
+  {{#unless screen.dbReady}}
+    <div class="db-warning">
+      <strong>Prisma базата още не е готова.</strong>
+      <span>{{screen.error}}</span>
+    </div>
+  {{/unless}}
+
+  <div class="browse-frame">
+    <table class="browse-grid">
+      <thead>
+        <tr>
+          <th class="row-number">#</th>
+          {{#each screen.columns}}
+            <th>{{label}}</th>
+          {{/each}}
+        </tr>
+      </thead>
+      <tbody>
+        {{#each screen.rows}}
+          <tr>
+            <td class="row-number">{{inc @index}}</td>
+            {{#each ../screen.columns}}
+              <td>{{cell ../this key}}</td>
+            {{/each}}
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>

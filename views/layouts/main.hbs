@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}}</title>
+    <link rel="icon" type="image/png" href="/public/assets/brand/autogrand-road-icon.png" />
+    <link rel="shortcut icon" type="image/png" href="/public/favicon.png" />
+    <link rel="stylesheet" href="/public/css/styles.css" />
+  </head>
+  <body>
+    <div class="erp-desktop-shell">
+      <header class="erp-titlebar">
+        <div class="brand-zone">
+          <img class="brand-road" src="/public/assets/brand/autogrand-road-icon.png" alt="AutoGrand" />
+          <div class="brand-company">{{companyName}}</div>
+          <div class="brand-version">{{appVersion}}</div>
+        </div>
+
+        <div class="titlebar-user">
+          <strong>{{userName}}</strong>
+          <span class="top-icon">💬</span>
+          <span class="top-icon">▶</span>
+          <span class="top-icon badge">🌐<em>2</em></span>
+          <span class="top-icon badge">🔔<em>6</em></span>
+          <span class="top-icon">⚙</span>
+          <span class="top-icon">🖌</span>
+          <span class="top-icon">👤</span>
+          <button class="logout-button">Изход</button>
+        </div>
+      </header>
+
+      <section class="erp-ribbon">
+        {{#each ribbonGroups}}
+          <div class="ribbon-group">
+            {{#each buttons}}
+              <button class="ribbon-button" type="button">
+                <span class="ribbon-icon">{{icon}}</span>
+                <span class="ribbon-label">{{label}}</span>
+              </button>
+            {{/each}}
+          </div>
+        {{/each}}
+      </section>
+
+      <div class="erp-main">
+        <aside class="erp-menu">
+          <div class="menu-title">
+            <span>Меню</span>
+            <span class="pin">📍</span>
+            <span class="collapse">◀</span>
+          </div>
+
+          <div class="menu-scroll">
+            {{#each navigationGroups}}
+              <details class="tree-group" {{#if isOpen}}open{{/if}}>
+                <summary>
+                  <span class="tree-icon">{{icon}}</span>
+                  <span>{{title}}</span>
+                </summary>
+
+                <div class="tree-items">
+                  {{#each items}}
+                    <a class="tree-item {{#if active}}active{{/if}}" href="{{href}}">
+                      <span class="doc-icon">{{icon}}</span>
+                      <span>{{title}}</span>
+                    </a>
+                  {{/each}}
+
+                  {{#each folders}}
+                    <div class="tree-folder">
+                      <span>▾</span>
+                      <span>📁</span>
+                      <strong>{{this}}</strong>
+                    </div>
+                  {{/each}}
+                </div>
+              </details>
+            {{/each}}
+          </div>
+        </aside>
+
+        <main class="erp-workspace">
+          <div class="tab-strip">
+            <a href="/" class="workspace-tab">Начало</a>
+          </div>
+
+          <section class="workspace-window">
+            {{{body}}}
+          </section>
+        </main>
+      </div>
+
+      <footer class="erp-statusbar">
+        <div>▣ {{statusText}}</div>
+        <div>◇ Отворен екран</div>
+        <div>📍 КЪРДЖАЛИ</div>
+        <div>👤 {{userName}}</div>
+        <div>▥ AutoGrand ERP</div>
+        <div>▥ {{databaseName}}</div>
+        <div>{{statusDate}}</div>
+      </footer>
+    </div>
+
+    <script src="/public/js/app.js"></script>
+  </body>
+</html>

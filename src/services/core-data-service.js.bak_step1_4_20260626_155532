@@ -1,0 +1,403 @@
+import prisma from '../db/prisma.js';
+
+export const screenDefinitions = {
+  'price-list': {
+    title: 'Ценова листа',
+    group: 'Продажби',
+    kind: 'priceList',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Наименование' },
+      { key: 'currency', label: 'Валута' },
+      { key: 'itemsCount', label: 'Редове' },
+      { key: 'status', label: 'Статус' }
+    ]
+  },
+  'advance-payments': {
+    title: 'Авансови плащания',
+    group: 'Продажби',
+    kind: 'cashEntry',
+    where: { kind: 'ADVANCE' },
+    columns: [
+      { key: 'number', label: 'Номер' },
+      { key: 'entryDateText', label: 'Дата' },
+      { key: 'counterpartyName', label: 'Клиент' },
+      { key: 'amountText', label: 'Сума' },
+      { key: 'paymentMethod', label: 'Плащане' }
+    ]
+  },
+  'offers': {
+    title: 'Оферта',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'OFFER' },
+    columns: salesDocumentColumns()
+  },
+  'customer-orders': {
+    title: 'Поръчки от клиенти',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'CUSTOMER_ORDER' },
+    columns: salesDocumentColumns()
+  },
+  'sales': {
+    title: 'Продажби',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'SALE' },
+    columns: salesDocumentColumns()
+  },
+  'credit-note': {
+    title: 'Кредитно известие',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'CREDIT_NOTE' },
+    columns: salesDocumentColumns()
+  },
+  'debit-note': {
+    title: 'Дебитно известие',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'DEBIT_NOTE' },
+    columns: salesDocumentColumns()
+  },
+  'sales-payments': {
+    title: 'Плащания продажби',
+    group: 'Продажби',
+    kind: 'cashEntry',
+    where: { kind: 'SALE_PAYMENT' },
+    columns: [
+      { key: 'number', label: 'Номер' },
+      { key: 'entryDateText', label: 'Дата' },
+      { key: 'counterpartyName', label: 'Клиент' },
+      { key: 'relatedDocument', label: 'Документ' },
+      { key: 'amountText', label: 'Сума' }
+    ]
+  },
+  'sale-by-order': {
+    title: 'Продажба по поръчка',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'SALE_BY_ORDER' },
+    columns: salesDocumentColumns()
+  },
+  'free-credit-note-sale': {
+    title: 'Свободно КИ продажба',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'FREE_CREDIT_NOTE_SALE' },
+    columns: salesDocumentColumns()
+  },
+  'free-invoice-sales': {
+    title: 'Свободна фактура продажби',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'FREE_INVOICE_SALE' },
+    columns: salesDocumentColumns()
+  },
+  'warranty-cards': {
+    title: 'Гаранционни карти',
+    group: 'Продажби',
+    kind: 'salesDocument',
+    where: { docType: 'WARRANTY_CARD' },
+    columns: salesDocumentColumns()
+  },
+  'daily-cash': {
+    title: 'Дневна каса',
+    group: 'Продажби',
+    kind: 'cashEntry',
+    where: {},
+    columns: [
+      { key: 'number', label: 'Номер' },
+      { key: 'entryDateText', label: 'Дата' },
+      { key: 'kindText', label: 'Тип' },
+      { key: 'description', label: 'Описание' },
+      { key: 'amountText', label: 'Сума' }
+    ]
+  },
+  'counterparties': {
+    title: 'Контрагенти',
+    group: 'Номенклатури',
+    kind: 'counterparty',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Име' },
+      { key: 'kindText', label: 'Тип' },
+      { key: 'city', label: 'Град' },
+      { key: 'phone', label: 'Телефон' }
+    ]
+  },
+  'items': {
+    title: 'Артикули',
+    group: 'Номенклатури',
+    kind: 'item',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Артикул' },
+      { key: 'groupName', label: 'Група' },
+      { key: 'unit', label: 'Мярка' },
+      { key: 'retailPriceText', label: 'Цена' }
+    ]
+  },
+  'warehouses': {
+    title: 'Складове',
+    group: 'Склад',
+    kind: 'warehouse',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Склад' },
+      { key: 'city', label: 'Град' },
+      { key: 'statusText', label: 'Статус' }
+    ]
+  },
+  'vehicles': {
+    title: 'Автомобили',
+    group: 'Автомобили',
+    kind: 'vehicle',
+    columns: [
+      { key: 'registration', label: 'Регистрация' },
+      { key: 'brand', label: 'Марка' },
+      { key: 'model', label: 'Модел' },
+      { key: 'year', label: 'Година' },
+      { key: 'ownerName', label: 'Собственик' }
+    ]
+  }
+};
+
+function salesDocumentColumns() {
+  return [
+    { key: 'number', label: 'Номер' },
+    { key: 'docDateText', label: 'Дата' },
+    { key: 'counterpartyName', label: 'Контрагент' },
+    { key: 'warehouseName', label: 'Склад' },
+    { key: 'status', label: 'Статус' },
+    { key: 'totalGrossText', label: 'Общо' }
+  ];
+}
+
+function money(value, currency = 'BGN') {
+  return `${Number(value || 0).toFixed(2)} ${currency}`;
+}
+
+function dateText(value) {
+  if (!value) return '';
+  return new Intl.DateTimeFormat('bg-BG').format(new Date(value));
+}
+
+function kindText(kind) {
+  const map = {
+    CUSTOMER: 'Клиент',
+    SUPPLIER: 'Доставчик',
+    ADVANCE: 'Аванс',
+    SALE_PAYMENT: 'Плащане продажба',
+    CASH_IN: 'Приход',
+    CASH_OUT: 'Разход'
+  };
+  return map[kind] || kind || '';
+}
+
+function mapSalesDocument(row) {
+  return {
+    id: row.id,
+    number: row.number,
+    docDateText: dateText(row.docDate),
+    counterpartyName: row.counterparty?.name || '',
+    warehouseName: row.warehouse?.name || '',
+    status: row.status,
+    totalGrossText: money(row.totalGross),
+    note: row.note || ''
+  };
+}
+
+function fallbackRows(definition) {
+  return [
+    {
+      code: 'DEMO',
+      name: 'Пусни Prisma migration и seed, за да се заредят реалните начални данни.',
+      status: 'WAITING_DB',
+      number: 'DEMO-0001',
+      entryDateText: '',
+      counterpartyName: 'AutoGrand',
+      amountText: '0.00 BGN',
+      description: 'Базата още не е инициализирана.',
+      kindText: 'Информация',
+      totalGrossText: '0.00 BGN'
+    }
+  ];
+}
+
+export async function getDashboardData() {
+  try {
+    const [
+      counterparties,
+      items,
+      warehouses,
+      priceLists,
+      salesDocuments,
+      cashEntries,
+      vehicles
+    ] = await Promise.all([
+      prisma.counterparty.count(),
+      prisma.item.count(),
+      prisma.warehouse.count(),
+      prisma.priceList.count(),
+      prisma.salesDocument.count(),
+      prisma.cashEntry.count(),
+      prisma.vehicle.count()
+    ]);
+
+    return {
+      dbReady: true,
+      cards: [
+        { title: 'Контрагенти', value: counterparties, subtitle: 'клиенти и доставчици' },
+        { title: 'Артикули', value: items, subtitle: 'номенклатури' },
+        { title: 'Складове', value: warehouses, subtitle: 'активни обекти' },
+        { title: 'Ценови листи', value: priceLists, subtitle: 'продажбени цени' },
+        { title: 'Документи', value: salesDocuments, subtitle: 'продажбени екрани' },
+        { title: 'Каса', value: cashEntries, subtitle: 'плащания и аванси' },
+        { title: 'Автомобили', value: vehicles, subtitle: 'регистър' }
+      ]
+    };
+  } catch (error) {
+    return {
+      dbReady: false,
+      error: error.message,
+      cards: [
+        { title: 'Prisma', value: '0', subtitle: 'очаква migrate' },
+        { title: 'SQLite', value: '0', subtitle: 'очаква dev.db' },
+        { title: 'Seed', value: '0', subtitle: 'очаква начални данни' }
+      ]
+    };
+  }
+}
+
+export async function getScreenData(screenId) {
+  const definition = screenDefinitions[screenId];
+
+  if (!definition) {
+    return null;
+  }
+
+  try {
+    let rows = [];
+
+    if (definition.kind === 'priceList') {
+      const result = await prisma.priceList.findMany({
+        include: { items: true },
+        orderBy: { code: 'asc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        currency: row.currency,
+        itemsCount: row.items.length,
+        status: row.status
+      }));
+    }
+
+    if (definition.kind === 'salesDocument') {
+      const result = await prisma.salesDocument.findMany({
+        where: definition.where || {},
+        include: { counterparty: true, warehouse: true },
+        orderBy: { docDate: 'desc' }
+      });
+
+      rows = result.map(mapSalesDocument);
+    }
+
+    if (definition.kind === 'cashEntry') {
+      const result = await prisma.cashEntry.findMany({
+        where: definition.where || {},
+        orderBy: { entryDate: 'desc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        number: row.number,
+        entryDateText: dateText(row.entryDate),
+        kindText: kindText(row.kind),
+        description: row.description,
+        counterpartyName: row.counterpartyName || '',
+        amountText: money(row.amount, row.currency),
+        paymentMethod: row.paymentMethod,
+        relatedDocument: row.relatedDocument || ''
+      }));
+    }
+
+    if (definition.kind === 'counterparty') {
+      const result = await prisma.counterparty.findMany({
+        orderBy: { code: 'asc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        kindText: kindText(row.kind),
+        city: row.city || '',
+        phone: row.phone || ''
+      }));
+    }
+
+    if (definition.kind === 'item') {
+      const result = await prisma.item.findMany({
+        orderBy: { code: 'asc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        groupName: row.groupName || '',
+        unit: row.unit,
+        retailPriceText: money(row.retailPrice)
+      }));
+    }
+
+    if (definition.kind === 'warehouse') {
+      const result = await prisma.warehouse.findMany({
+        orderBy: { code: 'asc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        city: row.city || '',
+        statusText: row.isActive ? 'Активен' : 'Спрян'
+      }));
+    }
+
+    if (definition.kind === 'vehicle') {
+      const result = await prisma.vehicle.findMany({
+        orderBy: { registration: 'asc' }
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        registration: row.registration,
+        brand: row.brand,
+        model: row.model,
+        year: row.year || '',
+        ownerName: row.ownerName || ''
+      }));
+    }
+
+    return {
+      ...definition,
+      id: screenId,
+      dbReady: true,
+      rows
+    };
+  } catch (error) {
+    return {
+      ...definition,
+      id: screenId,
+      dbReady: false,
+      error: error.message,
+      rows: fallbackRows(definition)
+    };
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "step": "0.1-zipmaster-reference-analyzer",
+  "source_count": 2,
+  "source_zips": [
+    "Client_REFERENCE_source-only_20260625_1447(4).zip",
+    "ZipMasterR23.zip"
+  ],
+  "total_entries": 1612,
+  "zip_size_bytes": 693875106,
+  "total_uncompressed_bytes": 1985431089,
+  "unique_bpl_packages": 345,
+  "mapped_business_modules": 17,
+  "log_files": 200,
+  "bad_crc_entries": [],
+  "dangerous_paths_count": 0,
+  "private_log_data_generated": true,
+  "privacy_policy": "Public generated docs are safe summaries. Private raw diagnostic logs are generated only under docs/reference/private when enabled by the owner.",
+  "binary_policy": "Reference ZIPs are analyzed as metadata only. Executable/runtime binaries are never copied into the app and never executed."
+}

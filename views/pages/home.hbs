@@ -1,0 +1,14 @@
+<section class="hero-window">
+  <div>
+    <p class="eyebrow">Step 0.1 Reference Foundation</p>
+    <h1>AutoGrand ERP започва от нула</h1>
+    <p class="hero-text">Това е чист Node.js / Express проект, построен по модулната карта от Client и ZipMasterR23 ZIP-овете. Не копираме Delphi binaries — използваме ги само като reference.</p>
+    <div class="hero-actions"><a class="primary-button" href="/reference">Виж reference картата</a><a class="ghost-button" href="/modules">Виж модулите</a></div>
+  </div>
+  <div class="stat-board">
+    <div class="stat-box"><span>{{formatNumber stats.total_entries}}</span><small>ZIP entries</small></div>
+    <div class="stat-box"><span>{{formatNumber stats.unique_bpl_packages}}</span><small>BPL packages</small></div>
+    <div class="stat-box"><span>{{formatNumber stats.log_files}}</span><small>log files</small></div>
+  </div>
+</section>
+<section class="content-window"><div class="window-titlebar"><h2>Основни модули за първия етап</h2><span>priority 1–2</span></div><div class="module-grid">{{#each primaryModules}}<a class="module-card" href="/modules/{{id}}"><div class="module-code">{{package}}</div><h3>{{title_bg}}</h3><p>{{purpose_bg}}</p><span class="module-path">{{target_path}}</span></a>{{/each}}</div></section>

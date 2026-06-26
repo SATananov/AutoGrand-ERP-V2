@@ -1,0 +1,223 @@
+[
+  {
+    "id": "base",
+    "package": "BasePackage",
+    "title_bg": "ERP основа",
+    "target_path": "src/modules/base",
+    "priority": 1,
+    "purpose_bg": "Обща основа за прозорци, документи, общи компоненти и връзка към клиента.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "nomenclatures",
+    "package": "NomenclaturesPackage",
+    "title_bg": "Номенклатури",
+    "target_path": "src/modules/nomenclatures",
+    "priority": 1,
+    "purpose_bg": "Клиенти, артикули, групи, мерни единици, складове, ценови листи и базови справочници.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "sales",
+    "package": "SalesPackage",
+    "title_bg": "Продажби",
+    "target_path": "src/modules/sales",
+    "priority": 1,
+    "purpose_bg": "Продажби, документи за продажба, фактури, ценови листи, клиентски документи и търговски процес.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "inventory",
+    "package": "InventoryPackage",
+    "title_bg": "Склад",
+    "target_path": "src/modules/inventory",
+    "priority": 1,
+    "purpose_bg": "Складови наличности, движения, артикули, складови документи, доставки към склад.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "crm",
+    "package": "CRMPackage",
+    "title_bg": "CRM",
+    "target_path": "src/modules/crm",
+    "priority": 2,
+    "purpose_bg": "Контакти, клиенти, комуникация, търговски взаимоотношения и клиентска история.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "purchase",
+    "package": "PurchasePackage",
+    "title_bg": "Доставки",
+    "target_path": "src/modules/purchase",
+    "priority": 2,
+    "purpose_bg": "Доставчици, покупки, входящи документи, заявки, приемане и връзка със склада.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "accounting",
+    "package": "AccountingPackage",
+    "title_bg": "Счетоводство",
+    "target_path": "src/modules/accounting",
+    "priority": 2,
+    "purpose_bg": "Фактури, счетоводни операции, финансови справки и връзка с търговските документи.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "commerce",
+    "package": "CommercePackage",
+    "title_bg": "Търговия",
+    "target_path": "src/modules/commerce",
+    "priority": 2,
+    "purpose_bg": "Общи търговски процеси между продажби, покупки, ценообразуване и документи.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "vehicles",
+    "package": "VehiclePackage",
+    "title_bg": "Автомобили",
+    "target_path": "src/modules/vehicles",
+    "priority": 3,
+    "purpose_bg": "Автомобилни данни, регистрационни номера, VIN, сервизни и търговски връзки.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "service",
+    "package": "ServicePackage",
+    "title_bg": "Сервиз",
+    "target_path": "src/modules/service",
+    "priority": 3,
+    "purpose_bg": "Сервизни заявки, ремонти, сервизна история, операции и услуги.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "fixed-assets",
+    "package": "FixedAssetPackage",
+    "title_bg": "Дълготрайни активи",
+    "target_path": "src/modules/fixed-assets",
+    "priority": 4,
+    "purpose_bg": "Активи, амортизации, инвентаризация и връзка със счетоводство.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "production",
+    "package": "ProductionPackage",
+    "title_bg": "Производство",
+    "target_path": "src/modules/production",
+    "priority": 4,
+    "purpose_bg": "Производствени процеси, операции, материали и технологични карти.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "reservations",
+    "package": "ReservPackage",
+    "title_bg": "Резервации",
+    "target_path": "src/modules/reservations",
+    "priority": 4,
+    "purpose_bg": "Резервиране на ресурси, стоки, услуги или обекти според бизнес процеса.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "jobs",
+    "package": "JobPackage",
+    "title_bg": "Задачи и операции",
+    "target_path": "src/modules/jobs",
+    "priority": 5,
+    "purpose_bg": "Вътрешни задачи, операции, работни процеси или job записи според reference клиента.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "advanced",
+    "package": "AdvancedPackage",
+    "title_bg": "Разширени функции",
+    "target_path": "src/modules/advanced",
+    "priority": 5,
+    "purpose_bg": "Разширени помощни функции от reference клиента; не влиза в първия CRUD етап.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "tour",
+    "package": "TourPackage",
+    "title_bg": "Турове",
+    "target_path": "src/modules/tour",
+    "priority": 5,
+    "purpose_bg": "Специализиран модул от reference клиента; анализира се след основните ERP модули.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  },
+  {
+    "id": "devices",
+    "package": "DevicePackage",
+    "title_bg": "Устройства",
+    "target_path": "src/modules/devices",
+    "priority": 5,
+    "purpose_bg": "Връзка с устройства, периферия, касови/четящи/комуникационни компоненти.",
+    "status": "reference-mapped",
+    "found_in_sources": [
+      "Client_REFERENCE_source-only_20260625_1447(4).zip",
+      "ZipMasterR23.zip"
+    ]
+  }
+]

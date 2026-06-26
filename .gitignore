@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+npm-debug.log*
+client-reference/*.zip
+client-reference/*.exe
+client-reference/*.dll
+client-reference/*.bpl
+client-reference/*.bak
+# Private local reference extracts — keep out of GitHub/deploy
+docs/reference/private/*.csv
+docs/reference/private/*.txt
+docs/reference/private/raw*/

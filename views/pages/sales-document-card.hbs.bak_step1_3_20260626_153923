@@ -1,0 +1,137 @@
+<div class="document-card-screen">
+  <header class="document-card-header">
+    <div>
+      <div class="screen-kicker">Продажби / Документна карта</div>
+      <h1>{{documentCard.title}}</h1>
+      <p>{{documentCard.number}} · {{documentCard.docDateText}} · {{documentCard.status}}</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/screen/offers">Назад</a>
+      <button type="button">Нов</button>
+      <button type="button">Запази</button>
+      <button type="button">Отказ</button>
+      <button type="button">Печат</button>
+      <button type="button">Ревизии</button>
+    </div>
+  </header>
+
+  <section class="document-card-layout">
+    <main class="document-main-card">
+      <section class="document-meta-grid">
+        {{#each documentCard.headerFields}}
+          <label>
+            <span>{{label}}</span>
+            <input type="text" value="{{value}}" readonly />
+          </label>
+        {{/each}}
+      </section>
+
+      <section class="document-counterparty-box">
+        <div>
+          <span>Контрагент</span>
+          <strong>{{documentCard.counterpartyName}}</strong>
+        </div>
+        <div>
+          <span>Код</span>
+          <strong>{{documentCard.counterpartyCode}}</strong>
+        </div>
+        <div>
+          <span>Град</span>
+          <strong>{{documentCard.counterpartyCity}}</strong>
+        </div>
+        <div>
+          <span>Телефон</span>
+          <strong>{{documentCard.counterpartyPhone}}</strong>
+        </div>
+      </section>
+
+      <section class="document-tabs">
+        <button class="active" type="button">Редове</button>
+        <button type="button">Плащания</button>
+        <button type="button">История</button>
+        <button type="button">Бележки</button>
+      </section>
+
+      <section class="document-lines-frame">
+        <table class="document-lines-grid">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Код</th>
+              <th>Артикул</th>
+              <th>Склад</th>
+              <th>Мярка</th>
+              <th>Количество</th>
+              <th>Цена</th>
+              <th>Отстъпка</th>
+              <th>Стойност</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each documentCard.rows}}
+              <tr>
+                <td>{{index}}</td>
+                <td>{{itemCode}}</td>
+                <td>{{itemName}}</td>
+                <td>{{warehouseName}}</td>
+                <td>{{unit}}</td>
+                <td>{{quantity}}</td>
+                <td>{{price}}</td>
+                <td>{{discountPercent}}</td>
+                <td>{{lineTotal}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="document-note">
+        <span>Бележка</span>
+        <p>{{documentCard.note}}</p>
+      </section>
+    </main>
+
+    <aside class="document-side-card">
+      <section class="document-total-box">
+        <h2>Суми</h2>
+        <div>
+          <span>Данъчна основа</span>
+          <strong>{{documentCard.totals.totalNetText}}</strong>
+        </div>
+        <div>
+          <span>ДДС</span>
+          <strong>{{documentCard.totals.totalVatText}}</strong>
+        </div>
+        <div class="grand-total">
+          <span>Общо</span>
+          <strong>{{documentCard.totals.totalGrossText}}</strong>
+        </div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Склад</h2>
+        <div>
+          <span>Код</span>
+          <strong>{{documentCard.warehouseCode}}</strong>
+        </div>
+        <div>
+          <span>Име</span>
+          <strong>{{documentCard.warehouseName}}</strong>
+        </div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Плащания</h2>
+        {{#each documentCard.payments}}
+          <div class="payment-row">
+            <strong>{{number}}</strong>
+            <span>{{dateText}} · {{amountText}}</span>
+          </div>
+        {{else}}
+          <p class="empty-note">Няма свързани плащания.</p>
+        {{/each}}
+      </section>
+    </aside>
+  </section>
+</div>

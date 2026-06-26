@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  city      String?
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+
+  users User[]
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  displayName String
+  role        String   @default("operator")
+  companyId   Int?
+  company     Company? @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Counterparty {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  kind      String   @default("CUSTOMER")
+  bulstat   String?
+  vatNumber String?
+  city      String?
+  address   String?
+  phone     String?
+  email     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  salesDocuments    SalesDocument[]
+  purchaseDocuments PurchaseDocument[]
+  serviceOrders     ServiceOrder[]
+}
+
+model Item {
+  id             Int      @id @default(autoincrement())
+  code           String   @unique
+  name           String
+  groupName      String?
+  unit           String   @default("бр.")
+  barcode        String?
+  retailPrice    Float    @default(0)
+  wholesalePrice Float    @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  priceListItems PriceListItem[]
+  salesLines     SalesDocumentLine[]
+  purchaseLines  PurchaseDocumentLine[]
+  stockBalances  StockBalance[]
+  stockMovements StockMovement[]
+  serviceLines   ServiceOrderLine[]
+}
+
+model Warehouse {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  city      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  salesDocuments    SalesDocument[]
+  salesLines        SalesDocumentLine[]
+  purchaseDocuments PurchaseDocument[]
+  purchaseLines     PurchaseDocumentLine[]
+  stockBalances     StockBalance[]
+  stockMovements    StockMovement[]
+}
+
+model PriceList {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  currency  String   @default("BGN")
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+
+  items PriceListItem[]
+}
+
+model PriceListItem {
+  id          Int    @id @default(autoincrement())
+  priceListId Int
+  itemId      Int
+  price       Float
+  vatPercent  Float  @default(20)
+  note        String?
+
+  priceList PriceList @relation(fields: [priceListId], references: [id])
+  item      Item      @relation(fields: [itemId], references: [id])
+
+  @@unique([priceListId, itemId])
+}
+
+model SalesDocument {
+  id             Int      @id @default(autoincrement())
+  number         String   @unique
+  docType        String
+  docDate        DateTime @default(now())
+  counterpartyId Int?
+  warehouseId    Int?
+  status         String   @default("DRAFT")
+  totalNet       Float    @default(0)
+  totalVat       Float    @default(0)
+  totalGross     Float    @default(0)
+  note           String?
+  createdAt      DateTime @default(now())
+
+  counterparty Counterparty?       @relation(fields: [counterpartyId], references: [id])
+  warehouse    Warehouse?          @relation(fields: [warehouseId], references: [id])
+  lines        SalesDocumentLine[]
+}
+
+model SalesDocumentLine {
+  id              Int   @id @default(autoincrement())
+  documentId      Int
+  itemId          Int?
+  warehouseId     Int?
+  quantity        Float @default(1)
+  price           Float @default(0)
+  discountPercent Float @default(0)
+  lineTotal       Float @default(0)
+
+  document  SalesDocument @relation(fields: [documentId], references: [id])
+  item      Item?         @relation(fields: [itemId], references: [id])
+  warehouse Warehouse?    @relation(fields: [warehouseId], references: [id])
+}
+
+model PurchaseDocument {
+  id          Int      @id @default(autoincrement())
+  number      String   @unique
+  docType     String
+  docDate     DateTime @default(now())
+  supplierId  Int?
+  warehouseId Int?
+  status      String   @default("DRAFT")
+  totalNet    Float    @default(0)
+  totalVat    Float    @default(0)
+  totalGross  Float    @default(0)
+  note        String?
+  createdAt   DateTime @default(now())
+
+  supplier  Counterparty?          @relation(fields: [supplierId], references: [id])
+  warehouse Warehouse?             @relation(fields: [warehouseId], references: [id])
+  lines     PurchaseDocumentLine[]
+}
+
+model PurchaseDocumentLine {
+  id          Int   @id @default(autoincrement())
+  documentId  Int
+  itemId      Int?
+  warehouseId Int?
+  quantity    Float @default(1)
+  price       Float @default(0)
+  lineTotal   Float @default(0)
+
+  document  PurchaseDocument @relation(fields: [documentId], references: [id])
+  item      Item?            @relation(fields: [itemId], references: [id])
+  warehouse Warehouse?       @relation(fields: [warehouseId], references: [id])
+}
+
+model StockBalance {
+  id               Int      @id @default(autoincrement())
+  warehouseId       Int
+  itemId            Int
+  quantity          Float    @default(0)
+  reservedQuantity  Float    @default(0)
+  avgCost           Float    @default(0)
+  updatedAt         DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  item      Item      @relation(fields: [itemId], references: [id])
+
+  @@unique([warehouseId, itemId])
+}
+
+model StockMovement {
+  id             Int      @id @default(autoincrement())
+  number         String   @unique
+  movementType   String
+  movementDate   DateTime @default(now())
+  warehouseId    Int?
+  itemId         Int?
+  quantity       Float    @default(0)
+  direction      String
+  reason         String?
+  sourceDocument String?
+  note           String?
+  createdAt      DateTime @default(now())
+
+  warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
+  item      Item?      @relation(fields: [itemId], references: [id])
+}
+
+model CashEntry {
+  id               Int      @id @default(autoincrement())
+  number           String   @unique
+  entryDate        DateTime @default(now())
+  kind             String
+  description      String
+  counterpartyName String?
+  amount           Float    @default(0)
+  currency         String   @default("BGN")
+  paymentMethod    String   @default("cash")
+  relatedDocument  String?
+  createdAt        DateTime @default(now())
+}
+
+model Vehicle {
+  id           Int      @id @default(autoincrement())
+  registration String   @unique
+  vin          String?
+  brand        String
+  model        String
+  year         Int?
+  ownerName    String?
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+
+  serviceOrders ServiceOrder[]
+}
+
+model ServiceOrder {
+  id                 Int      @id @default(autoincrement())
+  number             String   @unique
+  orderDate          DateTime @default(now())
+  vehicleId          Int?
+  counterpartyId     Int?
+  status             String   @default("OPEN")
+  problemDescription String?
+  totalGross         Float    @default(0)
+  createdAt          DateTime @default(now())
+
+  vehicle      Vehicle?           @relation(fields: [vehicleId], references: [id])
+  counterparty Counterparty?      @relation(fields: [counterpartyId], references: [id])
+  lines        ServiceOrderLine[]
+}
+
+model ServiceOrderLine {
+  id             Int    @id @default(autoincrement())
+  serviceOrderId Int
+  itemId         Int?
+  description    String
+  quantity       Float  @default(1)
+  price          Float  @default(0)
+  lineTotal      Float  @default(0)
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id])
+  item         Item?        @relation(fields: [itemId], references: [id])
+}

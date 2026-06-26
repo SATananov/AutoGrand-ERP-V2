@@ -1,0 +1,20 @@
+{
+  "name": "AutoGrand ERP V2",
+  "short_name": "AutoGrand ERP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1711",
+  "theme_color": "#193421",
+  "icons": [
+    {
+      "src": "/public/assets/brand/autogrand-road-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/public/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

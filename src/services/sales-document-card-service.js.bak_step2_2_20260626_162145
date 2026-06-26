@@ -1,0 +1,214 @@
+import prisma from '../db/prisma.js';
+import { salesDocTypeMeta } from './sales-actions-service.js';
+
+function dateText(value) {
+  if (!value) return '';
+  return new Intl.DateTimeFormat('bg-BG').format(new Date(value));
+}
+
+function money(value, currency = 'BGN') {
+  return `${Number(value || 0).toFixed(2)} ${currency}`;
+}
+
+function safe(value, fallback = '') {
+  return value === null || value === undefined || value === '' ? fallback : value;
+}
+
+function statusLabel(status) {
+  const map = {
+    DRAFT: 'Чернова',
+    POSTED: 'Осчетоводен',
+    CANCELLED: 'Отказан'
+  };
+  return map[status] || status || '-';
+}
+
+function workflowFor(docType) {
+  const map = {
+    OFFER: 'Оферта → Поръчка → Продажба',
+    CUSTOMER_ORDER: 'Поръчка → Продажба → Плащане',
+    SALE: 'Продажба → Плащане → Каса',
+    CREDIT_NOTE: 'Корекция продажба',
+    DEBIT_NOTE: 'Допълнително начисляване',
+    SALE_BY_ORDER: 'Поръчка → Продажба',
+    FREE_CREDIT_NOTE_SALE: 'Свободна корекция',
+    FREE_INVOICE_SALE: 'Свободна фактура',
+    WARRANTY_CARD: 'Продажба → Гаранция'
+  };
+
+  return map[docType] || 'Продажбен документ';
+}
+
+function lockMessage(status) {
+  if (status === 'POSTED') {
+    return 'Документът е осчетоводен. Редакция на редове е заключена. Върни го в Чернова, ако трябва корекция.';
+  }
+
+  if (status === 'CANCELLED') {
+    return 'Документът е отказан. Редакция на редове е заключена.';
+  }
+
+  return '';
+}
+
+export async function getSalesDocumentCardData(documentId) {
+  const id = Number(documentId);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  const document = await prisma.salesDocument.findUnique({
+    where: { id },
+    include: {
+      counterparty: true,
+      warehouse: true,
+      lines: {
+        include: {
+          item: true,
+          warehouse: true
+        },
+        orderBy: { id: 'asc' }
+      }
+    }
+  });
+
+  if (!document) {
+    return null;
+  }
+
+  const meta = salesDocTypeMeta[document.docType] || {
+    label: document.docType,
+    screenId: 'sales',
+    returnUrl: '/screen/sales'
+  };
+
+  const [payments, availableItems, availableWarehouses] = await Promise.all([
+    prisma.cashEntry.findMany({
+      where: {
+        relatedDocument: document.number
+      },
+      orderBy: { entryDate: 'desc' }
+    }),
+    prisma.item.findMany({
+      where: { isActive: true },
+      orderBy: { code: 'asc' }
+    }),
+    prisma.warehouse.findMany({
+      where: { isActive: true },
+      orderBy: { code: 'asc' }
+    })
+  ]);
+
+  const rows = document.lines.map((line, index) => ({
+    lineId: line.id,
+    index: index + 1,
+    itemCode: safe(line.item?.code, '-'),
+    itemName: safe(line.item?.name, 'Няма избран артикул'),
+    warehouseName: safe(line.warehouse?.name || document.warehouse?.name, '-'),
+    unit: safe(line.item?.unit, 'бр.'),
+    quantity: Number(line.quantity || 0).toFixed(2),
+    price: money(line.price),
+    discountPercent: `${Number(line.discountPercent || 0).toFixed(2)}%`,
+    lineTotal: money(line.lineTotal),
+    rawQuantity: Number(line.quantity || 0).toFixed(2),
+    rawPrice: Number(line.price || 0).toFixed(2),
+    rawDiscountPercent: Number(line.discountPercent || 0).toFixed(2)
+  }));
+
+  const editableRows = rows.filter((row) => row.lineId);
+
+  if (rows.length === 0) {
+    rows.push({
+      lineId: null,
+      index: 1,
+      itemCode: '-',
+      itemName: 'Документът няма редове. Добави артикул от формата над таблицата.',
+      warehouseName: safe(document.warehouse?.name, '-'),
+      unit: '-',
+      quantity: '0.00',
+      price: money(0),
+      discountPercent: '0.00%',
+      lineTotal: money(0),
+      rawQuantity: '0.00',
+      rawPrice: '0.00',
+      rawDiscountPercent: '0.00'
+    });
+  }
+
+  const paymentRows = payments.map((payment) => ({
+    number: payment.number,
+    dateText: dateText(payment.entryDate),
+    amountText: money(payment.amount, payment.currency),
+    method: payment.paymentMethod,
+    description: payment.description
+  }));
+
+  const historyRows = [
+    {
+      time: dateText(document.createdAt),
+      user: 'СТЕФАН ТАНАНОВ',
+      action: 'Създаден документ',
+      details: `${meta.label} ${document.number}`
+    },
+    {
+      time: dateText(document.docDate),
+      user: 'AutoGrand ERP',
+      action: statusLabel(document.status),
+      details: workflowFor(document.docType)
+    }
+  ];
+
+  const isEditable = document.status === 'DRAFT';
+
+  return {
+    id: document.id,
+    title: meta.label,
+    number: document.number,
+    docType: document.docType,
+    docTypeLabel: meta.label,
+    sourceScreenId: meta.screenId,
+    returnUrl: meta.returnUrl,
+    workflow: workflowFor(document.docType),
+    docDateText: dateText(document.docDate),
+    status: document.status,
+    statusText: statusLabel(document.status),
+    isEditable,
+    lockMessage: lockMessage(document.status),
+    counterpartyName: safe(document.counterparty?.name, 'Няма избран контрагент'),
+    counterpartyCode: safe(document.counterparty?.code, '-'),
+    counterpartyCity: safe(document.counterparty?.city, '-'),
+    counterpartyPhone: safe(document.counterparty?.phone, '-'),
+    warehouseName: safe(document.warehouse?.name, '-'),
+    warehouseCode: safe(document.warehouse?.code, '-'),
+    note: safe(document.note, 'Няма бележка'),
+    rows,
+    editableRows,
+    paymentRows,
+    historyRows,
+    availableItems: availableItems.map((item) => ({
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      price: Number(item.retailPrice || 0).toFixed(2)
+    })),
+    availableWarehouses: availableWarehouses.map((warehouse) => ({
+      id: warehouse.id,
+      code: warehouse.code,
+      name: warehouse.name
+    })),
+    totals: {
+      totalNetText: money(document.totalNet),
+      totalVatText: money(document.totalVat),
+      totalGrossText: money(document.totalGross)
+    },
+    headerFields: [
+      { label: 'Тип документ', value: meta.label },
+      { label: 'Номер', value: document.number },
+      { label: 'Дата', value: dateText(document.docDate) },
+      { label: 'Статус', value: statusLabel(document.status) },
+      { label: 'Контрагент', value: safe(document.counterparty?.name, '-') },
+      { label: 'Склад', value: safe(document.warehouse?.name, '-') }
+    ]
+  };
+}

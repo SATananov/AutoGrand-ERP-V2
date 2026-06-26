@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Install dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": []
+    },
+    {
+      "label": "2. Start AutoGrand ERP Step 0.1",
+      "type": "shell",
+      "command": "npm run dev",
+      "problemMatcher": []
+    },
+    {
+      "label": "3. Analyze both reference ZIPs from Desktop",
+      "type": "shell",
+      "command": "npm run analyze:references",
+      "problemMatcher": []
+    },
+    {
+      "label": "4. Check project",
+      "type": "shell",
+      "command": "npm run check",
+      "problemMatcher": []
+    }
+  ]
+}

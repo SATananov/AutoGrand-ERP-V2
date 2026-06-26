@@ -1,0 +1,207 @@
+import prisma from '../db/prisma.js';
+
+const docTypeMeta = {
+  OFFER: {
+    label: 'Оферта',
+    screenId: 'offers',
+    returnUrl: '/screen/offers',
+    workflow: 'Оферта → Поръчка → Продажба'
+  },
+  CUSTOMER_ORDER: {
+    label: 'Поръчка от клиент',
+    screenId: 'customer-orders',
+    returnUrl: '/screen/customer-orders',
+    workflow: 'Поръчка → Продажба → Плащане'
+  },
+  SALE: {
+    label: 'Продажба',
+    screenId: 'sales',
+    returnUrl: '/screen/sales',
+    workflow: 'Продажба → Плащане → Каса'
+  },
+  CREDIT_NOTE: {
+    label: 'Кредитно известие',
+    screenId: 'credit-note',
+    returnUrl: '/screen/credit-note',
+    workflow: 'Корекция продажба'
+  },
+  DEBIT_NOTE: {
+    label: 'Дебитно известие',
+    screenId: 'debit-note',
+    returnUrl: '/screen/debit-note',
+    workflow: 'Допълнително начисляване'
+  },
+  SALE_BY_ORDER: {
+    label: 'Продажба по поръчка',
+    screenId: 'sale-by-order',
+    returnUrl: '/screen/sale-by-order',
+    workflow: 'Поръчка → Продажба'
+  },
+  FREE_CREDIT_NOTE_SALE: {
+    label: 'Свободно КИ продажба',
+    screenId: 'free-credit-note-sale',
+    returnUrl: '/screen/free-credit-note-sale',
+    workflow: 'Свободна корекция'
+  },
+  FREE_INVOICE_SALE: {
+    label: 'Свободна фактура продажби',
+    screenId: 'free-invoice-sales',
+    returnUrl: '/screen/free-invoice-sales',
+    workflow: 'Свободна фактура'
+  },
+  WARRANTY_CARD: {
+    label: 'Гаранционна карта',
+    screenId: 'warranty-cards',
+    returnUrl: '/screen/warranty-cards',
+    workflow: 'Продажба → Гаранция'
+  }
+};
+
+function dateText(value) {
+  if (!value) return '';
+  return new Intl.DateTimeFormat('bg-BG').format(new Date(value));
+}
+
+function money(value, currency = 'BGN') {
+  return `${Number(value || 0).toFixed(2)} ${currency}`;
+}
+
+function safe(value, fallback = '') {
+  return value === null || value === undefined || value === '' ? fallback : value;
+}
+
+function statusLabel(status) {
+  const map = {
+    DRAFT: 'Чернова',
+    POSTED: 'Осчетоводен',
+    CANCELLED: 'Отказан'
+  };
+  return map[status] || status || '-';
+}
+
+export async function getSalesDocumentCardData(documentId) {
+  const id = Number(documentId);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  const document = await prisma.salesDocument.findUnique({
+    where: { id },
+    include: {
+      counterparty: true,
+      warehouse: true,
+      lines: {
+        include: {
+          item: true,
+          warehouse: true
+        },
+        orderBy: { id: 'asc' }
+      }
+    }
+  });
+
+  if (!document) {
+    return null;
+  }
+
+  const meta = docTypeMeta[document.docType] || {
+    label: document.docType,
+    screenId: 'sales',
+    returnUrl: '/screen/sales',
+    workflow: 'Продажбен документ'
+  };
+
+  const payments = await prisma.cashEntry.findMany({
+    where: {
+      relatedDocument: document.number
+    },
+    orderBy: { entryDate: 'desc' }
+  });
+
+  const rows = document.lines.map((line, index) => ({
+    index: index + 1,
+    itemCode: safe(line.item?.code, '-'),
+    itemName: safe(line.item?.name, 'Няма избран артикул'),
+    warehouseName: safe(line.warehouse?.name || document.warehouse?.name, '-'),
+    unit: safe(line.item?.unit, 'бр.'),
+    quantity: Number(line.quantity || 0).toFixed(2),
+    price: money(line.price),
+    discountPercent: `${Number(line.discountPercent || 0).toFixed(2)}%`,
+    lineTotal: money(line.lineTotal)
+  }));
+
+  if (rows.length === 0) {
+    rows.push({
+      index: 1,
+      itemCode: '-',
+      itemName: 'Документът няма редове',
+      warehouseName: safe(document.warehouse?.name, '-'),
+      unit: '-',
+      quantity: '0.00',
+      price: money(0),
+      discountPercent: '0.00%',
+      lineTotal: money(0)
+    });
+  }
+
+  const paymentRows = payments.map((payment) => ({
+    number: payment.number,
+    dateText: dateText(payment.entryDate),
+    amountText: money(payment.amount, payment.currency),
+    method: payment.paymentMethod,
+    description: payment.description
+  }));
+
+  const historyRows = [
+    {
+      time: dateText(document.createdAt),
+      user: 'СТЕФАН ТАНАНОВ',
+      action: 'Създаден документ',
+      details: `${meta.label} ${document.number}`
+    },
+    {
+      time: dateText(document.docDate),
+      user: 'AutoGrand ERP',
+      action: statusLabel(document.status),
+      details: meta.workflow
+    }
+  ];
+
+  return {
+    id: document.id,
+    title: meta.label,
+    number: document.number,
+    docType: document.docType,
+    docTypeLabel: meta.label,
+    sourceScreenId: meta.screenId,
+    returnUrl: meta.returnUrl,
+    workflow: meta.workflow,
+    docDateText: dateText(document.docDate),
+    status: document.status,
+    statusText: statusLabel(document.status),
+    counterpartyName: safe(document.counterparty?.name, 'Няма избран контрагент'),
+    counterpartyCode: safe(document.counterparty?.code, '-'),
+    counterpartyCity: safe(document.counterparty?.city, '-'),
+    counterpartyPhone: safe(document.counterparty?.phone, '-'),
+    warehouseName: safe(document.warehouse?.name, '-'),
+    warehouseCode: safe(document.warehouse?.code, '-'),
+    note: safe(document.note, 'Няма бележка'),
+    rows,
+    paymentRows,
+    historyRows,
+    totals: {
+      totalNetText: money(document.totalNet),
+      totalVatText: money(document.totalVat),
+      totalGrossText: money(document.totalGross)
+    },
+    headerFields: [
+      { label: 'Тип документ', value: meta.label },
+      { label: 'Номер', value: document.number },
+      { label: 'Дата', value: dateText(document.docDate) },
+      { label: 'Статус', value: statusLabel(document.status) },
+      { label: 'Контрагент', value: safe(document.counterparty?.name, '-') },
+      { label: 'Склад', value: safe(document.warehouse?.name, '-') }
+    ]
+  };
+}

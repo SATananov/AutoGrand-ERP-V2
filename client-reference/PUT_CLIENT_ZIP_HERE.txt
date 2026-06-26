@@ -1,0 +1,1 @@
+Do not commit binaries here. Keep the Client ZIP on Desktop and run tools/analyze_client_reference.py against it.
