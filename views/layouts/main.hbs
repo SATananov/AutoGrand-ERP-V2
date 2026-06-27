@@ -37,15 +37,18 @@
         </div>
       </header>
 
-      <section class="erp-ribbon">
+      <section class="erp-ribbon" aria-label="Командна ERP лента">
         {{#each ribbonGroups}}
-          <div class="ribbon-group">
-            {{#each buttons}}
-              <button class="ribbon-button" type="button">
-                <span class="ribbon-icon">{{icon}}</span>
-                <span class="ribbon-label">{{label}}</span>
-              </button>
-            {{/each}}
+          <div class="ribbon-group" data-ribbon-group="{{id}}">
+            <div class="ribbon-buttons">
+              {{#each buttons}}
+                <button class="ribbon-button" type="button" data-ribbon-command="{{command}}" title="{{hint}}" aria-label="{{label}}">
+                  <span class="ribbon-icon" aria-hidden="true">{{icon}}</span>
+                  <span class="ribbon-label">{{label}}</span>
+                </button>
+              {{/each}}
+            </div>
+            <div class="ribbon-group-title">{{title}}</div>
           </div>
         {{/each}}
       </section>
@@ -68,14 +71,35 @@
         </main>
       </div>
 
-      <footer class="erp-statusbar">
-        <div class="statusbar-cell statusbar-message" data-ag-status-message>▣ {{statusText}}</div>
-        <div class="statusbar-cell statusbar-mode">◇ Работна среда</div>
-        <div class="statusbar-cell statusbar-location">📍 КЪРДЖАЛИ</div>
-        <div class="statusbar-cell statusbar-user">👤 {{userName}}</div>
-        <div class="statusbar-cell statusbar-app">▥ AutoGrand ERP</div>
-        <div class="statusbar-cell statusbar-db">▥ {{databaseName}}</div>
-        <div class="statusbar-cell statusbar-date">{{statusDate}}</div>
+      <footer class="erp-statusbar" aria-label="ERP статус лента">
+        <div class="statusbar-cell statusbar-message" data-ag-status-message>
+          <span class="statusbar-icon statusbar-icon-menu" aria-hidden="true">☰</span>
+          <span class="statusbar-text" data-ag-status-text>{{statusText}}</span>
+        </div>
+        <div class="statusbar-cell statusbar-mode">
+          <span class="statusbar-icon" aria-hidden="true">🖥️</span>
+          <span class="statusbar-text">Работна среда</span>
+        </div>
+        <div class="statusbar-cell statusbar-location">
+          <span class="statusbar-icon" aria-hidden="true">📍</span>
+          <span class="statusbar-text">КЪРДЖАЛИ</span>
+        </div>
+        <div class="statusbar-cell statusbar-user">
+          <span class="statusbar-icon" aria-hidden="true">👤</span>
+          <span class="statusbar-text">{{userName}}</span>
+        </div>
+        <div class="statusbar-cell statusbar-app">
+          <span class="statusbar-icon" aria-hidden="true">🧩</span>
+          <span class="statusbar-text">AutoGrand ERP</span>
+        </div>
+        <div class="statusbar-cell statusbar-db">
+          <span class="statusbar-icon" aria-hidden="true">🗄️</span>
+          <span class="statusbar-text">{{databaseName}}</span>
+        </div>
+        <div class="statusbar-cell statusbar-date">
+          <span class="statusbar-icon" aria-hidden="true">🕒</span>
+          <span class="statusbar-text" data-ag-status-clock>{{statusDateTime}}</span>
+        </div>
       </footer>
     </div>
 

@@ -114,3 +114,5 @@ node scripts/check-project.mjs
 OK: Step 2.4 Purchases / Deliveries / Stock IN patch check passed.
 ```
 
+
+- Step 2.5.6 — Ribbon Command Layout + Snapshot: горната командна лента е подредена по Moneta-подобна ERP логика с AutoGrand визия, ясни различни икони и бутон „Снимка“ за заснемане/копиране на екрана, без нова ERP бизнес логика.

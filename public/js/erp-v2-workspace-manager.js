@@ -1,6 +1,6 @@
 /*
- * AutoGrand ERP V2 Step 2.5.4 Menu Visual Polish
- * Purpose: polish menu icons and move the hidden-menu dock out of the bottom statusbar.
+ * AutoGrand ERP V2 Step 2.5.5 Statusbar Polish
+ * Purpose: keep the bottom statusbar compact, logical and clock-aware.
  */
 (function () {
   'use strict';
@@ -13,6 +13,8 @@
   const dock = document.getElementById('ag-v2-minimized-dock');
   const sidebar = document.getElementById('ag-v2-sidebar');
   const statusCell = document.querySelector('[data-ag-status-message]');
+  const statusTextNode = document.querySelector('[data-ag-status-text]');
+  const statusClockNode = document.querySelector('[data-ag-status-clock]');
   const main = document.querySelector('.erp-main');
 
   if (!workspace || !stage || !layer || !tabs || !home) return;
@@ -102,7 +104,32 @@
   ]);
 
   function setStatus(message) {
-    if (statusCell && message) statusCell.textContent = `▣ ${message}`;
+    if (!message) return;
+    const target = statusTextNode || statusCell;
+    if (target) target.textContent = message;
+  }
+
+  function padClockPart(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function formatStatusDateTime(date = new Date()) {
+    const day = padClockPart(date.getDate());
+    const month = padClockPart(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hour = padClockPart(date.getHours());
+    const minute = padClockPart(date.getMinutes());
+    const second = padClockPart(date.getSeconds());
+    return `${day}.${month}.${year} г. ${hour}:${minute}:${second}`;
+  }
+
+  function initStatusClock() {
+    if (!statusClockNode) return;
+    const update = () => {
+      statusClockNode.textContent = formatStatusDateTime();
+    };
+    update();
+    window.setInterval(update, 1000);
   }
 
   function cssEscape(value) {
@@ -644,7 +671,7 @@
       dockButton.setAttribute('aria-hidden', minimized ? 'false' : 'true');
       localStorage.setItem(SIDEBAR_LOCK_KEY, String(locked));
       localStorage.setItem(SIDEBAR_MIN_KEY, String(minimized));
-      setStatus(minimized ? 'Менюто е скрито · бутонът е вляво' : 'Менюто е активно');
+      setStatus(minimized ? 'Менюто е скрито' : 'Менюто е активно');
     }
 
     pinButton.addEventListener('click', () => {
@@ -1206,6 +1233,7 @@
     });
   });
 
+  initStatusClock();
   setupSidebarControls();
   setupMenuAccordionAndTooltips();
   renderQuickLinks();

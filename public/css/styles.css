@@ -523,7 +523,7 @@ textarea {
 
 .erp-statusbar {
   display: grid;
-  grid-template-columns: minmax(200px, 1.7fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(170px, 1.35fr) minmax(140px, 1fr) minmax(140px, 1fr) 110px;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(170px, 0.56fr) minmax(180px, 0.56fr) minmax(220px, 0.7fr) minmax(180px, 0.55fr) minmax(180px, 0.55fr) minmax(210px, 0.65fr);
   align-items: center;
   min-height: 30px;
   border-top: 1px solid #bac9b0;
@@ -537,6 +537,8 @@ textarea {
   height: 100%;
   display: flex;
   align-items: center;
+  gap: 7px;
+  min-width: 0;
   padding: 0 10px;
   border-right: 1px solid #c7d3be;
   white-space: nowrap;
@@ -2758,4 +2760,408 @@ body > .sidebar-dock-button .statusbar-menu-icon {
 
 body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   color: #486246;
+}
+
+
+/* Step 2.5.5 — compact logical bottom statusbar with live clock */
+.erp-statusbar {
+  grid-template-columns: minmax(190px, 0.62fr) minmax(155px, 0.48fr) minmax(170px, 0.52fr) minmax(215px, 0.66fr) minmax(170px, 0.5fr) minmax(175px, 0.5fr) minmax(230px, 0.72fr) !important;
+  min-height: 28px !important;
+  font-size: 14px !important;
+  line-height: 1.15 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+
+.erp-statusbar .statusbar-cell {
+  gap: 7px !important;
+  padding: 0 8px !important;
+  min-width: 0 !important;
+}
+
+.statusbar-icon {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 7px;
+  border: 1px solid rgba(91, 128, 74, 0.26);
+  background: linear-gradient(180deg, #ffffff 0%, #e8f1df 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 2px rgba(41,62,39,0.12);
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.statusbar-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusbar-message {
+  font-weight: 800;
+  color: #3d5a39;
+}
+
+.statusbar-mode,
+.statusbar-location,
+.statusbar-user {
+  justify-content: flex-start;
+}
+
+.statusbar-app,
+.statusbar-db,
+.statusbar-date {
+  justify-content: flex-end;
+  color: #66705f;
+}
+
+.statusbar-location .statusbar-text {
+  font-weight: 900;
+  color: #273d29;
+}
+
+.statusbar-user .statusbar-text {
+  font-weight: 700;
+}
+
+.statusbar-date .statusbar-text {
+  font-variant-numeric: tabular-nums;
+}
+
+.statusbar-icon-menu {
+  background: linear-gradient(180deg, #eff9ee 0%, #cfe8c0 100%);
+  border-color: rgba(64, 121, 52, 0.34);
+}
+
+body.is-v2-sidebar-minimized .erp-statusbar {
+  grid-template-columns: minmax(155px, 0.45fr) minmax(155px, 0.48fr) minmax(170px, 0.52fr) minmax(215px, 0.66fr) minmax(170px, 0.5fr) minmax(175px, 0.5fr) minmax(230px, 0.72fr) !important;
+}
+
+body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
+  color: #3f633f !important;
+}
+
+@media (max-width: 1280px) {
+  .erp-statusbar {
+    grid-template-columns: minmax(150px, 0.7fr) minmax(130px, 0.55fr) minmax(140px, 0.55fr) minmax(160px, 0.6fr) minmax(130px, 0.5fr) minmax(130px, 0.5fr) minmax(180px, 0.7fr) !important;
+    font-size: 12px !important;
+  }
+
+  .statusbar-icon {
+    width: 19px;
+    min-width: 19px;
+    height: 19px;
+    font-size: 11px;
+  }
+}
+
+
+/* Step 2.5.6 — Ribbon command layout + Snapshot button */
+.erp-ribbon {
+  height: 116px !important;
+  align-items: stretch !important;
+  background: linear-gradient(180deg, #eef8e8 0%, #e2eed8 48%, #d8e6ce 100%) !important;
+  border-bottom: 1px solid #aebfa5 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 1px 0 rgba(48,76,41,0.08) !important;
+}
+
+.ribbon-group {
+  position: relative;
+  display: grid !important;
+  grid-template-rows: 1fr 18px;
+  align-items: stretch !important;
+  min-width: max-content;
+  border-right: 1px solid rgba(120, 143, 108, 0.48) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(210,230,199,0.24));
+}
+
+.ribbon-group::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 9px;
+  bottom: 22px;
+  width: 1px;
+  background: rgba(255,255,255,0.76);
+}
+
+.ribbon-buttons {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.ribbon-button {
+  width: 82px !important;
+  min-width: 82px;
+  padding: 8px 6px 5px !important;
+  display: grid !important;
+  grid-template-rows: 44px auto;
+  place-items: center !important;
+  align-content: center !important;
+  gap: 3px !important;
+  color: #526250 !important;
+  border-left: 1px solid rgba(255,255,255,0.58) !important;
+  border-right: 1px solid rgba(125,145,116,0.16) !important;
+  transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+.ribbon-button:hover,
+.ribbon-button:focus-visible {
+  background: linear-gradient(180deg, rgba(207,233,190,0.88), rgba(185,219,164,0.84)) !important;
+  box-shadow: inset 0 0 0 1px rgba(72,130,55,0.22), 0 2px 7px rgba(45,76,38,0.10);
+  outline: none;
+}
+
+.ribbon-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(48,68,42,0.16);
+}
+
+.ribbon-button:disabled {
+  cursor: default !important;
+  opacity: 0.78;
+}
+
+.ribbon-button.is-working {
+  cursor: progress !important;
+  opacity: 0.82;
+}
+
+.ribbon-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(108, 138, 91, 0.30);
+  background: linear-gradient(180deg, #ffffff 0%, #eef7eb 42%, #d8eacb 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 4px rgba(46,68,40,0.12);
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol", Arial, sans-serif;
+  font-size: 27px !important;
+  line-height: 1;
+}
+
+.ribbon-button.is-working .ribbon-icon {
+  animation: agRibbonPulse 920ms ease-in-out infinite;
+}
+
+@keyframes agRibbonPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.ribbon-label {
+  max-width: 76px;
+  color: #536154;
+  font-size: 13px !important;
+  line-height: 1.04 !important;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.ribbon-group-title {
+  min-height: 18px;
+  padding: 2px 10px 3px;
+  border-top: 1px solid rgba(127, 151, 115, 0.18);
+  color: #6d7b69;
+  font-size: 11px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  background: rgba(236, 246, 229, 0.55);
+}
+
+.ribbon-group[data-ribbon-group="print-view"] .ribbon-icon,
+.ribbon-group[data-ribbon-group="browse"] .ribbon-icon {
+  background: linear-gradient(180deg, #ffffff 0%, #edf8ff 48%, #d8effb 100%);
+  border-color: rgba(82, 139, 172, 0.28);
+}
+
+.ribbon-group[data-ribbon-group="clipboard"] .ribbon-icon {
+  background: linear-gradient(180deg, #ffffff 0%, #fff7e9 46%, #f2dfbd 100%);
+  border-color: rgba(164, 122, 57, 0.26);
+}
+
+.ribbon-group[data-ribbon-group="document"] .ribbon-icon,
+.ribbon-group[data-ribbon-group="record"] .ribbon-icon {
+  background: linear-gradient(180deg, #fffefe 0%, #fff2ec 45%, #f4dfd1 100%);
+  border-color: rgba(183, 113, 79, 0.26);
+}
+
+.ribbon-group[data-ribbon-group="transfer"] .ribbon-icon,
+.ribbon-group[data-ribbon-group="navigation"] .ribbon-icon {
+  background: linear-gradient(180deg, #ffffff 0%, #eef3ff 45%, #dbe6fb 100%);
+  border-color: rgba(80, 113, 176, 0.26);
+}
+
+.ribbon-button[data-ribbon-command="snapshot"] .ribbon-icon {
+  background: linear-gradient(180deg, #ffffff 0%, #f1f8ff 48%, #d9ebfb 100%) !important;
+  border-color: rgba(67, 126, 174, 0.34) !important;
+}
+
+.ribbon-group[data-ribbon-group="browse"] .ribbon-button[data-ribbon-command="filter-field"] .ribbon-icon,
+.ribbon-group[data-ribbon-group="browse"] .ribbon-button[data-ribbon-command="show-all"] .ribbon-icon,
+.ribbon-group[data-ribbon-group="browse"] .ribbon-button[data-ribbon-command="sort"] .ribbon-icon {
+  font-family: "Segoe UI Symbol", Arial, sans-serif;
+  font-weight: 900;
+  color: #2f7f54;
+}
+
+@media (max-width: 1360px) {
+  .ribbon-button {
+    width: 76px !important;
+    min-width: 76px;
+  }
+
+  .ribbon-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 24px !important;
+  }
+
+  .ribbon-label {
+    font-size: 12px !important;
+    max-width: 70px;
+  }
+}
+
+/* Step 2.5.7 — Snapshot tools + ribbon button alignment polish */
+.ribbon-button {
+  grid-template-rows: 46px 30px !important;
+  align-content: start !important;
+  justify-items: center !important;
+  gap: 2px !important;
+  min-height: 92px !important;
+  padding-top: 8px !important;
+}
+
+.ribbon-icon {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 26px !important;
+  text-align: center !important;
+}
+
+.ribbon-label {
+  width: 76px !important;
+  height: 30px !important;
+  max-width: 76px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  text-align: center !important;
+  color: #536154 !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  line-height: 1.08 !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+  overflow: hidden !important;
+}
+
+.ribbon-button[data-ribbon-command="recalculate"] .ribbon-label,
+.ribbon-button[data-ribbon-command="show-all"] .ribbon-label,
+.ribbon-button[data-ribbon-command="previous"] .ribbon-label,
+.ribbon-button[data-ribbon-command="snapshot"] .ribbon-label {
+  align-items: center !important;
+}
+
+.ribbon-button[data-ribbon-command="snapshot"] {
+  position: relative;
+}
+
+.ribbon-button[data-ribbon-command="snapshot"]::after {
+  content: "▾";
+  position: absolute;
+  right: 10px;
+  bottom: 22px;
+  color: #5d755b;
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.78;
+}
+
+.ag-snapshot-menu {
+  position: fixed;
+  z-index: 20000;
+  min-width: 246px;
+  padding: 6px;
+  border: 1px solid rgba(81, 113, 68, 0.42);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fbfff8 0%, #edf7e8 100%);
+  box-shadow: 0 14px 34px rgba(34, 58, 29, 0.22), inset 0 1px 0 rgba(255,255,255,0.92);
+}
+
+.ag-snapshot-menu button {
+  width: 100%;
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #233928;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ag-snapshot-menu button:hover,
+.ag-snapshot-menu button:focus-visible {
+  background: linear-gradient(180deg, rgba(206, 233, 188, 0.94), rgba(183, 218, 162, 0.88));
+  outline: none;
+}
+
+.ag-snapshot-menu button span {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(98, 131, 84, 0.26);
+  border-radius: 9px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef7ea 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.94), 0 1px 3px rgba(35,58,40,0.10);
+  font-size: 17px;
+}
+
+.ag-snapshot-menu button strong {
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+@media (max-width: 1360px) {
+  .ribbon-button {
+    grid-template-rows: 42px 30px !important;
+  }
+
+  .ribbon-icon {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 23px !important;
+  }
+
+  .ribbon-label {
+    width: 70px !important;
+    max-width: 70px !important;
+    font-size: 12px !important;
+  }
 }

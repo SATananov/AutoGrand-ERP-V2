@@ -1,4 +1,7 @@
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { spawn } from 'child_process';
 import express from 'express';
 import { engine } from 'express-handlebars';
 import { fileURLToPath } from 'url';
@@ -38,6 +41,18 @@ function todayText() {
   return new Intl.DateTimeFormat('bg-BG').format(new Date());
 }
 
+function statusDateTimeText(date = new Date()) {
+  return new Intl.DateTimeFormat('bg-BG', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(date).replace(',', '');
+}
+
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
@@ -46,6 +61,7 @@ function baseViewData({ title, currentScreen = '', statusText = 'Отворен 
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
     statusDate: todayText(),
+    statusDateTime: statusDateTimeText(),
     currentScreen,
     statusText,
     navigationGroups: decorateNavigation(currentScreen),
@@ -75,6 +91,55 @@ function redirectSalesWithAction(res, documentId, code) {
 function redirectPurchaseWithAction(res, documentId, code) {
   const actionCode = encodeURIComponent(code || 'done');
   res.redirect(`/document/purchase/${documentId}?action=${actionCode}`);
+}
+
+
+function snapshotFolderPath() {
+  return path.join(os.homedir(), 'Desktop', 'AutoGrand Snapshots');
+}
+
+function safeSnapshotFileName(value = '') {
+  const raw = String(value || '').trim();
+  const fallbackDate = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const base = raw || `AutoGrand_Snapshot_${fallbackDate}.png`;
+  const cleaned = base
+    .replace(/[\\/:*?"<>|]+/g, '-')
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .slice(0, 120);
+
+  return cleaned.toLowerCase().endsWith('.png') ? cleaned : `${cleaned}.png`;
+}
+
+function decodePngDataUrl(dataUrl = '') {
+  const value = String(dataUrl || '');
+  const match = value.match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
+  if (!match) {
+    throw new Error('invalid_snapshot_payload');
+  }
+
+  return Buffer.from(match[1], 'base64');
+}
+
+async function ensureSnapshotFolder() {
+  const folder = snapshotFolderPath();
+  await fs.promises.mkdir(folder, { recursive: true });
+  return folder;
+}
+
+function openFolder(folder) {
+  const platform = process.platform;
+  if (platform === 'win32') {
+    spawn('explorer.exe', [folder], { detached: true, stdio: 'ignore' }).unref();
+    return;
+  }
+
+  if (platform === 'darwin') {
+    spawn('open', [folder], { detached: true, stdio: 'ignore' }).unref();
+    return;
+  }
+
+  spawn('xdg-open', [folder], { detached: true, stdio: 'ignore' }).unref();
 }
 
 app.engine('hbs', engine({
@@ -117,8 +182,8 @@ app.engine('hbs', engine({
 app.set('view engine', 'hbs');
 app.set('views', path.join(rootDir, 'views/pages'));
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '30mb' }));
+app.use(express.json({ limit: '30mb' }));
 app.use('/public', express.static(path.join(rootDir, 'public')));
 
 app.get('/', async (req, res) => {
@@ -310,6 +375,45 @@ app.post('/document/purchase/:documentId/recalculate', async (req, res) => {
 app.post('/document/purchase/:documentId/status', async (req, res) => {
   const result = await updatePurchaseDocumentStatus(req.params.documentId, req.body.status);
   redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'status_failed');
+});
+
+
+app.post('/tools/snapshot/save', async (req, res) => {
+  try {
+    const folder = await ensureSnapshotFolder();
+    const fileName = safeSnapshotFileName(req.body?.fileName);
+    const filePath = path.join(folder, fileName);
+    const pngBuffer = decodePngDataUrl(req.body?.dataUrl);
+
+    await fs.promises.writeFile(filePath, pngBuffer);
+
+    res.json({
+      ok: true,
+      folder,
+      fileName,
+      filePath
+    });
+  } catch (error) {
+    console.error('Snapshot save failed:', error);
+    res.status(400).json({
+      ok: false,
+      error: 'snapshot_save_failed'
+    });
+  }
+});
+
+app.post('/tools/snapshot/open-folder', async (req, res) => {
+  try {
+    const folder = await ensureSnapshotFolder();
+    openFolder(folder);
+    res.json({ ok: true, folder });
+  } catch (error) {
+    console.error('Snapshot open folder failed:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'snapshot_open_folder_failed'
+    });
+  }
 });
 
 app.get('/reference', (req, res) => {
