@@ -1,9 +1,366 @@
-<aside class="sidebar">
-  <div class="brand-card"><div class="brand-mark">AG</div><div><div class="brand-title">AutoGrand ERP</div><div class="brand-subtitle">Reference Rebuild</div></div></div>
-  <nav class="main-nav" aria-label="Главна навигация">
-    <a class="nav-link" href="/">Начало</a>
-    <a class="nav-link" href="/reference">Client Reference</a>
-    <a class="nav-link" href="/modules">ERP модули</a>
-  </nav>
-  <div class="sidebar-note"><strong>Step 0.1</strong><span>Client + ZipMaster reference карта. Бинарите не са част от app-а.</span></div>
+<aside class="erp-menu erp-sidebar" id="ag-v2-sidebar" aria-label="Главно ERP меню">
+  <header class="sidebar-header">Меню</header>
+
+  <div class="module-tree ag-main-menu-tree sales-tree" aria-label="Дървовидно главно меню AutoGrand ERP">
+
+    <details class="module-group ag-top-module" data-main-module="Продажби">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Продажби</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf is-active tree-document" type="button" data-module-title="Ценова листа" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Ценова листа</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Авансови плащания" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Авансови плащания</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Оферта" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Оферта</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Поръчки от клиенти" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Поръчки от клиенти</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Продажби" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Продажби</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Продажба" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Продажба</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Кредитно известие" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Кредитно известие</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Дебитно известие" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Дебитно известие</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Плащания продажби" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Плащания продажби</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Продажба по поръчка" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Продажба по поръчка</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Свободно КИ продажба" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Свободно КИ продажба</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Свободна фактура продажби" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Свободна фактура продажби</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Свободна фактура продажби (с добавяне на ред)" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Свободна фактура продажби (с добавяне на ред)</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Гаранционни карти" data-module-path="Продажби" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Гаранционни карти</span></button></li>
+        <li><button class="tree-leaf tree-report" type="button" data-module-title="Дневна каса" data-module-path="Продажби" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Дневна каса</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Номенклатури</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Контрагенти" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Отстъпки - Продажби" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Отстъпки - Продажби</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Цени - Продажби" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Цени - Продажби</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Ценови групи контрагенти" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Ценови групи контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Групи отстъпки за контрагенти" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Групи отстъпки за контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Условия на плащане" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Условия на плащане</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Подвидове документи" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Подвидове документи</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Методи на плащане" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Методи на плащане</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Търговци" data-module-path="Продажби / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Търговци</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>История</span></summary><ul>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. продажби" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. продажби</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. експед. бележки" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. експед. бележки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. кредит. известия - продажба" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. кредит. известия - продажба</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. журнал плащания - продажби" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. журнал плащания - продажби</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. отказване поръчка прод." data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. отказване поръчка прод.</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. връщане поръчка - продажба" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. връщане поръчка - продажба</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. поръчка продажба" data-module-path="Продажби / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. поръчка продажба</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка модул продажби" data-module-path="Продажби / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка модул продажби</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка продажба печат и осчетоводяване" data-module-path="Продажби / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка продажба печат и осчетоводяване</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Анализ клиенти - лимити" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Анализ клиенти - лимити</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Оборот на клиенти" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Оборот на клиенти</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Продажба на стоки" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Продажба на стоки</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Неизплатени документи продажба" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Неизплатени документи продажба</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Неплатени документи по редове" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Неплатени документи по редове</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Продажби на стоки за период" data-module-path="Продажби / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Продажби на стоки за период</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Доставки">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Доставки</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Поръчки към доставчици" data-module-path="Доставки" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Поръчки към доставчици</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Плащания - доставки" data-module-path="Доставки" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Плащания - доставки</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Доставка от поръчка" data-module-path="Доставки" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Доставка от поръчка</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Свободна фактура доставка" data-module-path="Доставки" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Свободна фактура доставка</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Свободно КИ доставка" data-module-path="Доставки" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Свободно КИ доставка</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Номенклатури</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Контрагенти" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Отстъпки - Доставки" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Отстъпки - Доставки</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Цени - Доставки" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Цени - Доставки</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Групи отстъпки за контрагенти" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Групи отстъпки за контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Подвидове документи" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Подвидове документи</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Условия на плащане" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Условия на плащане</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Методи на плащане" data-module-path="Доставки / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Методи на плащане</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>История</span></summary><ul>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. доставки" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. доставки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. складови разписки" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. складови разписки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. кредит. известия - доставки" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. кредит. известия - доставки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. журнал плащания - доставки" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. журнал плащания - доставки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. връщане по поръчка за доставка" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. връщане по поръчка за доставка</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. отказване по поръчка за доставка" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. отказване по поръчка за доставка</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. поръчка за доставка" data-module-path="Доставки / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. поръчка за доставка</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка модул доставки" data-module-path="Доставки / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка модул доставки</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка доставка печат и осчетоводяване" data-module-path="Доставки / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка доставка печат и осчетоводяване</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Доставка на стоки" data-module-path="Доставки / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Доставка на стоки</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Задължения към доставчици" data-module-path="Доставки / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Задължения към доставчици</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Неизплатени документи за доставка" data-module-path="Доставки / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Неизплатени документи за доставка</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Неплатени документи по редове (Доставки)" data-module-path="Доставки / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Неплатени документи по редове (Доставки)</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Склад">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Склад</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Артикули" data-module-path="Склад" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Артикули</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Журнал артикули" data-module-path="Склад" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Журнал артикули</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Журнал физ. инвентар" data-module-path="Склад" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Журнал физ. инвентар</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Трансфер на стока" data-module-path="Склад" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Трансфер на стока</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Параметри на артикули по обекти" data-module-path="Склад" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Параметри на артикули по обекти</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Номенклатури</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Продуктови групи" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Продуктови групи</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Продуктови класове" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Продуктови класове</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Артикули групи отстъпки" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Артикули групи отстъпки</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Категории артикули" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Категории артикули</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Допълнителни разходи за артикул" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Допълнителни разходи за артикул</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Производители" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Производители</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Папки артикули" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Папки артикули</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Съответствия на артикули" data-module-path="Склад / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Съответствия на артикули</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Осчетоводяване</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Обща счет. група на склада" data-module-path="Склад / Осчетоводяване" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Обща счет. група на склада</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Счет. групи стоки" data-module-path="Склад / Осчетоводяване" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Счет. групи стоки</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="ДДС счет. група на склада" data-module-path="Склад / Осчетоводяване" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>ДДС счет. група на склада</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка осчетоводяване склад" data-module-path="Склад / Осчетоводяване" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка осчетоводяване склад</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. журнал артикули" data-module-path="Склад / Осчетоводяване" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. журнал артикули</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Трансфер на стока изпращане" data-module-path="Склад / Осчетоводяване" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Трансфер на стока изпращане</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Трансфер на стока получаване" data-module-path="Склад / Осчетоводяване" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Трансфер на стока получаване</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка модул склад" data-module-path="Склад / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка модул склад</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Наличности" data-module-path="Склад / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Наличности</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Движение на артикули" data-module-path="Склад / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Движение на артикули</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Обороти по обекти" data-module-path="Склад / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Обороти по обекти</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Движение на стоки с точка на поръчка" data-module-path="Склад / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Движение на стоки с точка на поръчка</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>WMS</span></summary><ul>
+          <li><button class="tree-leaf tree-document" type="button" data-module-title="Складови операции" data-module-path="Склад / WMS" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Складови операции</span></button></li>
+          <li><button class="tree-leaf tree-document" type="button" data-module-title="Мобилни складови задачи" data-module-path="Склад / WMS" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Мобилни складови задачи</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Параметри WMS" data-module-path="Склад / WMS" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Параметри WMS</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Финанси и счетоводство">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Финанси и счетоводство</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Сметкоплан" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Сметкоплан</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Парични сметки" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Парични сметки</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Счетоводен журнал" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Счетоводен журнал</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Документи" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Документи</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Кредитно известие продажба" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Кредитно известие продажба</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Кредитно известие доставка" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Кредитно известие доставка</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Банкови / касови операции" data-module-path="Финанси и счетоводство" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Банкови / касови операции</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Числени серии" data-module-path="Финанси и счетоводство / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Числени серии</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Счетоводни периоди" data-module-path="Финанси и счетоводство / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Счетоводни периоди</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка експорт на ДДС дневници" data-module-path="Финанси и счетоводство / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка експорт на ДДС дневници</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка модул счетоводство" data-module-path="Финанси и счетоводство / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка модул счетоводство</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Счетоводни групи</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Счет. групи на контрагенти" data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Счет. групи на контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Общи бизнес счет. групи" data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Общи бизнес счет. групи</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Обща настройка осчетоводяване" data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Обща настройка осчетоводяване</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="ДДС счет. групи" data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>ДДС счет. групи</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="ДДС бизнес счет. гр." data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>ДДС бизнес счет. гр.</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка на ДДС" data-module-path="Финанси и счетоводство / Счетоводни групи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка на ДДС</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>История</span></summary><ul>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осчетоводени доставки" data-module-path="Финанси и счетоводство / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осчетоводени доставки</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осчетоводени продажби" data-module-path="Финанси и счетоводство / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осчетоводени продажби</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осчетоводен счетоводен журнал" data-module-path="Финанси и счетоводство / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осчетоводен счетоводен журнал</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Счетоводни справки" data-module-path="Финанси и счетоводство / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Счетоводни справки</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="ДДС дневник покупки" data-module-path="Финанси и счетоводство / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>ДДС дневник покупки</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="ДДС дневник продажби" data-module-path="Финанси и счетоводство / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>ДДС дневник продажби</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Счетоводни записи" data-module-path="Финанси и счетоводство / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Счетоводни записи</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Номенклатури">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Номенклатури</span>
+      </summary>
+      <ul>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Общи</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Мерки" data-module-path="Номенклатури / Общи" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Мерки</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Валути" data-module-path="Номенклатури / Общи" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Валути</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Валутни курсове" data-module-path="Номенклатури / Общи" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Валутни курсове</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Градове" data-module-path="Номенклатури / Общи" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Градове</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Държави" data-module-path="Номенклатури / Общи" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Държави</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Фирмени</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Компании" data-module-path="Номенклатури / Фирмени" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Компании</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Тип обект" data-module-path="Номенклатури / Фирмени" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Тип обект</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Обекти" data-module-path="Номенклатури / Фирмени" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Обекти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Служители" data-module-path="Номенклатури / Фирмени" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Служители</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Потребители" data-module-path="Номенклатури / Фирмени" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Потребители</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Потребителски права" data-module-path="Номенклатури / Фирмени" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Потребителски права</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Контрагенти</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Контрагенти" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Адреси на доставка" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Адреси на доставка</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Шаблони за контрагенти" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Шаблони за контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Ценови групи контрагенти" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Ценови групи контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Групи отстъпки за контрагент" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Групи отстъпки за контрагент</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Счетоводни групи на контрагента" data-module-path="Номенклатури / Контрагенти" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Счетоводни групи на контрагента</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Склад</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Артикули - списък" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Артикули - списък</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Артикули (карта)" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Артикули (карта)</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Производители" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Производители</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Продуктови групи" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Продуктови групи</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Продуктови класове" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Продуктови класове</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Категории артикули" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Категории артикули</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Допълнителни мерни единици" data-module-path="Номенклатури / Склад" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Допълнителни мерни единици</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Ресурси и услуги</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Вид дейност" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Вид дейност</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Ресурси" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Ресурси</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Групи ресурси" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Групи ресурси</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Цени на ресурси" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Цени на ресурси</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Услуги" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Услуги</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Цени на услуги" data-module-path="Номенклатури / Ресурси и услуги" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Цени на услуги</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Сервиз и поддръжка">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Сервиз и поддръжка</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Сервизни поръчки" data-module-path="Сервиз и поддръжка" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Сервизни поръчки</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Журнал ресурси" data-module-path="Сервиз и поддръжка" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Журнал ресурси</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Сервизни изделия" data-module-path="Сервиз и поддръжка" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Сервизни изделия</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Номенклатури</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Модели" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Модели</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Марки и модели" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Марки и модели</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Симптоми на проблеми" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Симптоми на проблеми</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Области на проблеми" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Области на проблеми</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Решения на проблема" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Решения на проблема</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Тип сервизна поръчка" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Тип сервизна поръчка</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Групи сервизни изделия" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Групи сервизни изделия</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Компоненти на сервизно изделие" data-module-path="Сервиз и поддръжка / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Компоненти на сервизно изделие</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>История</span></summary><ul>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. поръчки сервизни изделия" data-module-path="Сервиз и поддръжка / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. поръчки сервизни изделия</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка осч. и печат в сервизни поръчки" data-module-path="Сервиз и поддръжка / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка осч. и печат в сервизни поръчки</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка модул сервиз" data-module-path="Сервиз и поддръжка / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка модул сервиз</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Разходи ресурси" data-module-path="Сервиз и поддръжка / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Разходи ресурси</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Умения ресурс" data-module-path="Сервиз и поддръжка / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Умения ресурс</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Детайли на ред от сервизна поръчка" data-module-path="Сервиз и поддръжка / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Детайли на ред от сервизна поръчка</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Електронна търговия">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Електронна търговия</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Онлайн поръчки" data-module-path="Електронна търговия" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Онлайн поръчки</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Канали за продажба" data-module-path="Електронна търговия" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Канали за продажба</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Синхронизация артикули" data-module-path="Електронна търговия" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Синхронизация артикули</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Настройки</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройка електронна търговия" data-module-path="Електронна търговия / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройка електронна търговия</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Връзки с платформи" data-module-path="Електронна търговия / Настройки" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Връзки с платформи</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Автомобили">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Автомобили</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Автомобили" data-module-path="Автомобили" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Автомобили</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Автомобил (карта)" data-module-path="Автомобили" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Автомобил (карта)</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Оферта автомобил" data-module-path="Автомобили" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Оферта автомобил</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Продажба автомобил" data-module-path="Автомобили" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Продажба автомобил</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Доставка автомобил" data-module-path="Автомобили" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Доставка автомобил</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Номенклатури</span></summary><ul>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Марки и модели" data-module-path="Автомобили / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Марки и модели</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Сервизни изделия" data-module-path="Автомобили / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Сервизни изделия</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Гаранционни карти" data-module-path="Автомобили / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Гаранционни карти</span></button></li>
+          <li><button class="tree-leaf tree-reference" type="button" data-module-title="Параметри автомобил" data-module-path="Автомобили / Номенклатури" data-module-kind="reference"><span class="tree-icon tree-icon-document"></span><span>Параметри автомобил</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>История</span></summary><ul>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. продажби автомобили" data-module-path="Автомобили / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. продажби автомобили</span></button></li>
+          <li><button class="tree-leaf tree-history" type="button" data-module-title="Осч. доставки автомобили" data-module-path="Автомобили / История" data-module-kind="history"><span class="tree-icon tree-icon-document"></span><span>Осч. доставки автомобили</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Справки</span></summary><ul>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Налични автомобили" data-module-path="Автомобили / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Налични автомобили</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="Продажби автомобили" data-module-path="Автомобили / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>Продажби автомобили</span></button></li>
+          <li><button class="tree-leaf tree-report" type="button" data-module-title="История автомобил" data-module-path="Автомобили / Справки" data-module-kind="report"><span class="tree-icon tree-icon-report"></span><span>История автомобил</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Администриране">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Администриране</span>
+      </summary>
+      <ul>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Настройки на компания" data-module-path="Администриране" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Настройки на компания</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Филтриране и подредба на форми" data-module-path="Администриране" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Филтриране и подредба на форми</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Печатни форми" data-module-path="Администриране" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Печатни форми</span></button></li>
+        <li><button class="tree-leaf tree-document" type="button" data-module-title="Права по колони" data-module-path="Администриране" data-module-kind="document"><span class="tree-icon tree-icon-document"></span><span>Права по колони</span></button></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Потребители</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Потребители" data-module-path="Администриране / Потребители" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Потребители</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Потребител (карта)" data-module-path="Администриране / Потребители" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Потребител (карта)</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Потребителски права" data-module-path="Администриране / Потребители" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Потребителски права</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Права" data-module-path="Администриране / Потребители" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Права</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Избор на форми" data-module-path="Администриране / Потребители" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Избор на форми</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Шаблони</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Шаблони за артикули" data-module-path="Администриране / Шаблони" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Шаблони за артикули</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Шаблон за артикули (Карта)" data-module-path="Администриране / Шаблони" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Шаблон за артикули (Карта)</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Шаблони за контрагенти" data-module-path="Администриране / Шаблони" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Шаблони за контрагенти</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Контрагент - шаблон (Карта)" data-module-path="Администриране / Шаблони" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Контрагент - шаблон (Карта)</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>Документи</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Числени серии" data-module-path="Администриране / Документи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Числени серии</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Числена серия - връзки" data-module-path="Администриране / Документи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Числена серия - връзки</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Числени серии обекти - връзка" data-module-path="Администриране / Документи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Числени серии обекти - връзка</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Колони" data-module-path="Администриране / Документи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Колони</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Видими колони" data-module-path="Администриране / Документи" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Видими колони</span></button></li>
+        </ul></details></li>
+        <li class="tree-folder-item"><details class="module-group sales-subgroup"><summary><span class="tree-icon tree-icon-folder"></span><span>EMail</span></summary><ul>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Настройки EMail" data-module-path="Администриране / EMail" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Настройки EMail</span></button></li>
+          <li><button class="tree-leaf tree-settings" type="button" data-module-title="Шаблони EMail" data-module-path="Администриране / EMail" data-module-kind="settings"><span class="tree-icon tree-icon-document"></span><span>Шаблони EMail</span></button></li>
+        </ul></details></li>
+      </ul>
+    </details>
+
+    <details class="module-group ag-top-module" data-main-module="Бързи връзки">
+      <summary class="ag-top-module-summary">
+        <span class="tree-icon tree-icon-root" aria-hidden="true"></span>
+        <span>Бързи връзки</span>
+      </summary>
+      <ul class="ag-quick-links-list ag-empty-quick-links"></ul>
+    </details>
+
+  </div>
 </aside>

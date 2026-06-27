@@ -51,41 +51,7 @@
       </section>
 
       <div class="erp-main">
-        <aside class="erp-menu" id="ag-v2-sidebar">
-          <div class="menu-title">
-            <span>Меню</span>
-            <button class="pin" type="button" data-ag-menu-pin aria-label="Закачи менюто">📍</button>
-            <button class="collapse" type="button" data-ag-menu-collapse aria-label="Свий менюто">◀</button>
-          </div>
-
-          <div class="menu-scroll">
-            {{#each navigationGroups}}
-              <details class="tree-group" {{#if isOpen}}open{{/if}}>
-                <summary>
-                  <span class="tree-icon">{{icon}}</span>
-                  <span>{{title}}</span>
-                </summary>
-
-                <div class="tree-items">
-                  {{#each items}}
-                    <a class="tree-item {{#if active}}active{{/if}}" href="{{href}}" data-ag-open-screen data-ag-screen-title="{{title}}">
-                      <span class="doc-icon">{{icon}}</span>
-                      <span>{{title}}</span>
-                    </a>
-                  {{/each}}
-
-                  {{#each folders}}
-                    <div class="tree-folder">
-                      <span>▾</span>
-                      <span>📁</span>
-                      <strong>{{this}}</strong>
-                    </div>
-                  {{/each}}
-                </div>
-              </details>
-            {{/each}}
-          </div>
-        </aside>
+        {{> sidebar}}
 
         <main class="erp-workspace" id="ag-v2-workspace">
           <div class="tab-strip" id="ag-v2-workspace-tabs">
@@ -103,13 +69,13 @@
       </div>
 
       <footer class="erp-statusbar">
-        <div data-ag-status-message>▣ {{statusText}}</div>
-        <div>◇ Работна среда</div>
-        <div>📍 КЪРДЖАЛИ</div>
-        <div>👤 {{userName}}</div>
-        <div>▥ AutoGrand ERP</div>
-        <div>▥ {{databaseName}}</div>
-        <div>{{statusDate}}</div>
+        <div class="statusbar-cell statusbar-message" data-ag-status-message>▣ {{statusText}}</div>
+        <div class="statusbar-cell statusbar-mode">◇ Работна среда</div>
+        <div class="statusbar-cell statusbar-location">📍 КЪРДЖАЛИ</div>
+        <div class="statusbar-cell statusbar-user">👤 {{userName}}</div>
+        <div class="statusbar-cell statusbar-app">▥ AutoGrand ERP</div>
+        <div class="statusbar-cell statusbar-db">▥ {{databaseName}}</div>
+        <div class="statusbar-cell statusbar-date">{{statusDate}}</div>
       </footer>
     </div>
 
