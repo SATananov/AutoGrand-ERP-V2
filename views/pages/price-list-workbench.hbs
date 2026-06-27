@@ -1,0 +1,394 @@
+<div class="price-workbench" data-price-workbench data-current-location="{{priceList.currentWarehouse.name}}">
+  <header class="price-header-panel">
+    <div>
+      <div class="screen-kicker">AUTOGRAND АРТИКУЛИ</div>
+      <h1>{{priceList.title}}</h1>
+      <p>Търсене, цена, снимка, наличност по обекти и бързи действия от един екран.</p>
+    </div>
+
+    <div class="price-header-actions">
+      <button type="button" class="ag-soft-command" data-price-command="columns">Колони</button>
+      <button type="button" class="ag-soft-command" data-price-command="availability">Наличности</button>
+      <button type="button" class="ag-soft-command strong" data-price-command="focus-request-basket">Текуща заявка</button>
+    </div>
+  </header>
+
+  <section class="price-filter-panel" aria-label="Търсене и филтриране">
+    <label>
+      <span>Търсене по</span>
+      <select data-price-search-field>
+        <option value="code">Код</option>
+        <option value="name">Описание</option>
+        <option value="barcode">Баркод</option>
+        <option value="all">Всички полета</option>
+      </select>
+    </label>
+
+    <label class="price-search-box">
+      <span>Стойност</span>
+      <input type="text" data-price-search-input placeholder="Въведи код, описание или баркод..." autofocus />
+    </label>
+
+    <label class="price-check-line">
+      <input type="checkbox" data-price-only-available />
+      <span>Само свободни в {{priceList.currentWarehouse.name}}</span>
+    </label>
+
+    <button type="button" class="ag-soft-command" data-price-command="clear-filter">Покажи всички</button>
+    <button type="button" class="ag-square-command" data-price-command="filter">Филтър</button>
+    <button type="button" class="ag-square-command" data-price-command="more">...</button>
+  </section>
+
+  <section class="price-main-layout">
+    <div class="price-grid-zone">
+      <div class="price-grid-caption">
+        <strong>{{priceList.priceListName}}</strong>
+        <span>{{priceList.counters.rows}} артикула · {{priceList.counters.rowsWithStock}} със свободна наличност · {{priceList.counters.rowsWithIncomingRequests}} с чакащи заявки към нас · текущ обект: {{priceList.counters.currentWarehouseName}}</span>
+      </div>
+
+      <div class="price-grid-frame">
+        <table class="price-grid" data-price-grid>
+          <thead>
+            <tr>
+              <th class="row-marker"></th>
+              {{#each priceList.columns}}
+                <th data-column-key="{{key}}" data-default-visible="{{visible}}">{{label}}</th>
+              {{/each}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#each priceList.rows}}
+              <tr class="price-row {{#if incomingRequestCount}}has-incoming-request{{/if}} {{#if @first}}active{{/if}}"
+                  data-price-row
+                  data-item-id="{{id}}"
+                  data-code="{{code}}"
+                  data-name="{{name}}"
+                  data-barcode="{{barcode}}"
+                  data-image-url="{{imageUrl}}"
+                  data-save-name="{{safeImageName}}"
+                  data-current-available="{{currentAvailable}}"
+                  data-total-available="{{totalAvailable}}"
+                  data-card-url="{{itemCardUrl}}">
+                <td class="row-marker">›</td>
+                {{#each ../priceList.columns}}
+                  <td data-field="{{key}}">{{cell ../this key}}</td>
+                {{/each}}
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="price-detail-zone" aria-label="Наличности и заявки за избрания артикул">
+        <section class="transfer-request-basket is-empty"
+                 data-transfer-request-basket
+                 data-to-warehouse-id="{{priceList.currentWarehouse.id}}"
+                 data-to-warehouse-name="{{priceList.currentWarehouse.name}}">
+          <header>
+            <div>
+              <strong>Текуща заявка за трансфер</strong>
+              <span data-transfer-basket-summary>Избери артикул и обект, после добави количество към заявката.</span>
+            </div>
+            <div class="basket-actions">
+              <button type="button" class="ag-soft-command strong" data-price-command="submit-request-basket" disabled>Изпрати заявка</button>
+              <button type="button" class="ag-soft-command" data-price-command="clear-request-basket" disabled>Изчисти</button>
+            </div>
+          </header>
+
+          <div class="transfer-basket-empty" data-transfer-basket-empty>
+            Няма добавени артикули. Натисни <strong>Добави</strong> срещу обект със свободно количество.
+          </div>
+
+          <table class="request-basket-table" data-transfer-basket-table hidden>
+            <thead>
+              <tr>
+                <th>Артикул</th>
+                <th>От обект</th>
+                <th>Към обект</th>
+                <th>Свободно</th>
+                <th>Искано</th>
+                <th>Статус</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody data-transfer-basket-body></tbody>
+          </table>
+        </section>
+
+        {{#each priceList.rows}}
+          <article class="price-detail-card {{#if @first}}active{{/if}}" data-price-detail-for="{{id}}">
+            <header class="price-detail-head">
+              <div>
+                <strong>{{code}}</strong>
+                <span>{{name}}</span>
+              </div>
+              <div class="price-detail-metrics">
+                <span>Текущ обект: <strong>{{currentAvailableText}}</strong> свободно</span>
+                <span>Общо: <strong>{{totalQuantityText}}</strong> налично</span>
+                {{#if incomingRequestCount}}
+                  <mark class="request-alert-pill">Искат от нас: {{incomingRequestCount}}</mark>
+                {{/if}}
+              </div>
+            </header>
+
+            <nav class="price-detail-tabs" aria-label="Долни панели">
+              <button type="button" class="active" data-price-detail-tab="availability">Наличности по обекти</button>
+              <button type="button" class="needs-action-tab {{#if incomingRequestCount}}has-alert{{/if}}" data-price-detail-tab="incoming">Заявки към моя обект</button>
+              <button type="button" data-price-detail-tab="outgoing">Моите заявки</button>
+              <button type="button" data-price-detail-tab="history">История</button>
+            </nav>
+
+            <div class="price-detail-panel active" data-price-detail-panel="availability">
+              <table class="availability-table wide">
+                <thead>
+                  <tr>
+                    <th>Обект</th>
+                    <th>Тип</th>
+                    <th>Налично</th>
+                    <th>Свободно</th>
+                    <th>Резерв.</th>
+                    <th>Действие</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each availability}}
+                    <tr class="availability-tone-{{tone}} {{#if isCurrent}}current-location{{/if}} {{#unless canRequest}}no-request{{/unless}}">
+                      <td>
+                        <strong>{{warehouseName}}</strong>
+                        {{#if city}}<span>{{city}}</span>{{/if}}
+                      </td>
+                      <td>{{locationTypeText}}</td>
+                      <td>{{quantityText}}</td>
+                      <td><strong>{{availableText}}</strong></td>
+                      <td>{{reservedText}}</td>
+                      <td>
+                        {{#if canRequest}}
+                          <div class="availability-action-pack">
+                            <input type="number" min="0.01" step="0.01" value="1" max="{{availableText}}" data-request-quantity aria-label="Количество за заявка от {{warehouseName}}" />
+                            <button type="button"
+                                    data-price-command="add-to-request"
+                                    data-from-warehouse-id="{{warehouseId}}"
+                                    data-from-warehouse-name="{{warehouseName}}"
+                                    data-from-available="{{available}}"
+                                    data-from-available-text="{{availableText}}">Добави</button>
+                          </div>
+                        {{else}}
+                          <span>{{#if isCurrent}}Текущ обект{{else}}{{actionText}}{{/if}}</span>
+                        {{/if}}
+                      </td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="price-detail-panel" data-price-detail-panel="incoming">
+              {{#if incomingRequests}}
+                <div class="request-note request-note-red">Има заявена стока от друг обект — това е действие към текущия обект.</div>
+                <table class="request-table">
+                  <thead>
+                    <tr>
+                      <th>Документ</th>
+                      <th>Към обект</th>
+                      <th>Количество</th>
+                      <th>Създадено</th>
+                      <th>Действие</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each incomingRequests}}
+                      <tr class="request-row needs-action">
+                        <td><strong>{{number}}</strong><span>{{statusText}}</span></td>
+                        <td>{{toName}}<span>{{helperText}}</span></td>
+                        <td>{{quantityText}}</td>
+                        <td>{{createdAtText}}</td>
+                        <td class="request-action-cell">
+                          <button type="button" class="ag-request-send" data-price-command="send-transfer-request" data-transfer-id="{{id}}">Изпрати</button>
+                          <button type="button" class="ag-request-missing" data-price-command="mark-transfer-missing" data-transfer-id="{{id}}">Липса</button>
+                          <button type="button" class="ag-request-open" data-price-command="open-transfer" data-transfer-url="{{cardUrl}}">Отвори</button>
+                        </td>
+                      </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              {{else}}
+                <div class="empty-detail-state">Няма чакащи заявки към {{../priceList.currentWarehouse.name}} за този артикул.</div>
+              {{/if}}
+            </div>
+
+            <div class="price-detail-panel" data-price-detail-panel="outgoing">
+              {{#if outgoingRequests}}
+                <div class="request-note request-note-blue">Това са заявки, които текущият обект очаква от други обекти.</div>
+                <table class="request-table">
+                  <thead>
+                    <tr>
+                      <th>Документ</th>
+                      <th>От обект</th>
+                      <th>Количество</th>
+                      <th>Създадено</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each outgoingRequests}}
+                      <tr class="request-row waiting">
+                        <td><strong>{{number}}</strong></td>
+                        <td>{{fromName}}<span>{{helperText}}</span></td>
+                        <td>{{quantityText}}</td>
+                        <td>{{createdAtText}}</td>
+                        <td><strong>{{statusText}}</strong> <button type="button" data-price-command="open-transfer" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                      </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              {{else}}
+                <div class="empty-detail-state">Няма активни заявки от текущия обект за този артикул.</div>
+              {{/if}}
+            </div>
+
+            <div class="price-detail-panel" data-price-detail-panel="history">
+              {{#if transferHistory}}
+                <table class="request-table compact">
+                  <thead>
+                    <tr>
+                      <th>Документ</th>
+                      <th>Маршрут</th>
+                      <th>Количество</th>
+                      <th>Статус</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each transferHistory}}
+                      <tr class="request-row {{tone}}">
+                        <td><strong>{{number}}</strong></td>
+                        <td>{{fromName}} → {{toName}}</td>
+                        <td>{{quantityText}}</td>
+                        <td>{{statusText}}</td>
+                        <td><button type="button" data-price-command="open-transfer" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                      </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              {{else}}
+                <div class="empty-detail-state">Няма приключили трансфери за този артикул.</div>
+              {{/if}}
+            </div>
+          </article>
+        {{/each}}
+      </section>
+
+      <footer class="price-bottom-bar">
+        <button type="button" data-price-command="select">Избор</button>
+        <button type="button" data-price-command="cancel">Отказ</button>
+        <button type="button" data-price-menu="item">Артикул ›</button>
+        <button type="button" data-price-menu="delivery">Доставки ›</button>
+        <button type="button" data-price-menu="sales">Продажби ›</button>
+        <button type="button" data-price-menu="transfer">Трансфер ›</button>
+        <button type="button" data-price-command="columns">Колони</button>
+        <button type="button" data-price-command="help">Помощ</button>
+      </footer>
+    </div>
+
+    <aside class="price-item-panel" aria-label="Артикул">
+      <div class="price-panel-title">
+        <strong>Артикул</strong>
+        <button type="button" class="mini-collapse" data-price-command="toggle-side">›</button>
+      </div>
+
+      <div class="price-side-actions">
+        <button type="button" data-price-command="open-card">Карта</button>
+        <button type="button" data-price-command="history">История</button>
+        <button type="button" data-price-command="availability">Наличности по обекти</button>
+        <button type="button" data-price-command="image">Снимка</button>
+        <button type="button" data-price-command="focus-request-basket">Текуща заявка</button>
+      </div>
+
+      <div class="price-image-card" data-price-image-card>
+        <div class="price-image-head">
+          <span data-selected-code></span>
+          <strong data-selected-name></strong>
+        </div>
+        <button type="button" class="price-image-preview" data-price-command="image" aria-label="Отвори снимка на артикул">
+          <img data-price-image-preview alt="Снимка на артикул" hidden />
+          <span data-price-no-image>Няма снимка</span>
+        </button>
+        <div class="price-image-actions">
+          <button type="button" data-price-command="upload-image">Качи</button>
+          <button type="button" data-price-command="delete-image">Изтрий</button>
+          <button type="button" data-price-command="save-image-as">Запази като</button>
+        </div>
+        <input type="file" accept="image/png,image/jpeg,image/webp" data-price-image-input hidden />
+      </div>
+
+      <div class="price-side-legend">
+        <strong>Цветове</strong>
+        <span><i class="legend-green"></i> има свободно</span>
+        <span><i class="legend-yellow"></i> малко количество</span>
+        <span><i class="legend-red"></i> чака действие / ЛИПСА</span>
+        <span><i class="legend-blue"></i> чакаме от друг обект</span>
+        <span><i class="legend-gray"></i> няма свободно</span>
+      </div>
+    </aside>
+  </section>
+
+  <dialog class="price-columns-dialog" data-price-columns-dialog>
+    <form method="dialog">
+      <header>
+        <strong>Видими колони</strong>
+        <button type="button" data-price-command="close-columns">×</button>
+      </header>
+
+      <section class="quick-view-strip">
+        <span>Бързи изгледи</span>
+        {{#each priceList.quickViews}}
+          <button type="button" data-price-view-columns="{{columns}}">{{title}}</button>
+        {{/each}}
+      </section>
+
+      <label class="check-all-row">
+        <input type="checkbox" data-price-check-all />
+        <span>От/маркирай всички</span>
+      </label>
+
+      <div class="price-column-list">
+        {{#each priceList.columns}}
+          <label>
+            <input type="checkbox" data-price-column-toggle="{{key}}" {{#if visible}}checked{{/if}} />
+            <span>{{label}}</span>
+          </label>
+        {{/each}}
+      </div>
+
+      <footer>
+        <button type="button" data-price-command="apply-columns">Приложи</button>
+        <button type="button" data-price-command="reset-columns">Стандартно</button>
+        <button type="button" data-price-command="close-columns">Затвори</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div class="price-floating-menu" data-price-floating-menu hidden></div>
+
+  <dialog class="price-image-dialog" data-price-image-dialog>
+    <form method="dialog">
+      <header>
+        <div>
+          <span data-modal-code></span>
+          <strong data-modal-name></strong>
+        </div>
+        <button type="button" data-price-command="close-image">×</button>
+      </header>
+      <div class="modal-image-stage">
+        <img data-modal-image alt="Снимка на артикул" hidden />
+        <span data-modal-no-image>Няма снимка за този артикул.</span>
+      </div>
+      <footer>
+        <button type="button" data-price-command="upload-image">Качи снимка</button>
+        <button type="button" data-price-command="delete-image">Изтрий снимка</button>
+        <button type="button" data-price-command="save-image-as">Запази като</button>
+        <button type="button" data-price-command="close-image">Затвори</button>
+      </footer>
+    </form>
+  </dialog>
+</div>

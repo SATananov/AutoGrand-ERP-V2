@@ -184,6 +184,12 @@ export const screenDefinitions = {
     kind: 'stockTransferDocument',
     columns: stockTransferDocumentColumns()
   },
+  'stock-adjustments': {
+    title: 'Складови корекции',
+    group: 'Склад',
+    kind: 'stockAdjustmentDocument',
+    columns: stockAdjustmentDocumentColumns()
+  },
 
   'cash': {
     title: 'Каса',
@@ -351,6 +357,18 @@ function stockTransferDocumentColumns() {
   ];
 }
 
+function stockAdjustmentDocumentColumns() {
+  return [
+    { key: 'number', label: 'Номер' },
+    { key: 'adjustmentDateText', label: 'Дата' },
+    { key: 'warehouseName', label: 'Склад' },
+    { key: 'adjustmentTypeText', label: 'Тип' },
+    { key: 'statusText', label: 'Статус' },
+    { key: 'lineCountText', label: 'Редове' },
+    { key: 'quantityText', label: 'Количество' }
+  ];
+}
+
 function money(value, currency = 'BGN') {
   return String(Number(value || 0).toFixed(2)) + ' ' + currency;
 }
@@ -372,6 +390,10 @@ function movementTypeText(type) {
     PURCHASE_RETURN_OUT: 'Изход към доставчик',
     ADJUSTMENT_IN: 'Корекция вход',
     ADJUSTMENT_OUT: 'Корекция изход',
+    ADJUSTMENT_SURPLUS_IN: 'Излишък',
+    ADJUSTMENT_SHORTAGE_OUT: 'Липса',
+    ADJUSTMENT_SCRAP_OUT: 'Брак',
+    ADJUSTMENT_INITIAL_IN: 'Начално салдо',
     TRANSFER: 'Трансфер'
   };
   return map[type] || type || '';
@@ -423,6 +445,7 @@ export async function getDashboardData() {
       stockBalances,
       stockMovements,
       stockTransferDocuments,
+      stockAdjustmentDocuments,
       cashEntries,
       vehicles,
       serviceOrders
@@ -437,6 +460,7 @@ export async function getDashboardData() {
       prisma.stockBalance.count(),
       prisma.stockMovement.count(),
       prisma.stockTransferDocument.count(),
+      prisma.stockAdjustmentDocument.count(),
       prisma.cashEntry.count(),
       prisma.vehicle.count(),
       prisma.serviceOrder.count()
@@ -455,6 +479,7 @@ export async function getDashboardData() {
         { title: 'Наличности', value: stockBalances, subtitle: 'складови позиции' },
         { title: 'Движения', value: stockMovements, subtitle: 'складова история' },
         { title: 'Трансфери', value: stockTransferDocuments, subtitle: 'складови документи' },
+        { title: 'Корекции', value: stockAdjustmentDocuments, subtitle: 'складови документи' },
         { title: 'Каса', value: cashEntries, subtitle: 'плащания' },
         { title: 'Автомобили', value: vehicles, subtitle: 'регистър' },
         { title: 'Сервиз', value: serviceOrders, subtitle: 'сервизни поръчки' }
@@ -725,6 +750,42 @@ export async function getScreenData(screenId) {
           lineCountText: String(row.lines.length),
           quantityText: numberText(totalQuantity),
           rowOpenUrl: `/stock/transfer/${row.id}`
+        };
+      });
+    }
+
+    if (definition.kind === 'stockAdjustmentDocument') {
+      const result = await prisma.stockAdjustmentDocument.findMany({
+        include: {
+          warehouse: true,
+          lines: true
+        },
+        orderBy: { adjustmentDate: 'desc' }
+      });
+
+      rows = result.map((row) => {
+        const totalQuantity = row.lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+        const statusMap = { DRAFT: 'Чернова', POSTED: 'Публикуван', CANCELLED: 'Отказан' };
+        const typeMap = {
+          INITIAL_IN: 'Начално салдо',
+          SURPLUS_IN: 'Излишък',
+          CORRECTION_IN: 'Корекция вход',
+          CORRECTION_OUT: 'Корекция изход',
+          SHORTAGE_OUT: 'Липса',
+          SCRAP_OUT: 'Брак'
+        };
+
+        return {
+          id: row.id,
+          number: row.number,
+          adjustmentDateText: dateText(row.adjustmentDate),
+          warehouseName: row.warehouse?.name || '',
+          adjustmentTypeText: typeMap[row.adjustmentType] || row.adjustmentType,
+          status: row.status,
+          statusText: statusMap[row.status] || row.status,
+          lineCountText: String(row.lines.length),
+          quantityText: numberText(totalQuantity),
+          rowOpenUrl: `/stock/adjustment/${row.id}`
         };
       });
     }

@@ -5,7 +5,7 @@ export const NAV_GROUPS = [
     icon: '▣',
     open: true,
     items: [
-      { id: 'price-list', title: 'Ценова листа', icon: '▤' },
+      { id: 'price-list', title: 'Ценова листа', icon: '▤', href: '/price-list' },
       { id: 'advance-payments', title: 'Авансови плащания', icon: '▤' },
       { id: 'offers', title: 'Оферта', icon: '▤' },
       { id: 'customer-orders', title: 'Поръчки от клиенти', icon: '▤' },
@@ -42,7 +42,8 @@ export const NAV_GROUPS = [
       { id: 'company-locations', title: 'Обекти и складове', icon: '⌂', href: '/locations' },
       { id: 'stock', title: 'Наличности', icon: '▤' },
       { id: 'stock-movements', title: 'Складови движения', icon: '⇅' },
-      { id: 'stock-adjustment-new', title: 'Складова корекция', icon: '±', href: '/stock/adjustment/new' },
+      { id: 'stock-adjustment-new', title: 'Нова складова корекция', icon: '🧾', href: '/stock/adjustment/new' },
+      { id: 'stock-adjustments', title: 'История складови корекции', icon: '▤' },
       { id: 'stock-transfer-new', title: 'Нов трансфер', icon: '⇄', href: '/stock/transfer/new' },
       { id: 'stock-transfers', title: 'История трансфери', icon: '▤' },
       { id: 'warehouses', title: 'Складове', icon: '▥' }
@@ -71,7 +72,7 @@ export const NAV_GROUPS = [
       { id: 'item-groups', title: 'Групи артикули', icon: '▤' },
       { id: 'company-locations', title: 'Обекти и складове', icon: '⌂', href: '/locations' },
       { id: 'warehouses', title: 'Складове', icon: '▤' },
-      { id: 'price-list', title: 'Ценови листи', icon: '▤' }
+      { id: 'price-list', title: 'Ценова листа', icon: '▤', href: '/price-list' }
     ],
     folders: ['Настройки', 'Справки']
   },

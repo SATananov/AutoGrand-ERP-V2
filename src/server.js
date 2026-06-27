@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
 import { getDashboardData, getScreenData } from './services/core-data-service.js';
+import { getPriceListWorkbenchData, safeItemImageBaseName } from './services/price-list-workbench-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
 import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
@@ -32,6 +33,7 @@ import {
 } from './services/purchase-actions-service.js';
 import {
   getStockAdjustmentFormData,
+  getStockAdjustmentCardData,
   getStockDashboardData,
   getStockItemCardData,
   getStockTransferFormData,
@@ -39,6 +41,12 @@ import {
   getStockWarehouseCardData,
   createStockAdjustmentFromForm,
   createStockTransferFromForm,
+  createTransferRequestsFromBasket,
+  markStockTransferNotFoundOnShelf,
+  addStockAdjustmentLine,
+  updateStockAdjustmentLine,
+  deleteStockAdjustmentLine,
+  updateStockAdjustmentDocumentStatus,
   addStockTransferLine,
   updateStockTransferLine,
   deleteStockTransferLine,
@@ -72,7 +80,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.2.1',
+    appVersion: 'v0.2.6',
     companyName: 'КЪРДЖАЛИ - Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -114,6 +122,11 @@ function redirectTransferWithAction(res, documentId, code) {
   res.redirect(`/stock/transfer/${documentId}?action=${actionCode}`);
 }
 
+function redirectAdjustmentWithAction(res, documentId, code) {
+  const actionCode = encodeURIComponent(code || 'done');
+  res.redirect(`/stock/adjustment/${documentId}?action=${actionCode}`);
+}
+
 
 function snapshotFolderPath() {
   return path.join(os.homedir(), 'Desktop', 'AutoGrand Snapshots');
@@ -140,6 +153,40 @@ function decodePngDataUrl(dataUrl = '') {
   }
 
   return Buffer.from(match[1], 'base64');
+}
+
+function decodeImageDataUrl(dataUrl = '') {
+  const value = String(dataUrl || '');
+  const match = value.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
+  if (!match) {
+    throw new Error('invalid_image_payload');
+  }
+
+  const extMap = { png: 'png', jpeg: 'jpg', webp: 'webp' };
+  return {
+    ext: extMap[match[1]] || 'png',
+    buffer: Buffer.from(match[2], 'base64')
+  };
+}
+
+async function ensureItemImagesFolder() {
+  const folder = path.join(rootDir, 'public', 'uploads', 'item-images');
+  await fs.promises.mkdir(folder, { recursive: true });
+  return folder;
+}
+
+function safeItemImageFileName(itemCode = '', ext = 'png') {
+  const cleanExt = String(ext || 'png').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'png';
+  return `${safeItemImageBaseName(itemCode)}.${cleanExt}`;
+}
+
+async function removeExistingItemImages(itemCode = '') {
+  const folder = await ensureItemImagesFolder();
+  const base = safeItemImageBaseName(itemCode);
+  const entries = await fs.promises.readdir(folder).catch(() => []);
+  await Promise.all(entries
+    .filter((entry) => entry.startsWith(`${base}.`))
+    .map((entry) => fs.promises.unlink(path.join(folder, entry)).catch(() => null)));
 }
 
 async function ensureSnapshotFolder() {
@@ -219,6 +266,89 @@ app.get('/', async (req, res) => {
   });
 });
 
+app.get('/price-list', async (req, res) => {
+  const priceList = await getPriceListWorkbenchData();
+
+  renderPage(req, res, 'price-list-workbench', {
+    ...baseViewData({
+      title: 'Артикули, цени и наличности — AutoGrand ERP V2',
+      currentScreen: 'price-list',
+      statusText: 'Отворен екран: Артикули, цени и наличности'
+    }),
+    priceList
+  });
+});
+
+app.post('/api/items/:itemId/image', async (req, res) => {
+  try {
+    const itemId = Number(req.params.itemId);
+    const itemCode = String(req.body?.itemCode || '').trim();
+    if (!itemId || !itemCode) {
+      return res.status(400).json({ ok: false, code: 'missing_item' });
+    }
+
+    const image = decodeImageDataUrl(req.body?.dataUrl || '');
+    await removeExistingItemImages(itemCode);
+    const folder = await ensureItemImagesFolder();
+    const fileName = safeItemImageFileName(itemCode, image.ext);
+    await fs.promises.writeFile(path.join(folder, fileName), image.buffer);
+
+    return res.json({
+      ok: true,
+      fileName,
+      imageUrl: `/public/uploads/item-images/${encodeURIComponent(fileName)}`
+    });
+  } catch (error) {
+    console.error('AutoGrand item image upload failed:', error);
+    return res.status(400).json({ ok: false, code: 'image_upload_failed' });
+  }
+});
+
+app.delete('/api/items/:itemId/image', async (req, res) => {
+  try {
+    const itemCode = String(req.query?.itemCode || '').trim();
+    if (!itemCode) {
+      return res.status(400).json({ ok: false, code: 'missing_item_code' });
+    }
+
+    await removeExistingItemImages(itemCode);
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('AutoGrand item image delete failed:', error);
+    return res.status(400).json({ ok: false, code: 'image_delete_failed' });
+  }
+});
+
+app.post('/api/stock/transfer-requests', async (req, res) => {
+  try {
+    const result = await createTransferRequestsFromBasket(req.body || {});
+    return res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error('AutoGrand transfer request basket failed:', error);
+    return res.status(400).json({ ok: false, code: 'transfer_request_failed' });
+  }
+});
+
+app.post('/api/stock/transfer-requests/:documentId/send', async (req, res) => {
+  try {
+    const result = await updateStockTransferDocumentStatus(req.params.documentId, 'POSTED');
+    return res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error('AutoGrand transfer request send failed:', error);
+    return res.status(400).json({ ok: false, code: 'transfer_request_send_failed' });
+  }
+});
+
+app.post('/api/stock/transfer-requests/:documentId/not-found', async (req, res) => {
+  try {
+    const result = await markStockTransferNotFoundOnShelf(req.params.documentId, req.body || {});
+    return res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error('AutoGrand transfer request not found failed:', error);
+    return res.status(400).json({ ok: false, code: 'transfer_request_not_found_failed' });
+  }
+});
+
 app.get('/screen/:screenId', async (req, res) => {
   const screen = await getScreenData(req.params.screenId);
 
@@ -237,8 +367,9 @@ app.get('/screen/:screenId', async (req, res) => {
   screen.isStockBalance = screen.kind === 'stockBalance';
   screen.isStockMovement = screen.kind === 'stockMovement';
   screen.isStockTransferDocument = screen.kind === 'stockTransferDocument';
+  screen.isStockAdjustmentDocument = screen.kind === 'stockAdjustmentDocument';
   screen.hasDocumentCard = screen.isSalesDocument || screen.isPurchaseDocument;
-  screen.hasStockActions = screen.isStockBalance || screen.isStockMovement || screen.isStockTransferDocument;
+  screen.hasStockActions = screen.isStockBalance || screen.isStockMovement || screen.isStockTransferDocument || screen.isStockAdjustmentDocument;
 
   if (screen.isSalesDocument) {
     const docType = screen.where?.docType || 'SALE';
@@ -498,9 +629,9 @@ app.get('/stock/adjustment/new', async (req, res) => {
 
   renderPage(req, res, 'stock-adjustment-new', {
     ...baseViewData({
-      title: 'Складова корекция — AutoGrand ERP V2',
+      title: 'Нова складова корекция — AutoGrand ERP V2',
       currentScreen: 'stock-adjustment-new',
-      statusText: 'Нова складова корекция'
+      statusText: 'Нов документ за складова корекция'
     }),
     formData,
     actionMessage: stockActionMessage(req.query.action || '')
@@ -509,7 +640,56 @@ app.get('/stock/adjustment/new', async (req, res) => {
 
 app.post('/stock/adjustment/new', async (req, res) => {
   const result = await createStockAdjustmentFromForm(req.body);
-  res.redirect(`/stock/dashboard?action=${result?.code || 'stock_adjustment_invalid'}`);
+
+  if (result?.ok && result.documentId) {
+    return redirectAdjustmentWithAction(res, result.documentId, result.code);
+  }
+
+  res.redirect(`/stock/adjustment/new?action=${result?.code || 'stock_adjustment_invalid'}`);
+});
+
+app.get('/stock/adjustment/:documentId', async (req, res) => {
+  const adjustmentCard = await getStockAdjustmentCardData(req.params.documentId, req.query.action || '');
+
+  if (!adjustmentCard) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Складовата корекция не е намерена',
+        currentScreen: 'stock-adjustments',
+        statusText: 'Складовата корекция не е намерена'
+      })
+    });
+  }
+
+  renderPage(req, res, 'stock-adjustment-card', {
+    ...baseViewData({
+      title: `${adjustmentCard.number} — складова корекция`,
+      currentScreen: 'stock-adjustments',
+      statusText: `Отворена карта на корекция: ${adjustmentCard.number}`
+    }),
+    adjustmentCard
+  });
+});
+
+app.post('/stock/adjustment/:documentId/lines', async (req, res) => {
+  const result = await addStockAdjustmentLine(req.params.documentId, req.body);
+  redirectAdjustmentWithAction(res, req.params.documentId, result?.code || 'stock_adjustment_line_invalid');
+});
+
+app.post('/stock/adjustment/:documentId/lines/:lineId/update', async (req, res) => {
+  const result = await updateStockAdjustmentLine(req.params.documentId, req.params.lineId, req.body);
+  redirectAdjustmentWithAction(res, req.params.documentId, result?.code || 'stock_adjustment_line_invalid');
+});
+
+app.post('/stock/adjustment/:documentId/lines/:lineId/delete', async (req, res) => {
+  const result = await deleteStockAdjustmentLine(req.params.documentId, req.params.lineId);
+  redirectAdjustmentWithAction(res, req.params.documentId, result?.code || 'stock_adjustment_line_invalid');
+});
+
+app.post('/stock/adjustment/:documentId/status', async (req, res) => {
+  const result = await updateStockAdjustmentDocumentStatus(req.params.documentId, req.body.status);
+  redirectAdjustmentWithAction(res, req.params.documentId, result?.code || 'stock_adjustment_status_invalid');
 });
 
 app.get('/stock/transfer/new', async (req, res) => {
@@ -642,7 +822,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '2-7-stock-transfer-document-card'
+    step: '3-0-transfer-request-basket-shelf-confirmation'
   });
 });
 

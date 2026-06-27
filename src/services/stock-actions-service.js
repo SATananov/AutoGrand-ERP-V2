@@ -30,6 +30,10 @@ function movementTypeText(type) {
     PURCHASE_RETURN_OUT: 'Изход към доставчик',
     ADJUSTMENT_IN: 'Корекция вход',
     ADJUSTMENT_OUT: 'Корекция изход',
+    ADJUSTMENT_SURPLUS_IN: 'Излишък',
+    ADJUSTMENT_SHORTAGE_OUT: 'Липса',
+    ADJUSTMENT_SCRAP_OUT: 'Брак',
+    ADJUSTMENT_INITIAL_IN: 'Начално салдо',
     TRANSFER: 'Трансфер'
   };
 
@@ -222,7 +226,7 @@ function balanceRow(row) {
 }
 
 export async function getStockDashboardData(action = '') {
-  const [balancesRaw, movementsRaw, warehousesRaw, itemsRaw, transferDocumentsCount] = await Promise.all([
+  const [balancesRaw, movementsRaw, warehousesRaw, itemsRaw, transferDocumentsCount, adjustmentDocumentsCount] = await Promise.all([
     prisma.stockBalance.findMany({
       include: { warehouse: { include: { location: true } }, item: true },
       orderBy: [{ warehouseId: 'asc' }, { itemId: 'asc' }]
@@ -234,7 +238,8 @@ export async function getStockDashboardData(action = '') {
     }),
     prisma.warehouse.findMany({ include: { location: true }, orderBy: { code: 'asc' } }),
     prisma.item.findMany({ orderBy: { code: 'asc' } }),
-    prisma.stockTransferDocument.count()
+    prisma.stockTransferDocument.count(),
+    prisma.stockAdjustmentDocument.count()
   ]);
 
   const balances = balancesRaw.map(balanceRow);
@@ -318,7 +323,8 @@ export async function getStockDashboardData(action = '') {
       { title: 'Резервирано', value: numberText(totalReserved), subtitle: 'заета наличност' },
       { title: 'Стойност', value: money(totalValue), subtitle: 'по средна цена' },
       { title: 'Ниски наличности', value: lowStockCount, subtitle: `≤ ${STOCK_LOW_THRESHOLD}` },
-      { title: 'Трансфери', value: transferDocumentsCount, subtitle: 'складови документи' }
+      { title: 'Трансфери', value: transferDocumentsCount, subtitle: 'складови документи' },
+      { title: 'Корекции', value: adjustmentDocumentsCount, subtitle: 'складови документи' }
     ],
     warehouseCards,
     lowStockItems: itemCards,
@@ -331,10 +337,17 @@ export async function getStockAdjustmentFormData() {
   const lists = await getStockFormLists();
 
   return {
-    title: 'Складова корекция',
+    title: 'Нова складова корекция',
+    adjustmentTypes: adjustmentTypeOptions(),
     directions: [
-      { value: 'IN', label: 'Вход към склад' },
-      { value: 'OUT', label: 'Изход от склад' }
+      { value: 'IN', label: 'Увеличение на наличност' },
+      { value: 'OUT', label: 'Намаление на наличност' }
+    ],
+    adjustmentHelpCards: [
+      { title: 'Намерена стока / излишък', text: 'Когато стоката е на рафта, но не се води в системата.' },
+      { title: 'Липса', text: 'Когато системата показва количество, но реално го няма.' },
+      { title: 'Брак', text: 'Когато стоката е повредена и трябва да се извади от продаваема наличност.' },
+      { title: 'Начално салдо', text: 'Когато започваме работа със системата и въвеждаме реалното количество.' }
     ],
     ...lists
   };
@@ -349,51 +362,425 @@ export async function getStockTransferFormData() {
   };
 }
 
+function adjustmentTypeOptions() {
+  return [
+    { value: 'INITIAL_IN', label: 'Начално салдо', direction: 'IN' },
+    { value: 'SURPLUS_IN', label: 'Намерена стока / излишък', direction: 'IN' },
+    { value: 'CORRECTION_IN', label: 'Корекция вход', direction: 'IN' },
+    { value: 'CORRECTION_OUT', label: 'Корекция изход', direction: 'OUT' },
+    { value: 'SHORTAGE_OUT', label: 'Липса', direction: 'OUT' },
+    { value: 'SCRAP_OUT', label: 'Брак / повредена стока', direction: 'OUT' }
+  ];
+}
+
+function adjustmentTypeText(type) {
+  const found = adjustmentTypeOptions().find((entry) => entry.value === type);
+  return found?.label || type || '';
+}
+
+function adjustmentTypeDirection(type) {
+  const found = adjustmentTypeOptions().find((entry) => entry.value === type);
+  return found?.direction || 'IN';
+}
+
+function adjustmentMovementType(type, direction) {
+  const map = {
+    INITIAL_IN: 'ADJUSTMENT_INITIAL_IN',
+    SURPLUS_IN: 'ADJUSTMENT_SURPLUS_IN',
+    SHORTAGE_OUT: 'ADJUSTMENT_SHORTAGE_OUT',
+    SCRAP_OUT: 'ADJUSTMENT_SCRAP_OUT',
+    CORRECTION_IN: 'ADJUSTMENT_IN',
+    CORRECTION_OUT: 'ADJUSTMENT_OUT'
+  };
+
+  return map[type] || (direction === 'OUT' ? 'ADJUSTMENT_OUT' : 'ADJUSTMENT_IN');
+}
+
+function normalizeAdjustmentType(value) {
+  const type = String(value || '').trim().toUpperCase();
+  return adjustmentTypeOptions().some((entry) => entry.value === type) ? type : 'CORRECTION_IN';
+}
+
+async function nextAdjustmentNumber(tx) {
+  const count = await tx.stockAdjustmentDocument.count();
+  return stockSourceNumber('ADJ', count + 1);
+}
+
+function adjustmentStatusText(status) {
+  const map = {
+    DRAFT: 'Чернова',
+    POSTED: 'Публикуван',
+    CANCELLED: 'Отказан'
+  };
+
+  return map[status] || status || '';
+}
+
+function adjustmentStatusKind(status) {
+  const map = {
+    DRAFT: 'warning',
+    POSTED: 'success',
+    CANCELLED: 'danger'
+  };
+
+  return map[status] || 'neutral';
+}
+
+function adjustmentLineRow(line, index, warehouseId = null) {
+  const quantity = Number(line.quantity || 0);
+  const direction = line.direction === 'OUT' ? 'OUT' : 'IN';
+  const available = line.item?.stockBalances?.find((balance) => Number(balance.warehouseId) === Number(warehouseId));
+  const availableQuantity = Number(available?.quantity || 0) - Number(available?.reservedQuantity || 0);
+
+  return {
+    index,
+    lineId: line.id,
+    itemId: line.itemId,
+    itemCode: line.item?.code || '',
+    itemName: line.item?.name || '',
+    unit: line.item?.unit || '',
+    rawQuantity: quantity,
+    quantityText: numberText(quantity),
+    direction,
+    directionText: directionText(direction),
+    selectedIn: direction === 'IN',
+    selectedOut: direction === 'OUT',
+    availableQuantityText: warehouseId ? numberText(availableQuantity) : '',
+    reason: line.reason || '',
+    note: line.note || '',
+    hasEnoughStock: direction !== 'OUT' || availableQuantity >= quantity
+  };
+}
+
+function adjustmentDocumentRow(document) {
+  const totalQuantity = document.lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+  const lineCount = document.lines.length;
+
+  return {
+    id: document.id,
+    number: document.number,
+    adjustmentDateText: dateTimeText(document.adjustmentDate),
+    warehouseName: document.warehouse?.name || '',
+    warehouseCode: document.warehouse?.code || '',
+    adjustmentType: document.adjustmentType,
+    adjustmentTypeText: adjustmentTypeText(document.adjustmentType),
+    status: document.status,
+    statusText: adjustmentStatusText(document.status),
+    statusKind: adjustmentStatusKind(document.status),
+    lineCount,
+    lineCountText: String(lineCount),
+    quantityText: numberText(totalQuantity),
+    note: document.note || '',
+    rowOpenUrl: `/stock/adjustment/${document.id}`
+  };
+}
+
+export async function getStockAdjustmentDocumentsData() {
+  const documents = await prisma.stockAdjustmentDocument.findMany({
+    include: {
+      warehouse: true,
+      lines: true
+    },
+    orderBy: { adjustmentDate: 'desc' }
+  });
+
+  return documents.map(adjustmentDocumentRow);
+}
+
 export async function createStockAdjustmentFromForm(body = {}) {
+  return createStockAdjustmentDocumentFromForm(body);
+}
+
+export async function createStockAdjustmentDocumentFromForm(body = {}) {
   const warehouseId = normalizeId(body.warehouseId);
+  const adjustmentType = normalizeAdjustmentType(body.adjustmentType);
   const itemId = normalizeId(body.itemId);
   const quantity = normalizeQuantity(body.quantity);
-  const direction = body.direction === 'OUT' ? 'OUT' : 'IN';
-  const reason = safeNote(body.reason) || (direction === 'OUT' ? 'Складова корекция изход' : 'Складова корекция вход');
+  const direction = body.direction === 'OUT' || body.direction === 'IN' ? body.direction : adjustmentTypeDirection(adjustmentType);
+  const reason = safeNote(body.reason) || adjustmentTypeText(adjustmentType);
   const note = safeNote(body.note);
 
-  if (!warehouseId || !itemId || !quantity) {
+  if (!warehouseId) {
     return { ok: false, code: 'stock_adjustment_invalid' };
   }
 
+  if ((itemId && !quantity) || (!itemId && quantity)) {
+    return { ok: false, code: 'stock_adjustment_line_invalid' };
+  }
+
   return prisma.$transaction(async (tx) => {
-    const item = await tx.item.findUnique({ where: { id: itemId } });
     const warehouse = await tx.warehouse.findUnique({ where: { id: warehouseId } });
+    if (!warehouse) return { ok: false, code: 'stock_adjustment_invalid' };
 
-    if (!item || !warehouse) {
-      return { ok: false, code: 'stock_adjustment_invalid' };
+    if (itemId) {
+      const item = await tx.item.findUnique({ where: { id: itemId } });
+      if (!item) return { ok: false, code: 'stock_adjustment_line_invalid' };
     }
 
-    const sequence = await nextMovementSequence(tx);
-    const sourceDocument = stockSourceNumber('ADJ', sequence);
-
-    if (direction === 'OUT') {
-      const decrease = await decrementBalance(tx, warehouseId, itemId, quantity);
-      if (!decrease.ok) return decrease;
-    } else {
-      await incrementBalance(tx, warehouseId, itemId, quantity, Number(item.wholesalePrice || 0));
-    }
-
-    await tx.stockMovement.create({
+    const number = await nextAdjustmentNumber(tx);
+    const document = await tx.stockAdjustmentDocument.create({
       data: {
-        number: `${sourceDocument}-1`,
-        movementType: direction === 'OUT' ? 'ADJUSTMENT_OUT' : 'ADJUSTMENT_IN',
+        number,
         warehouseId,
-        itemId,
-        quantity,
-        direction,
-        reason,
-        sourceDocument,
+        adjustmentType,
+        status: 'DRAFT',
         note
       }
     });
 
-    return { ok: true, code: 'stock_adjustment_success', sourceDocument };
+    if (itemId && quantity) {
+      await tx.stockAdjustmentLine.create({
+        data: { documentId: document.id, itemId, quantity, direction, reason, note }
+      });
+    }
+
+    return { ok: true, code: 'stock_adjustment_document_created', documentId: document.id, number };
+  });
+}
+
+export async function getStockAdjustmentCardData(documentId, action = '') {
+  const id = normalizeId(documentId);
+  if (!id) return null;
+
+  const [document, availableItems] = await Promise.all([
+    prisma.stockAdjustmentDocument.findUnique({
+      where: { id },
+      include: {
+        warehouse: { include: { location: true } },
+        lines: {
+          include: {
+            item: { include: { stockBalances: true } }
+          },
+          orderBy: { id: 'asc' }
+        }
+      }
+    }),
+    prisma.item.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } })
+  ]);
+
+  if (!document) return null;
+
+  const movementRows = await prisma.stockMovement.findMany({
+    where: { sourceDocument: document.number },
+    include: { warehouse: { include: { location: true } }, item: true },
+    orderBy: [{ movementDate: 'desc' }, { id: 'asc' }]
+  });
+
+  const rows = document.lines.map((line, index) => adjustmentLineRow(line, index + 1, document.warehouseId));
+  const isEditable = document.status === 'DRAFT';
+  const totalQuantity = rows.reduce((sum, row) => sum + Number(row.rawQuantity || 0), 0);
+  const canPost = isEditable && rows.length > 0;
+  const canCancel = document.status === 'DRAFT';
+  const hasInsufficientStock = rows.some((row) => !row.hasEnoughStock);
+  const defaultDirection = adjustmentTypeDirection(document.adjustmentType);
+
+  return {
+    action,
+    actionMessage: stockActionMessage(action),
+    id: document.id,
+    number: document.number,
+    adjustmentDateText: dateTimeText(document.adjustmentDate),
+    adjustmentType: document.adjustmentType,
+    adjustmentTypeText: adjustmentTypeText(document.adjustmentType),
+    status: document.status,
+    statusText: adjustmentStatusText(document.status),
+    statusKind: adjustmentStatusKind(document.status),
+    note: document.note || '',
+    isEditable,
+    canPost,
+    canCancel,
+    hasInsufficientStock,
+    defaultDirection,
+    lockMessage: document.status === 'POSTED'
+      ? 'Складовата корекция е публикувана и движенията са заключени.'
+      : document.status === 'CANCELLED'
+        ? 'Складовата корекция е отказана и не може да се редактира.'
+        : '',
+    warehouse: {
+      id: document.warehouse.id,
+      code: document.warehouse.code,
+      name: document.warehouse.name,
+      city: document.warehouse.city || document.warehouse.location?.city || '',
+      typeText: locationTypeText(document.warehouse.location?.type)
+    },
+    rows,
+    editableRows: isEditable ? rows : [],
+    availableItems: availableItems.map((item) => ({
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      unit: item.unit,
+      label: `${item.code} · ${item.name}`
+    })),
+    directions: [
+      { value: 'IN', label: 'Вход / увеличение', selectedIn: defaultDirection === 'IN' },
+      { value: 'OUT', label: 'Изход / намаление', selectedOut: defaultDirection === 'OUT' }
+    ],
+    stockMovementRows: movementRows.map(movementRow),
+    summary: {
+      linesText: String(rows.length),
+      quantityText: numberText(totalQuantity),
+      movementRowsText: String(movementRows.length)
+    },
+    historyRows: [
+      { time: dateTimeText(document.createdAt), user: 'СТЕФАН ТАНАНОВ', action: 'Създаден', details: `Складова корекция ${document.number}` },
+      ...(document.postedAt ? [{ time: dateTimeText(document.postedAt), user: 'СТЕФАН ТАНАНОВ', action: 'Публикуван', details: 'Създадени са складови движения за корекция.' }] : []),
+      ...(document.cancelledAt ? [{ time: dateTimeText(document.cancelledAt), user: 'СТЕФАН ТАНАНОВ', action: 'Отказан', details: 'Документът е заключен без складово движение.' }] : [])
+    ]
+  };
+}
+
+export async function addStockAdjustmentLine(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const itemId = normalizeId(body.itemId);
+  const quantity = normalizeQuantity(body.quantity);
+  const direction = body.direction === 'OUT' ? 'OUT' : 'IN';
+  const reason = safeNote(body.reason) || (direction === 'OUT' ? 'Намаление на наличност с причина' : 'Увеличение на наличност с причина');
+  const note = safeNote(body.note);
+
+  if (!id || !itemId || !quantity) return { ok: false, code: 'stock_adjustment_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockAdjustmentDocument.findUnique({ where: { id } });
+    const item = await tx.item.findUnique({ where: { id: itemId } });
+
+    if (!document || !item || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_adjustment_locked' };
+    }
+
+    await tx.stockAdjustmentLine.create({
+      data: { documentId: id, itemId, quantity, direction, reason, note }
+    });
+
+    return { ok: true, code: 'stock_adjustment_line_added' };
+  });
+}
+
+export async function updateStockAdjustmentLine(documentId, lineId, body = {}) {
+  const id = normalizeId(documentId);
+  const rowId = normalizeId(lineId);
+  const quantity = normalizeQuantity(body.quantity);
+  const direction = body.direction === 'OUT' ? 'OUT' : 'IN';
+  const reason = safeNote(body.reason);
+  const note = safeNote(body.note);
+
+  if (!id || !rowId || !quantity) return { ok: false, code: 'stock_adjustment_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockAdjustmentDocument.findUnique({ where: { id } });
+    const line = await tx.stockAdjustmentLine.findFirst({ where: { id: rowId, documentId: id } });
+
+    if (!document || !line || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_adjustment_locked' };
+    }
+
+    await tx.stockAdjustmentLine.update({ where: { id: rowId }, data: { quantity, direction, reason, note } });
+
+    return { ok: true, code: 'stock_adjustment_line_updated' };
+  });
+}
+
+export async function deleteStockAdjustmentLine(documentId, lineId) {
+  const id = normalizeId(documentId);
+  const rowId = normalizeId(lineId);
+
+  if (!id || !rowId) return { ok: false, code: 'stock_adjustment_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockAdjustmentDocument.findUnique({ where: { id } });
+    const line = await tx.stockAdjustmentLine.findFirst({ where: { id: rowId, documentId: id } });
+
+    if (!document || !line || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_adjustment_locked' };
+    }
+
+    await tx.stockAdjustmentLine.delete({ where: { id: rowId } });
+
+    return { ok: true, code: 'stock_adjustment_line_deleted' };
+  });
+}
+
+export async function updateStockAdjustmentDocumentStatus(documentId, nextStatusValue) {
+  const id = normalizeId(documentId);
+  const nextStatus = normalizeStatus(nextStatusValue);
+
+  if (!id || !nextStatus || nextStatus === 'DRAFT') {
+    return { ok: false, code: 'stock_adjustment_status_invalid' };
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockAdjustmentDocument.findUnique({
+      where: { id },
+      include: {
+        warehouse: true,
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      }
+    });
+
+    if (!document || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_adjustment_locked' };
+    }
+
+    if (nextStatus === 'CANCELLED') {
+      await tx.stockAdjustmentDocument.update({
+        where: { id },
+        data: { status: 'CANCELLED', cancelledAt: new Date() }
+      });
+      return { ok: true, code: 'stock_adjustment_cancelled' };
+    }
+
+    if (document.lines.length === 0) {
+      return { ok: false, code: 'stock_adjustment_empty' };
+    }
+
+    for (const line of document.lines) {
+      if (!line.itemId || Number(line.quantity || 0) <= 0) {
+        return { ok: false, code: 'stock_adjustment_line_invalid' };
+      }
+
+      if (line.direction === 'OUT') {
+        const balance = await findBalance(tx, document.warehouseId, line.itemId);
+        const available = Number(balance?.quantity || 0) - Number(balance?.reservedQuantity || 0);
+        if (!balance || available < Number(line.quantity || 0)) {
+          return { ok: false, code: 'insufficient_stock' };
+        }
+      }
+    }
+
+    let sequence = await nextMovementSequence(tx);
+    for (const line of document.lines) {
+      const quantity = Number(line.quantity || 0);
+      const direction = line.direction === 'OUT' ? 'OUT' : 'IN';
+
+      if (direction === 'OUT') {
+        const decrease = await decrementBalance(tx, document.warehouseId, line.itemId, quantity);
+        if (!decrease.ok) return decrease;
+      } else {
+        await incrementBalance(tx, document.warehouseId, line.itemId, quantity, Number(line.item?.wholesalePrice || 0));
+      }
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-${String(sequence).padStart(3, '0')}`,
+          movementType: adjustmentMovementType(document.adjustmentType, direction),
+          warehouseId: document.warehouseId,
+          itemId: line.itemId,
+          quantity,
+          direction,
+          reason: line.reason || adjustmentTypeText(document.adjustmentType),
+          sourceDocument: document.number,
+          note: document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+    }
+
+    await tx.stockAdjustmentDocument.update({
+      where: { id },
+      data: { status: 'POSTED', postedAt: new Date() }
+    });
+
+    return { ok: true, code: 'stock_adjustment_posted' };
   });
 }
 
@@ -541,6 +928,138 @@ export async function createStockTransferDocumentFromForm(body = {}) {
     }
 
     return { ok: true, code: 'stock_transfer_document_created', documentId: document.id, number };
+  });
+}
+
+
+export async function createTransferRequestsFromBasket(body = {}) {
+  const toWarehouseId = normalizeId(body.toWarehouseId);
+  const rawLines = Array.isArray(body.lines) ? body.lines : [];
+  const note = safeNote(body.note) || 'Заявка от ценова листа. Чака проверка на рафт.';
+
+  if (!toWarehouseId || rawLines.length === 0) {
+    return { ok: false, code: 'transfer_request_empty' };
+  }
+
+  const lines = rawLines
+    .map((line) => ({
+      fromWarehouseId: normalizeId(line.fromWarehouseId),
+      itemId: normalizeId(line.itemId),
+      quantity: normalizeQuantity(line.quantity),
+      note: safeNote(line.note) || 'Заявено от ценова листа; чака проверка на рафт.'
+    }))
+    .filter((line) => line.fromWarehouseId && line.itemId && line.quantity && line.fromWarehouseId !== toWarehouseId);
+
+  if (!lines.length) {
+    return { ok: false, code: 'transfer_request_empty' };
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const toWarehouse = await tx.warehouse.findUnique({ where: { id: toWarehouseId } });
+    if (!toWarehouse) return { ok: false, code: 'transfer_request_invalid' };
+
+    const missingRows = [];
+    const readyRows = [];
+
+    for (const line of lines) {
+      const [fromWarehouse, item, balance] = await Promise.all([
+        tx.warehouse.findUnique({ where: { id: line.fromWarehouseId } }),
+        tx.item.findUnique({ where: { id: line.itemId } }),
+        findBalance(tx, line.fromWarehouseId, line.itemId)
+      ]);
+
+      const available = Number(balance?.quantity || 0) - Number(balance?.reservedQuantity || 0);
+      if (!fromWarehouse || !item || available < line.quantity) {
+        missingRows.push({
+          ...line,
+          available: Math.max(available, 0),
+          itemCode: item?.code || '',
+          itemName: item?.name || '',
+          fromWarehouseName: fromWarehouse?.name || ''
+        });
+      } else {
+        readyRows.push(line);
+      }
+    }
+
+    if (!readyRows.length) {
+      return { ok: false, code: 'transfer_request_no_free_quantity', missingRows };
+    }
+
+    const grouped = new Map();
+    for (const line of readyRows) {
+      const key = String(line.fromWarehouseId);
+      const group = grouped.get(key) || [];
+      group.push(line);
+      grouped.set(key, group);
+    }
+
+    const documents = [];
+    for (const [fromWarehouseIdText, groupLines] of grouped.entries()) {
+      const fromWarehouseId = Number(fromWarehouseIdText);
+      const number = await nextTransferNumber(tx);
+      const document = await tx.stockTransferDocument.create({
+        data: {
+          number,
+          fromWarehouseId,
+          toWarehouseId,
+          status: 'DRAFT',
+          note: `${note} Източник: ценова листа; заявка за трансфер.`
+        }
+      });
+
+      for (const line of groupLines) {
+        await tx.stockTransferLine.create({
+          data: {
+            documentId: document.id,
+            itemId: line.itemId,
+            quantity: line.quantity,
+            note: line.note
+          }
+        });
+      }
+
+      documents.push({ id: document.id, number: document.number, fromWarehouseId, toWarehouseId, lineCount: groupLines.length });
+    }
+
+    return {
+      ok: true,
+      code: missingRows.length ? 'transfer_request_created_with_missing' : 'transfer_request_created',
+      documents,
+      missingRows
+    };
+  });
+}
+
+export async function markStockTransferNotFoundOnShelf(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const reason = safeNote(body.reason) || 'ЛИПСА НА РАФТ: заявената стока не е намерена физически.';
+
+  if (!id) return { ok: false, code: 'transfer_request_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({ where: { id }, include: { lines: true } });
+    if (!document || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    await tx.stockTransferDocument.update({
+      where: { id },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        note: `${document.note || ''}${document.note ? ' | ' : ''}${reason}`
+      }
+    });
+
+    for (const line of document.lines) {
+      await tx.stockTransferLine.update({
+        where: { id: line.id },
+        data: { note: `${line.note || ''}${line.note ? ' | ' : ''}${reason}` }
+      });
+    }
+
+    return { ok: true, code: 'transfer_request_not_found', documentId: id };
   });
 }
 
@@ -910,6 +1429,12 @@ export async function getStockWarehouseCardData(warehouseId, action = '') {
 export function stockActionMessage(action = '') {
   const map = {
     stock_adjustment_success: 'Складовата корекция е записана успешно.',
+    stock_adjustment_document_created: 'Създаден е нов документ за складова корекция. Наличността ще се промени след публикуване.',
+    stock_adjustment_line_added: 'Редът е добавен към документа за складова корекция.',
+    stock_adjustment_line_updated: 'Редът е обновен.',
+    stock_adjustment_line_deleted: 'Редът е изтрит.',
+    stock_adjustment_posted: 'Складовата корекция е публикувана. Наличността е обновена и движенията са записани.',
+    stock_adjustment_cancelled: 'Складовата корекция е отказана.',
     stock_transfer_success: 'Складовият трансфер е записан успешно.',
     stock_transfer_document_created: 'Създаден е нов складов трансфер в статус Чернова.',
     stock_transfer_line_added: 'Редът е добавен към трансфера.',
@@ -917,12 +1442,22 @@ export function stockActionMessage(action = '') {
     stock_transfer_line_deleted: 'Редът е изтрит.',
     stock_transfer_posted: 'Складовият трансфер е публикуван и движенията са записани.',
     stock_transfer_cancelled: 'Складовият трансфер е отказан.',
-    stock_adjustment_invalid: 'Провери склад, артикул и количество за корекцията.',
+    transfer_request_created: 'Заявката за трансфер е изпратена към избраните обекти.',
+    transfer_request_created_with_missing: 'Заявката е изпратена, но някои редове вече нямат свободно количество.',
+    transfer_request_not_found: 'Артикулът е маркиран като ЛИПСА НА РАФТ. Заявителят ще го види като проблем.',
+    stock_adjustment_invalid: 'Провери склад/обект и причина за складовата корекция.',
+    stock_adjustment_line_invalid: 'Провери артикул, увеличение/намаление и количество за реда.',
+    stock_adjustment_locked: 'Корекцията е заключена и не може да се редактира.',
+    stock_adjustment_empty: 'Добави поне един ред, който обяснява какво количество се коригира.',
+    stock_adjustment_status_invalid: 'Невалиден статус за складовата корекция.',
     stock_transfer_invalid: 'Провери изходния и приемащия склад за трансфера.',
     stock_transfer_line_invalid: 'Провери артикул и количество за реда на трансфера.',
     stock_transfer_locked: 'Трансферът е заключен и не може да се редактира.',
     stock_transfer_empty: 'Добави поне един ред преди публикуване.',
     stock_transfer_status_invalid: 'Невалиден статус за складовия трансфер.',
+    transfer_request_empty: 'Добави поне един артикул към текущата заявка.',
+    transfer_request_invalid: 'Провери обекта и редовете в заявката.',
+    transfer_request_no_free_quantity: 'Нито един ред вече няма свободно количество за заявяване.',
     insufficient_stock: 'Няма достатъчна наличност за избраната операция.'
   };
 

@@ -35,7 +35,7 @@
   const QUICK_LINKS_KEY = 'ag_v2_quick_links';
 
   const KNOWN_ROUTES = new Map([
-    ['Продажби||Ценова листа', '/screen/price-list'],
+    ['Продажби||Ценова листа', '/price-list'],
     ['Продажби||Авансови плащания', '/screen/advance-payments'],
     ['Продажби||Оферта', '/screen/offers'],
     ['Продажби||Поръчки от клиенти', '/screen/customer-orders'],
@@ -63,7 +63,11 @@
     ['Склад||Складов център', '/stock/dashboard'],
     ['Склад||Наличности', '/screen/stock'],
     ['Склад||Складови движения', '/screen/stock-movements'],
+    ['Склад||Нова складова корекция', '/stock/adjustment/new'],
     ['Склад||Складова корекция', '/stock/adjustment/new'],
+    ['Склад||Нова корекция', '/stock/adjustment/new'],
+    ['Склад||История складови корекции', '/screen/stock-adjustments'],
+    ['Склад||История корекции', '/screen/stock-adjustments'],
     ['Склад||Нов трансфер', '/stock/transfer/new'],
     ['Склад||История трансфери', '/screen/stock-transfers'],
     ['Склад||Трансфер на стока', '/stock/transfer/new'],
@@ -104,6 +108,7 @@
   ]);
 
   const TITLE_ROUTES = new Map([
+    ['Ценова листа', '/price-list'],
     ['Контрагенти', '/screen/counterparties'],
     ['Артикули', '/screen/items'],
     ['Обекти и складове', '/locations'],
@@ -111,7 +116,11 @@
     ['Складов център', '/stock/dashboard'],
     ['Наличности', '/screen/stock'],
     ['Складови движения', '/screen/stock-movements'],
+    ['Нова складова корекция', '/stock/adjustment/new'],
     ['Складова корекция', '/stock/adjustment/new'],
+    ['Нова корекция', '/stock/adjustment/new'],
+    ['История складови корекции', '/screen/stock-adjustments'],
+    ['История корекции', '/screen/stock-adjustments'],
     ['Нов трансфер', '/stock/transfer/new'],
     ['История трансфери', '/screen/stock-transfers'],
     ['Складове', '/screen/warehouses'],

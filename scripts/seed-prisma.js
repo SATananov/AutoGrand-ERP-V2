@@ -4,6 +4,8 @@ async function reset() {
   await prisma.serviceOrderLine.deleteMany();
   await prisma.serviceOrder.deleteMany();
   await prisma.stockMovement.deleteMany();
+  await prisma.stockAdjustmentLine.deleteMany();
+  await prisma.stockAdjustmentDocument.deleteMany();
   await prisma.stockTransferLine.deleteMany();
   await prisma.stockTransferDocument.deleteMany();
   await prisma.stockBalance.deleteMany();
@@ -225,7 +227,7 @@ async function main() {
       data: {
         warehouseId: activeWarehouse.id,
         itemId: item.id,
-        quantity: item.code === 'A-0001' ? 34 : item.code === 'A-0002' ? 18 : item.code === 'A-0003' ? 7 : 3,
+        quantity: item.code === 'A-0001' ? 34 : item.code === 'A-0002' ? 18 : item.code === 'A-0003' ? 7 : 4,
         reservedQuantity: item.code === 'A-0003' ? 1 : 0,
         avgCost: item.wholesalePrice
       }
@@ -241,6 +243,33 @@ async function main() {
   await prisma.stockMovement.create({
     data: { number: 'SM-SL-000001-1', movementType: 'SALE_OUT', warehouseId: activeWarehouse.id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Осчетоводена продажба', sourceDocument: 'SL-000001' }
   });
+
+  const adjustmentDocument = await prisma.stockAdjustmentDocument.create({
+    data: {
+      number: 'ADJ-000001',
+      warehouseId: activeWarehouse.id,
+      adjustmentType: 'SURPLUS_IN',
+      status: 'POSTED',
+      note: 'Начална складова корекция за демонстрация',
+      postedAt: new Date()
+    }
+  });
+
+  await prisma.stockAdjustmentLine.create({
+    data: {
+      documentId: adjustmentDocument.id,
+      itemId: items[3].id,
+      quantity: 1,
+      direction: 'IN',
+      reason: 'Излишък от инвентаризация',
+      note: 'Демо корекционен ред'
+    }
+  });
+
+  await prisma.stockMovement.create({
+    data: { number: 'ADJ-000001-001', movementType: 'ADJUSTMENT_SURPLUS_IN', warehouseId: activeWarehouse.id, itemId: items[3].id, quantity: 1, direction: 'IN', reason: 'Излишък от инвентаризация', sourceDocument: 'ADJ-000001' }
+  });
+
   const transferDocument = await prisma.stockTransferDocument.create({
     data: {
       number: 'TR-000001',
@@ -294,7 +323,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 2.7 stock transfer document card seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 2.8 stock adjustment document card seed completed.');
 }
 
 main()

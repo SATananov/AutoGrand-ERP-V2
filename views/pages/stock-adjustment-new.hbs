@@ -1,14 +1,14 @@
 <section class="document-card-screen stock-form-screen">
   <header class="document-card-header">
     <div class="screen-title-block">
-      <div class="screen-kicker">Склад</div>
-      <h1>Складова корекция</h1>
-      <p>Ръчен вход или изход за изравняване на реалната наличност.</p>
+      <div class="screen-kicker">Склад / Складов документ</div>
+      <h1>Нова складова корекция</h1>
+      <p>Използва се когато реалната наличност трябва да се изравни със системата — намерена стока на рафт, липса, брак или начално салдо. Наличността се променя само при публикуване.</p>
     </div>
 
     <div class="document-card-actions">
       <a href="/stock/dashboard">Складов център</a>
-      <a href="/screen/stock">Наличности</a>
+      <a href="/screen/stock-adjustments">История складови корекции</a>
       <a href="/screen/stock-movements">Движения</a>
     </div>
   </header>
@@ -17,10 +17,19 @@
     <div class="document-alert error">{{actionMessage}}</div>
   {{/if}}
 
+  <section class="stock-adjustment-help-grid" aria-label="Кога се използва складова корекция">
+    {{#each formData.adjustmentHelpCards}}
+      <article>
+        <strong>{{title}}</strong>
+        <span>{{text}}</span>
+      </article>
+    {{/each}}
+  </section>
+
   <form class="stock-form-card" method="post" action="/stock/adjustment/new">
     <div class="stock-form-grid">
       <label>
-        <span>Склад</span>
+        <span>Склад / обект</span>
         <select name="warehouseId" required>
           <option value="">Избери склад...</option>
           {{#each formData.warehouses}}
@@ -30,9 +39,18 @@
       </label>
 
       <label>
-        <span>Артикул</span>
-        <select name="itemId" required>
-          <option value="">Избери артикул...</option>
+        <span>Причина за корекцията</span>
+        <select name="adjustmentType" required>
+          {{#each formData.adjustmentTypes}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Първи ред — артикул</span>
+        <select name="itemId">
+          <option value="">Без начален ред...</option>
           {{#each formData.items}}
             <option value="{{id}}">{{label}}</option>
           {{/each}}
@@ -40,8 +58,8 @@
       </label>
 
       <label>
-        <span>Посока</span>
-        <select name="direction" required>
+        <span>Как се променя наличността</span>
+        <select name="direction">
           {{#each formData.directions}}
             <option value="{{value}}">{{label}}</option>
           {{/each}}
@@ -50,22 +68,22 @@
 
       <label>
         <span>Количество</span>
-        <input name="quantity" type="number" step="0.001" min="0.001" required placeholder="0.000" />
+        <input name="quantity" type="number" step="0.001" min="0.001" placeholder="0.000" />
       </label>
 
       <label class="wide">
-        <span>Основание</span>
-        <input name="reason" type="text" placeholder="Инвентаризация, корекция, бракуване..." />
+        <span>Причина / основание</span>
+        <input name="reason" type="text" placeholder="Например: намерено на рафт, липса при проверка, повредена стока, начално въвеждане..." />
       </label>
 
       <label class="wide">
         <span>Бележка</span>
-        <textarea name="note" rows="3" placeholder="Допълнителна информация"></textarea>
+        <textarea name="note" rows="3" placeholder="Кратко обяснение за документа, което остава в историята"></textarea>
       </label>
     </div>
 
     <div class="document-card-actions stock-form-actions">
-      <button type="submit">Запиши корекция</button>
+      <button type="submit">Създай складова корекция</button>
       <a href="/stock/dashboard">Отказ</a>
     </div>
   </form>

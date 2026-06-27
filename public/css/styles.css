@@ -3338,6 +3338,47 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   background: #f4f9f0;
 }
 
+.stock-adjustment-help-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.stock-adjustment-help-grid article {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #b7cbb0;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ffffff, #eef7e8);
+  box-shadow: 0 6px 14px rgba(53, 76, 48, 0.08);
+}
+
+.stock-adjustment-help-grid strong {
+  color: #1f4a2f;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.stock-adjustment-help-grid span {
+  color: #586756;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+@media (max-width: 1180px) {
+  .stock-adjustment-help-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .stock-adjustment-help-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .stock-info-stack {
   display: grid;
   gap: 1px;
@@ -3508,6 +3549,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 .tree-leaf[data-module-title="Обекти и складове"] .tree-icon,
 .tree-leaf[data-module-title="Складов център"] .tree-icon,
 .tree-leaf[data-module-title="Наличности"] .tree-icon,
+.tree-leaf[data-module-title="Нова складова корекция"] .tree-icon,
 .tree-leaf[data-module-title="Складова корекция"] .tree-icon,
 .tree-leaf[data-module-title="Нов трансфер"] .tree-icon,
 .tree-leaf[data-module-title="История трансфери"] .tree-icon {
@@ -3546,5 +3588,1016 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   .stock-transfer-card .transfer-route-grid,
   .stock-transfer-card .stock-transfer-route-box {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Step 2.9 — Price list working screen */
+.price-workbench {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  min-height: 100%;
+  color: #223426;
+}
+
+.price-header-panel,
+.price-filter-panel,
+.price-grid-zone,
+.price-item-panel,
+.price-columns-dialog form,
+.price-image-dialog form {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(117, 153, 101, 0.35);
+  box-shadow: 0 12px 30px rgba(31, 67, 31, 0.12);
+}
+
+.price-header-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.price-header-panel h1 {
+  margin: 2px 0 4px;
+  font-size: 28px;
+}
+
+.price-header-panel p {
+  margin: 0;
+  color: #667363;
+}
+
+.price-header-actions,
+.price-filter-panel,
+.price-bottom-bar,
+.price-image-actions,
+.price-image-dialog footer,
+.price-columns-dialog footer,
+.quick-view-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ag-soft-command,
+.ag-square-command,
+.price-bottom-bar button,
+.price-side-actions button,
+.price-image-actions button,
+.availability-table button,
+.price-columns-dialog button,
+.price-image-dialog button,
+.price-floating-menu button {
+  border: 1px solid rgba(68, 111, 57, 0.35);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.ag-soft-command,
+.price-bottom-bar button,
+.price-side-actions button,
+.price-image-actions button,
+.price-columns-dialog button,
+.price-image-dialog button {
+  padding: 8px 12px;
+}
+
+.ag-soft-command.strong,
+.availability-table button {
+  background: linear-gradient(180deg, #f4ffd8, #bddd7e);
+  border-color: #79a53b;
+}
+
+.ag-square-command {
+  min-width: 38px;
+  height: 36px;
+  padding: 0 10px;
+}
+
+.price-filter-panel {
+  align-items: end;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.price-filter-panel label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: #586854;
+}
+
+.price-filter-panel select,
+.price-filter-panel input[type="text"] {
+  min-height: 36px;
+  border: 1px solid #a7c39d;
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #fff;
+  color: #213424;
+  font-weight: 700;
+}
+
+.price-search-box {
+  flex: 1 1 420px;
+}
+
+.price-check-line {
+  display: flex !important;
+  grid-template-columns: auto auto;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 8px;
+  color: #253929 !important;
+  font-size: 14px !important;
+  font-weight: 800;
+}
+
+.price-main-layout {
+  display: grid;
+  grid-template-columns: minmax(600px, 1fr) 310px;
+  gap: 12px;
+  min-height: 520px;
+}
+
+.price-grid-zone,
+.price-item-panel {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.price-grid-caption,
+.price-panel-title,
+.availability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #d9edcd, #c4dfb8);
+  border-bottom: 1px solid rgba(88, 132, 73, 0.35);
+}
+
+.price-grid-caption span {
+  color: #647362;
+  font-size: 13px;
+}
+
+.price-grid-frame {
+  height: min(52vh, 540px);
+  overflow: auto;
+  background: #f7fbf4;
+}
+
+.price-grid,
+.availability-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.price-grid th,
+.price-grid td,
+.availability-table th,
+.availability-table td {
+  border: 1px solid rgba(140, 172, 127, 0.35);
+  padding: 7px 8px;
+  white-space: nowrap;
+}
+
+.price-grid th,
+.availability-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #eaf5e4;
+  color: #1f3323;
+  font-weight: 900;
+}
+
+.price-row {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.price-row:nth-child(even) {
+  background: #f3f8ef;
+}
+
+.price-row.active {
+  background: #c9e9b8;
+  outline: 2px solid #7fbd45;
+  outline-offset: -2px;
+}
+
+.row-marker {
+  width: 28px;
+  text-align: center;
+  color: #2c6d2f;
+  font-weight: 900;
+}
+
+.price-bottom-bar {
+  min-height: 48px;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, #dbeed0, #c9e1bd);
+  border-top: 1px solid rgba(88, 132, 73, 0.35);
+}
+
+.price-item-panel {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  min-width: 0;
+}
+
+.price-panel-title strong {
+  font-size: 18px;
+}
+
+.mini-collapse {
+  width: 28px;
+  height: 28px;
+}
+
+.price-side-actions {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  background: rgba(245, 251, 241, 0.88);
+}
+
+.price-side-actions button {
+  width: 100%;
+  text-align: left;
+  background: #eef5ea;
+}
+
+.price-image-card {
+  margin: 0 10px 10px;
+  padding: 10px;
+  border: 1px solid rgba(117, 153, 101, 0.3);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.price-image-head span {
+  display: block;
+  color: #47752f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.price-image-head strong {
+  display: block;
+  margin: 2px 0 8px;
+}
+
+.price-image-preview {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed rgba(98, 136, 80, 0.55);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f6faf3, #e5f0df);
+  overflow: hidden;
+  color: #647463;
+  font-weight: 900;
+}
+
+.price-image-preview img,
+.modal-image-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.price-image-actions {
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.price-availability-stack {
+  overflow: auto;
+  padding: 0 10px 10px;
+}
+
+.price-availability-card {
+  display: none;
+  border: 1px solid rgba(117, 153, 101, 0.3);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.price-availability-card.active {
+  display: block;
+}
+
+.availability-header {
+  align-items: start;
+}
+
+.availability-header span {
+  color: #667363;
+  font-size: 12px;
+}
+
+.availability-summary {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  color: #41543d;
+}
+
+.availability-table-wrap {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.availability-table th,
+.availability-table td {
+  font-size: 12px;
+}
+
+.availability-table td:first-child span {
+  display: block;
+  color: #78906f;
+  font-size: 11px;
+}
+
+.availability-table .current-location {
+  background: #eff9e8;
+}
+
+.availability-table .no-request {
+  color: #697668;
+}
+
+.price-columns-dialog,
+.price-image-dialog {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.price-columns-dialog::backdrop,
+.price-image-dialog::backdrop {
+  background: rgba(19, 41, 22, 0.28);
+}
+
+.price-columns-dialog form {
+  width: min(520px, 92vw);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.price-columns-dialog header,
+.price-image-dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #14512f, #0f3f25);
+  color: white;
+}
+
+.quick-view-strip,
+.check-all-row {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(117, 153, 101, 0.25);
+}
+
+.quick-view-strip span {
+  color: #5c6e57;
+  font-weight: 900;
+}
+
+.price-column-list {
+  display: grid;
+  gap: 4px;
+  max-height: 420px;
+  overflow: auto;
+  padding: 10px 12px;
+  background: #f7fbf5;
+}
+
+.price-column-list label,
+.check-all-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.price-columns-dialog footer,
+.price-image-dialog footer {
+  justify-content: end;
+  padding: 10px 12px;
+  background: #e7f2e1;
+}
+
+.price-floating-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 230px;
+  padding: 6px;
+  border: 1px solid rgba(72, 108, 59, 0.35);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 35px rgba(17, 45, 22, 0.25);
+}
+
+.price-floating-menu button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+}
+
+.price-floating-menu button:hover {
+  background: #e8f4df;
+}
+
+.price-image-dialog form {
+  width: min(620px, 94vw);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.price-image-dialog header span {
+  display: block;
+  color: #cfecc5;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.modal-image-stage {
+  display: grid;
+  place-items: center;
+  height: min(52vh, 420px);
+  min-height: 260px;
+  padding: 14px;
+  background: #f7fbf4;
+  color: #657361;
+  font-weight: 900;
+}
+
+@media (max-width: 1180px) {
+  .price-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .price-item-panel {
+    grid-template-rows: auto auto auto auto;
+  }
+}
+
+/* Step 2.9.1 — Price list availability panel polish */
+.price-workbench {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.price-main-layout {
+  grid-template-columns: minmax(720px, 1fr) 300px;
+  align-items: stretch;
+}
+
+.price-grid-zone {
+  display: grid;
+  grid-template-rows: auto minmax(170px, 32vh) minmax(260px, 1fr) auto;
+  min-height: 0;
+}
+
+.price-grid-frame {
+  height: auto;
+  min-height: 170px;
+  max-height: none;
+}
+
+.price-detail-zone {
+  min-height: 260px;
+  background: linear-gradient(180deg, rgba(245, 251, 242, 0.96), rgba(236, 247, 230, 0.96));
+  border-top: 1px solid rgba(92, 137, 74, 0.28);
+  overflow: hidden;
+}
+
+.price-detail-card {
+  display: none;
+  height: 100%;
+  min-height: 260px;
+}
+
+.price-detail-card.active {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.price-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  background: linear-gradient(180deg, #f6fbf3, #e5f1df);
+  border-bottom: 1px solid rgba(91, 134, 74, 0.22);
+}
+
+.price-detail-head strong {
+  font-size: 17px;
+}
+
+.price-detail-head span {
+  color: #627160;
+  font-size: 13px;
+}
+
+.price-detail-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  text-align: right;
+}
+
+.price-detail-metrics span,
+.request-alert-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(96, 139, 73, 0.18);
+  color: #40553e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.request-alert-pill {
+  background: #fde9e5;
+  border-color: #e2a59a;
+  color: #8a3b31;
+}
+
+.price-detail-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #dceecf;
+  border-bottom: 1px solid rgba(91, 134, 74, 0.28);
+}
+
+.price-detail-tabs button {
+  border: 1px solid rgba(68, 111, 57, 0.28);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: linear-gradient(180deg, #fbfff5, #e6f0df);
+  color: #274328;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.price-detail-tabs button.active {
+  background: linear-gradient(180deg, #dcf3c6, #b9d98b);
+  border-color: #79a63f;
+}
+
+.price-detail-tabs .needs-action-tab.has-alert,
+.price-detail-tabs .needs-action-tab.active.has-alert {
+  background: linear-gradient(180deg, #fff4f1, #f5d3cb);
+  border-color: #dd9b8f;
+  color: #8c3c33;
+}
+
+.price-detail-panel {
+  display: none;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.price-detail-panel.active {
+  display: block;
+}
+
+.availability-table.wide th,
+.availability-table.wide td,
+.request-table th,
+.request-table td {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.availability-table td:first-child span,
+.request-table td span {
+  display: block;
+  color: #6d7b69;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.availability-tone-current {
+  background: #edf8e6;
+}
+
+.availability-tone-free {
+  background: #f5fff0;
+}
+
+.availability-tone-low {
+  background: #fff8e2;
+}
+
+.availability-tone-busy {
+  background: #f5f1ea;
+  color: #665d50;
+}
+
+.availability-tone-empty {
+  background: #f8faf6;
+  color: #7d8778;
+}
+
+.availability-table .current-location td:first-child strong::after {
+  content: ' · текущ';
+  color: #51813a;
+  font-size: 11px;
+}
+
+.request-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.request-table th,
+.request-table td {
+  border: 1px solid rgba(140, 172, 127, 0.35);
+  padding: 8px 10px;
+}
+
+.request-table th {
+  background: #edf6e9;
+  color: #243c27;
+  font-weight: 900;
+  position: sticky;
+  top: 0;
+}
+
+.request-row.needs-action {
+  background: #fdecea;
+  color: #5d2d28;
+}
+
+.request-row.waiting {
+  background: #eef5ff;
+  color: #29415f;
+}
+
+.request-row.done {
+  background: #f2fbec;
+}
+
+.request-row.cancelled {
+  background: #f2f2f2;
+  color: #777;
+}
+
+.request-row button {
+  border: 1px solid rgba(138, 62, 51, 0.3);
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: linear-gradient(180deg, #fff5f1, #efc6bd);
+  color: #743128;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.request-row.waiting button,
+.request-row.done button,
+.request-row.cancelled button {
+  border-color: rgba(68, 111, 57, 0.3);
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+}
+
+.request-note,
+.empty-detail-state {
+  margin: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.request-note-red {
+  background: #fdebe8;
+  border: 1px solid #e0a59a;
+  color: #78352c;
+}
+
+.request-note-blue {
+  background: #edf5ff;
+  border: 1px solid #aac7e8;
+  color: #284764;
+}
+
+.empty-detail-state {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed rgba(111, 148, 97, 0.35);
+  color: #657261;
+}
+
+.price-item-panel {
+  grid-template-rows: auto auto auto auto 1fr;
+}
+
+.price-side-legend {
+  display: grid;
+  gap: 6px;
+  margin: 0 10px 10px;
+  padding: 10px;
+  border: 1px solid rgba(117, 153, 101, 0.25);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #43533f;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.price-side-legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.price-side-legend i {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.legend-green { background: #dcf5ce; }
+.legend-yellow { background: #fff1ba; }
+.legend-red { background: #f4c8c0; }
+.legend-blue { background: #cfe4ff; }
+
+.price-row.has-incoming-request td {
+  box-shadow: inset 4px 0 0 #ca6f62;
+}
+
+@media (max-width: 1180px) {
+  .price-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .price-grid-zone {
+    grid-template-rows: auto minmax(180px, 32vh) minmax(300px, 1fr) auto;
+  }
+
+  .price-detail-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .price-detail-metrics {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+/* Step 3.0 — Transfer request basket and shelf confirmation workflow */
+.price-detail-zone {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.transfer-request-basket {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid rgba(91, 134, 74, 0.3);
+  background: linear-gradient(180deg, rgba(242, 250, 237, 0.98), rgba(221, 239, 207, 0.98));
+}
+
+.transfer-request-basket header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.transfer-request-basket header strong {
+  display: block;
+  color: #223f25;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.transfer-request-basket header span,
+.transfer-basket-empty {
+  color: #667661;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.basket-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.transfer-basket-empty {
+  padding: 8px 10px;
+  border: 1px dashed rgba(105, 148, 84, 0.34);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.request-basket-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid rgba(119, 157, 100, 0.34);
+  border-radius: 10px;
+  background: #fbfff8;
+}
+
+.request-basket-table th,
+.request-basket-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(119, 157, 100, 0.22);
+  border-right: 1px solid rgba(119, 157, 100, 0.16);
+  color: #2f4430;
+  font-size: 13px;
+}
+
+.request-basket-table th {
+  background: #e9f6df;
+  color: #243c27;
+  font-weight: 950;
+}
+
+.request-basket-table td:first-child span,
+.request-basket-table td mark + span {
+  display: block;
+  color: #697a66;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.request-basket-table input[type="number"],
+.availability-action-pack input[type="number"] {
+  width: 76px;
+  min-height: 32px;
+  border: 1px solid rgba(91, 134, 74, 0.36);
+  border-radius: 8px;
+  background: #fff;
+  color: #263d28;
+  font-weight: 900;
+  text-align: right;
+  padding: 4px 8px;
+}
+
+.basket-row.ready {
+  background: #f3ffed;
+}
+
+.basket-row.missing,
+.request-row.missing {
+  background: #fde7e4;
+  color: #642f29;
+}
+
+.basket-row mark,
+.request-row mark,
+.request-basket-table mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ddf3c4;
+  border: 1px solid #91bd51;
+  color: #284221;
+  font-weight: 950;
+}
+
+.basket-row.missing mark,
+.request-row.missing mark {
+  background: #f5c8c0;
+  border-color: #d58c7e;
+  color: #74362e;
+}
+
+.availability-action-pack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.availability-action-pack button,
+.request-basket-table button,
+.request-action-cell button,
+.availability-table button {
+  min-height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(76, 126, 42, 0.45);
+  background: linear-gradient(180deg, #f7ffe6, #bde97d);
+  color: #24451f;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 1px 2px rgba(55, 85, 45, 0.18);
+}
+
+.availability-action-pack button,
+.request-basket-table button {
+  padding: 4px 10px;
+}
+
+.request-action-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.request-action-cell .ag-request-send {
+  background: linear-gradient(180deg, #f7ffe7, #bde97d);
+  color: #24451f;
+}
+
+.request-action-cell .ag-request-missing {
+  border-color: rgba(164, 80, 68, 0.45);
+  background: linear-gradient(180deg, #fff2ee, #efb4aa);
+  color: #74362e;
+}
+
+.request-action-cell .ag-request-open,
+.request-row.waiting button,
+.request-row.done button,
+.request-row.cancelled button {
+  border-color: rgba(68, 111, 57, 0.3);
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+}
+
+.request-row.needs-action td:first-child::before {
+  content: '●';
+  color: #c76b5d;
+  margin-right: 5px;
+}
+
+.request-row.missing td:first-child::before {
+  content: 'ЛИПСА';
+  display: inline-flex;
+  margin-right: 8px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #f5c8c0;
+  color: #74362e;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.legend-gray { background: #e6e8e3; }
+
+.price-detail-card.active {
+  min-height: 0;
+}
+
+.price-detail-panel.active {
+  overflow: auto;
+}
+
+@media (max-width: 1180px) {
+  .transfer-request-basket header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .request-action-cell,
+  .availability-action-pack {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

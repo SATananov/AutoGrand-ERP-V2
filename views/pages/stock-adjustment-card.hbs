@@ -1,0 +1,271 @@
+<div class="document-card-screen stock-adjustment-card" data-document-card>
+  <header class="document-card-header polished-document-header">
+    <div>
+      <div class="screen-kicker">Склад / Документ за складова корекция</div>
+      <h1>Складова корекция</h1>
+      <p>{{adjustmentCard.number}} · {{adjustmentCard.adjustmentDateText}} · {{adjustmentCard.statusText}}</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/screen/stock-adjustments">Назад</a>
+      <a href="/stock/adjustment/new">Нова складова корекция</a>
+
+      {{#if adjustmentCard.canPost}}
+        <form method="post" action="/stock/adjustment/{{adjustmentCard.id}}/status">
+          <input type="hidden" name="status" value="POSTED" />
+          <button type="submit">Публикувай</button>
+        </form>
+      {{/if}}
+
+      {{#if adjustmentCard.canCancel}}
+        <form method="post" action="/stock/adjustment/{{adjustmentCard.id}}/status">
+          <input type="hidden" name="status" value="CANCELLED" />
+          <button type="submit">Отказ</button>
+        </form>
+      {{/if}}
+
+      <button type="button">Печат</button>
+    </div>
+  </header>
+
+  {{#if adjustmentCard.actionMessage}}
+    <section class="document-action-message success">
+      <strong>Съобщение</strong>
+      <span>{{adjustmentCard.actionMessage}}</span>
+    </section>
+  {{/if}}
+
+  {{#unless adjustmentCard.isEditable}}
+    <section class="document-lock-banner">
+      <strong>Документът е заключен</strong>
+      <span>{{adjustmentCard.lockMessage}}</span>
+    </section>
+  {{/unless}}
+
+  {{#if adjustmentCard.hasInsufficientStock}}
+    <section class="document-action-message warning">
+      <strong>Внимание</strong>
+      <span>Поне един изходящ ред няма достатъчна наличност в избрания склад.</span>
+    </section>
+  {{/if}}
+
+  <section class="document-card-layout document-card-layout-polished">
+    <main class="document-main-card document-main-card-polished">
+      <section class="document-meta-grid transfer-route-grid">
+        <label>
+          <span>Номер</span>
+          <input type="text" value="{{adjustmentCard.number}}" readonly />
+        </label>
+        <label>
+          <span>Дата</span>
+          <input type="text" value="{{adjustmentCard.adjustmentDateText}}" readonly />
+        </label>
+        <label>
+          <span>Причина</span>
+          <input type="text" value="{{adjustmentCard.adjustmentTypeText}}" readonly />
+        </label>
+        <label>
+          <span>Статус</span>
+          <input type="text" value="{{adjustmentCard.statusText}}" readonly />
+        </label>
+      </section>
+
+      <section class="document-counterparty-box stock-transfer-route-box">
+        <div>
+          <span>Склад / обект</span>
+          <strong>{{adjustmentCard.warehouse.name}}</strong>
+          <em>{{adjustmentCard.warehouse.code}} · {{adjustmentCard.warehouse.typeText}} · {{adjustmentCard.warehouse.city}}</em>
+        </div>
+        <div>
+          <span>Работен поток</span>
+          <strong>Чернова → Публикуван</strong>
+          <em>Този документ официално обяснява защо наличността се променя извън продажба, доставка или трансфер.</em>
+        </div>
+      </section>
+
+      <section class="document-tabs real-document-tabs" role="tablist">
+        <button class="active" type="button" data-card-tab="lines">Редове</button>
+        <button type="button" data-card-tab="stock">Складови движения</button>
+        <button type="button" data-card-tab="history">История</button>
+        <button type="button" data-card-tab="notes">Бележки</button>
+      </section>
+
+      <section class="document-tab-panels">
+        <article class="document-tab-panel active" data-card-panel="lines">
+          {{#if adjustmentCard.isEditable}}
+            <form class="lines-toolbar real-line-form" method="post" action="/stock/adjustment/{{adjustmentCard.id}}/lines">
+              <select name="itemId" required>
+                <option value="">Избери артикул...</option>
+                {{#each adjustmentCard.availableItems}}
+                  <option value="{{id}}">{{label}}</option>
+                {{/each}}
+              </select>
+              <select name="direction" required>
+                <option value="IN">Увеличение на наличност</option>
+                <option value="OUT">Намаление на наличност</option>
+              </select>
+              <input name="quantity" type="number" step="0.001" min="0.001" value="1" />
+              <input name="reason" type="text" placeholder="Напр. намерено на рафт, липса, брак..." />
+              <input name="note" type="text" placeholder="Бележка към ред" />
+              <button type="submit">Добави ред</button>
+            </form>
+          {{else}}
+            <div class="locked-lines-toolbar">Редовете са само за преглед, защото корекцията е заключена.</div>
+          {{/if}}
+
+          <div class="document-lines-frame polished-lines-frame">
+            <table class="document-lines-grid">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Код</th>
+                  <th>Артикул</th>
+                  <th>Мярка</th>
+                  <th>Промяна</th>
+                  <th>Количество</th>
+                  <th>Наличност</th>
+                  <th>Причина</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each adjustmentCard.rows}}
+                  <tr>
+                    <td>{{index}}</td>
+                    <td>{{itemCode}}</td>
+                    <td>{{itemName}}</td>
+                    <td>{{unit}}</td>
+                    <td>{{directionText}}</td>
+                    <td>{{quantityText}}</td>
+                    <td>{{availableQuantityText}}</td>
+                    <td>{{reason}}</td>
+                  </tr>
+                {{else}}
+                  <tr>
+                    <td colspan="8">Няма редове в корекцията.</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+
+          {{#if adjustmentCard.isEditable}}
+            <section class="line-edit-section">
+              <h2>Редакция на редове</h2>
+              {{#each adjustmentCard.editableRows}}
+                <div class="line-edit-row">
+                  <div class="line-edit-title">
+                    <strong>{{index}}. {{itemCode}}</strong>
+                    <span>{{itemName}}</span>
+                  </div>
+
+                  <form method="post" action="/stock/adjustment/{{../adjustmentCard.id}}/lines/{{lineId}}/update">
+                    <label>
+                      <span>Промяна</span>
+                      <select name="direction">
+                        <option value="IN" {{#if selectedIn}}selected{{/if}}>Увеличение</option>
+                        <option value="OUT" {{#if selectedOut}}selected{{/if}}>Намаление</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>Количество</span>
+                      <input name="quantity" type="number" step="0.001" min="0.001" value="{{rawQuantity}}" />
+                    </label>
+                    <label>
+                      <span>Причина</span>
+                      <input name="reason" type="text" value="{{reason}}" />
+                    </label>
+                    <label>
+                      <span>Бележка</span>
+                      <input name="note" type="text" value="{{note}}" />
+                    </label>
+                    <button type="submit">Запази</button>
+                  </form>
+
+                  <form method="post" action="/stock/adjustment/{{../adjustmentCard.id}}/lines/{{lineId}}/delete">
+                    <button class="danger-button" type="submit">Изтрий</button>
+                  </form>
+                </div>
+              {{else}}
+                <p class="empty-note">Няма редове за редакция.</p>
+              {{/each}}
+            </section>
+          {{/if}}
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="stock">
+          <div class="document-tab-inner">
+            <h2>Складови движения</h2>
+            {{#each adjustmentCard.stockMovementRows}}
+              <div class="stock-movement-row">
+                <strong>{{number}}</strong>
+                <span>{{movementDateText}}</span>
+                <span>{{directionText}}</span>
+                <span>{{warehouseName}}</span>
+                <span>{{itemCode}} · {{itemName}}</span>
+                <span>{{quantityText}}</span>
+                <em>{{reason}}</em>
+              </div>
+            {{else}}
+              <p class="empty-note">Движенията ще се създадат при публикуване на корекцията.</p>
+            {{/each}}
+          </div>
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="history">
+          <div class="document-tab-inner">
+            <h2>История на корекцията</h2>
+            {{#each adjustmentCard.historyRows}}
+              <div class="tab-list-row">
+                <strong>{{time}}</strong>
+                <span>{{user}}</span>
+                <span>{{action}}</span>
+                <em>{{details}}</em>
+              </div>
+            {{/each}}
+          </div>
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="notes">
+          <div class="document-tab-inner notes-tab">
+            <h2>Бележки</h2>
+            <textarea readonly>{{adjustmentCard.note}}</textarea>
+            <div class="workflow-note">
+              <strong>Работен поток</strong>
+              <span>Чернова → Публикуван → заключен документ. След публикуване системата записва складовите движения и пази причината за промяната.</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside class="document-side-card compact-document-side">
+      <section class="document-total-box">
+        <h2>Корекция</h2>
+        <div>
+          <span>Редове</span>
+          <strong>{{adjustmentCard.summary.linesText}}</strong>
+        </div>
+        <div>
+          <span>Количество</span>
+          <strong>{{adjustmentCard.summary.quantityText}}</strong>
+        </div>
+        <div class="grand-total">
+          <span>Движения</span>
+          <strong>{{adjustmentCard.summary.movementRowsText}}</strong>
+        </div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Склад</h2>
+        <div><span>Код</span><strong>{{adjustmentCard.warehouse.code}}</strong></div>
+        <div><span>Склад</span><strong>{{adjustmentCard.warehouse.name}}</strong></div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Причина</h2>
+        <div><span>Документ</span><strong>{{adjustmentCard.adjustmentTypeText}}</strong></div>
+        <div><span>Статус</span><strong>{{adjustmentCard.statusText}}</strong></div>
+      </section>
+    </aside>
+  </section>
+</div>
