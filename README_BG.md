@@ -95,3 +95,22 @@ npm run check
 ## Следваща стъпка
 
 Step 1 трябва да създаде реалните core entities: Клиенти, Артикули, Складове, Ценови листи, Документи, Продажби, Доставки.
+
+## Текущ checkpoint
+
+**Step 2.4 — Purchases / Deliveries / Stock IN**
+
+Текущата версия добавя реална доставна документна карта, нов доставен документ, CRUD на доставни редове и осчетоводяване на доставки/фактури доставчици към складови движения `PURCHASE_IN`.
+
+Проверка:
+
+```powershell
+node scripts/check-project.mjs
+```
+
+Очакван резултат:
+
+```text
+OK: Step 2.4 Purchases / Deliveries / Stock IN patch check passed.
+```
+

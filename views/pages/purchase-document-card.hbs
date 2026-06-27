@@ -1,0 +1,276 @@
+<div class="document-card-screen" data-document-card>
+  <header class="document-card-header polished-document-header">
+    <div>
+      <div class="screen-kicker">Доставки / Документна карта</div>
+      <h1>{{documentCard.title}}</h1>
+      <p>{{documentCard.number}} · {{documentCard.docDateText}} · {{documentCard.statusText}}</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="{{documentCard.returnUrl}}">Назад</a>
+      <a href="{{documentCard.newDocumentUrl}}">Нов</a>
+
+      {{#if documentCard.canPost}}
+        <form method="post" action="/document/purchase/{{documentCard.id}}/status">
+          <input type="hidden" name="status" value="POSTED" />
+          <button type="submit">Осчетоводи</button>
+        </form>
+      {{/if}}
+
+      {{#if documentCard.canCancel}}
+        <form method="post" action="/document/purchase/{{documentCard.id}}/status">
+          <input type="hidden" name="status" value="CANCELLED" />
+          <button type="submit">Отказ</button>
+        </form>
+      {{/if}}
+
+      <button type="button">Печат</button>
+    </div>
+  </header>
+
+  {{#if documentCard.actionMessage}}
+    <section class="document-action-message {{documentCard.actionMessage.kind}}">
+      <strong>{{documentCard.actionMessage.title}}</strong>
+      <span>{{documentCard.actionMessage.text}}</span>
+    </section>
+  {{/if}}
+
+  {{#unless documentCard.isEditable}}
+    <section class="document-lock-banner">
+      <strong>Документът е заключен</strong>
+      <span>{{documentCard.lockMessage}}</span>
+    </section>
+  {{/unless}}
+
+  <section class="document-card-layout document-card-layout-polished">
+    <main class="document-main-card document-main-card-polished">
+      <section class="document-meta-grid">
+        {{#each documentCard.headerFields}}
+          <label>
+            <span>{{label}}</span>
+            <input type="text" value="{{value}}" readonly />
+          </label>
+        {{/each}}
+      </section>
+
+      <section class="document-counterparty-box">
+        <div>
+          <span>Доставчик</span>
+          <strong>{{documentCard.supplierName}}</strong>
+        </div>
+        <div>
+          <span>Код</span>
+          <strong>{{documentCard.supplierCode}}</strong>
+        </div>
+        <div>
+          <span>Град</span>
+          <strong>{{documentCard.supplierCity}}</strong>
+        </div>
+        <div>
+          <span>Телефон</span>
+          <strong>{{documentCard.supplierPhone}}</strong>
+        </div>
+      </section>
+
+      <section class="document-tabs real-document-tabs" role="tablist">
+        <button class="active" type="button" data-card-tab="lines">Редове</button>
+        <button type="button" data-card-tab="stock">Складови движения</button>
+        <button type="button" data-card-tab="history">История</button>
+        <button type="button" data-card-tab="notes">Бележки</button>
+      </section>
+
+      <section class="document-tab-panels">
+        <article class="document-tab-panel active" data-card-panel="lines">
+          {{#if documentCard.isEditable}}
+            <form class="lines-toolbar real-line-form" method="post" action="/document/purchase/{{documentCard.id}}/lines">
+              <select name="itemId" required>
+                <option value="">Избери артикул...</option>
+                {{#each documentCard.availableItems}}
+                  <option value="{{id}}">{{code}} · {{name}} · {{price}} BGN</option>
+                {{/each}}
+              </select>
+
+              <select name="warehouseId">
+                {{#each documentCard.availableWarehouses}}
+                  <option value="{{id}}">{{code}} · {{name}}</option>
+                {{/each}}
+              </select>
+
+              <input name="quantity" type="number" step="0.01" min="0.01" value="1" />
+              <input name="price" type="number" step="0.01" min="0" placeholder="Доставна цена" />
+
+              <button type="submit">Добави ред</button>
+            </form>
+
+            <form class="mini-recalculate-form" method="post" action="/document/purchase/{{documentCard.id}}/recalculate">
+              <button type="submit">Преизчисли документа</button>
+            </form>
+          {{else}}
+            <div class="locked-lines-toolbar">Редовете са само за преглед, защото документът не е в статус Чернова.</div>
+          {{/if}}
+
+          <div class="document-lines-frame polished-lines-frame">
+            <table class="document-lines-grid">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Код</th>
+                  <th>Артикул</th>
+                  <th>Склад</th>
+                  <th>Мярка</th>
+                  <th>Количество</th>
+                  <th>Наличност</th>
+                  <th>Доставна цена</th>
+                  <th>Стойност</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each documentCard.rows}}
+                  <tr>
+                    <td>{{index}}</td>
+                    <td>{{itemCode}}</td>
+                    <td>{{itemName}}</td>
+                    <td>{{warehouseName}}</td>
+                    <td>{{unit}}</td>
+                    <td>{{quantity}}</td>
+                    <td>{{availableQuantityText}}</td>
+                    <td>{{price}}</td>
+                    <td>{{lineTotal}}</td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+
+          {{#if documentCard.isEditable}}
+            <section class="line-edit-section">
+              <h2>Редакция на редове</h2>
+
+              {{#each documentCard.editableRows}}
+                <div class="line-edit-row">
+                  <div class="line-edit-title">
+                    <strong>{{index}}. {{itemCode}}</strong>
+                    <span>{{itemName}}</span>
+                  </div>
+
+                  <form method="post" action="/document/purchase/{{../documentCard.id}}/lines/{{lineId}}/update">
+                    <label>
+                      <span>Количество</span>
+                      <input name="quantity" type="number" step="0.01" min="0.01" value="{{rawQuantity}}" />
+                    </label>
+
+                    <label>
+                      <span>Доставна цена</span>
+                      <input name="price" type="number" step="0.01" min="0" value="{{rawPrice}}" />
+                    </label>
+
+                    <button type="submit">Запази</button>
+                  </form>
+
+                  <form method="post" action="/document/purchase/{{../documentCard.id}}/lines/{{lineId}}/delete">
+                    <button class="danger-button" type="submit">Изтрий</button>
+                  </form>
+                </div>
+              {{else}}
+                <p class="empty-note">Няма редове за редакция.</p>
+              {{/each}}
+            </section>
+          {{/if}}
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="stock">
+          <div class="document-tab-inner">
+            <h2>Складови движения</h2>
+            <p class="stock-effect-note">{{documentCard.stockEffectText}}</p>
+
+            {{#each documentCard.stockMovementRows}}
+              <div class="stock-movement-row">
+                <strong>{{number}}</strong>
+                <span>{{dateText}}</span>
+                <span>{{direction}}</span>
+                <span>{{warehouseName}}</span>
+                <span>{{itemName}}</span>
+                <span>{{quantityText}}</span>
+                <em>{{reason}}</em>
+              </div>
+            {{else}}
+              <p class="empty-note">Още няма складови движения за този документ.</p>
+            {{/each}}
+          </div>
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="history">
+          <div class="document-tab-inner">
+            <h2>История на документа</h2>
+            {{#each documentCard.historyRows}}
+              <div class="tab-list-row">
+                <strong>{{time}}</strong>
+                <span>{{user}}</span>
+                <span>{{action}}</span>
+                <em>{{details}}</em>
+              </div>
+            {{/each}}
+          </div>
+        </article>
+
+        <article class="document-tab-panel" data-card-panel="notes">
+          <div class="document-tab-inner notes-tab">
+            <h2>Бележки</h2>
+            <textarea readonly>{{documentCard.note}}</textarea>
+
+            <div class="workflow-note">
+              <strong>Работен поток</strong>
+              <span>{{documentCard.workflow}}</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside class="document-side-card compact-document-side">
+      <section class="document-total-box">
+        <h2>Суми</h2>
+        <div>
+          <span>Данъчна основа</span>
+          <strong>{{documentCard.totals.totalNetText}}</strong>
+        </div>
+        <div>
+          <span>ДДС</span>
+          <strong>{{documentCard.totals.totalVatText}}</strong>
+        </div>
+        <div class="grand-total">
+          <span>Общо</span>
+          <strong>{{documentCard.totals.totalGrossText}}</strong>
+        </div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Склад</h2>
+        <div>
+          <span>Код</span>
+          <strong>{{documentCard.warehouseCode}}</strong>
+        </div>
+        <div>
+          <span>Име</span>
+          <strong>{{documentCard.warehouseName}}</strong>
+        </div>
+      </section>
+
+      <section class="document-info-box">
+        <h2>Документ</h2>
+        <div>
+          <span>Номер</span>
+          <strong>{{documentCard.number}}</strong>
+        </div>
+        <div>
+          <span>Статус</span>
+          <strong>{{documentCard.statusText}}</strong>
+        </div>
+        <div>
+          <span>Workflow</span>
+          <strong>{{documentCard.workflow}}</strong>
+        </div>
+      </section>
+    </aside>
+  </section>
+</div>

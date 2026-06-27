@@ -1,4 +1,4 @@
-<div class="sales-screen" data-card-enabled="{{screen.isSalesDocument}}">
+<div class="sales-screen" data-card-enabled="{{screen.hasDocumentCard}}" data-document-card-path="{{screen.documentCardPath}}">
   <header class="sales-screen-header">
     <div class="screen-title-block">
       <div class="screen-kicker">{{screen.group}}</div>
@@ -8,7 +8,7 @@
 
     <div class="screen-command-strip">
       <button type="button">Функция...</button>
-      {{#if screen.isSalesDocument}}
+      {{#if screen.hasDocumentCard}}
         <a class="command-link" href="{{screen.newDocumentUrl}}">Нов документ</a>
       {{else}}
         <button type="button">Нов ред</button>
@@ -88,7 +88,7 @@
         <span>Готов</span>
         <span>Редове: {{screen.rows.length}}</span>
         <span>Екран: {{screen.title}}</span>
-        {{#if screen.isSalesDocument}}
+        {{#if screen.hasDocumentCard}}
           <span>Double-click: документна карта</span>
         {{/if}}
       </footer>
@@ -118,8 +118,8 @@
             </div>
 
             <div class="preview-actions">
-              {{#if ../screen.isSalesDocument}}
-                <a class="preview-open-link" href="/document/sales/{{id}}">Отвори карта</a>
+              {{#if ../screen.hasDocumentCard}}
+                <a class="preview-open-link" href="{{../screen.documentCardPath}}/{{id}}">Отвори карта</a>
               {{else}}
                 <button type="button">Отвори карта</button>
               {{/if}}

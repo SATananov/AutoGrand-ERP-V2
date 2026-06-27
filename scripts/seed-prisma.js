@@ -190,10 +190,13 @@ async function main() {
   }
 
   await prisma.stockMovement.create({
-    data: { number: 'SM-000001', movementType: 'IN', warehouseId: warehouses[0].id, itemId: items[0].id, quantity: 20, direction: 'IN', reason: 'Доставка', sourceDocument: 'DEL-000001' }
+    data: { number: 'PM-DEL-000001-1', movementType: 'PURCHASE_IN', warehouseId: warehouses[0].id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'DEL-000001' }
   });
   await prisma.stockMovement.create({
-    data: { number: 'SM-000002', movementType: 'OUT', warehouseId: warehouses[0].id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Продажба', sourceDocument: 'SL-000001' }
+    data: { number: 'PM-PINV-000001-1', movementType: 'PURCHASE_IN', warehouseId: warehouses[0].id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'PINV-000001' }
+  });
+  await prisma.stockMovement.create({
+    data: { number: 'SM-SL-000001-1', movementType: 'SALE_OUT', warehouseId: warehouses[0].id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Осчетоводена продажба', sourceDocument: 'SL-000001' }
   });
   await prisma.stockMovement.create({
     data: { number: 'TR-000001', movementType: 'TRANSFER', warehouseId: warehouses[1].id, itemId: items[1].id, quantity: 4, direction: 'TRANSFER', reason: 'Трансфер към сервизен склад', sourceDocument: 'TR-000001' }
@@ -230,7 +233,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 1.4 global seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 2.4 purchases/deliveries seed completed.');
 }
 
 main()

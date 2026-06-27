@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const rows = Array.from(document.querySelectorAll('.selectable-row'));
   const previews = Array.from(document.querySelectorAll('.detail-preview'));
   const cardEnabled = screen?.dataset.cardEnabled === 'true';
+  const documentCardPath = screen?.dataset.documentCardPath || '/document/sales';
 
   function activeRow() {
     return document.querySelector('.selectable-row.active:not([hidden])');
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!cardEnabled || !row) return;
     const rowId = row.dataset.rowId;
     if (!rowId) return;
-    window.location.href = `/document/sales/${rowId}`;
+    window.location.href = `${documentCardPath}/${rowId}`;
   }
 
   function activateRow(row) {

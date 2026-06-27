@@ -6,6 +6,7 @@ import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
 import { getDashboardData, getScreenData } from './services/core-data-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
+import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
 import {
   getSalesNewDocumentFormData,
   createSalesDocumentFromForm,
@@ -16,6 +17,15 @@ import {
   updateSalesDocumentStatus,
   createSalesDocumentPayment
 } from './services/sales-actions-service.js';
+import {
+  getPurchaseNewDocumentFormData,
+  createPurchaseDocumentFromForm,
+  addPurchaseDocumentLine,
+  updatePurchaseDocumentLine,
+  deletePurchaseDocumentLine,
+  recalculatePurchaseDocumentTotals,
+  updatePurchaseDocumentStatus
+} from './services/purchase-actions-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,9 +53,14 @@ function baseViewData({ title, currentScreen = '', statusText = 'Отворен 
   };
 }
 
-function redirectWithAction(res, documentId, code) {
+function redirectSalesWithAction(res, documentId, code) {
   const actionCode = encodeURIComponent(code || 'done');
   res.redirect(`/document/sales/${documentId}?action=${actionCode}`);
+}
+
+function redirectPurchaseWithAction(res, documentId, code) {
+  const actionCode = encodeURIComponent(code || 'done');
+  res.redirect(`/document/purchase/${documentId}?action=${actionCode}`);
 }
 
 app.engine('hbs', engine({
@@ -117,10 +132,19 @@ app.get('/screen/:screenId', async (req, res) => {
   }
 
   screen.isSalesDocument = screen.kind === 'salesDocument';
+  screen.isPurchaseDocument = screen.kind === 'purchaseDocument';
+  screen.hasDocumentCard = screen.isSalesDocument || screen.isPurchaseDocument;
 
   if (screen.isSalesDocument) {
     const docType = screen.where?.docType || 'SALE';
     screen.newDocumentUrl = `/document/sales/new/${docType}`;
+    screen.documentCardPath = '/document/sales';
+  }
+
+  if (screen.isPurchaseDocument) {
+    const docType = screen.where?.docType || 'DELIVERY';
+    screen.newDocumentUrl = `/document/purchase/new/${docType}`;
+    screen.documentCardPath = '/document/purchase';
   }
 
   res.render('screen-browse', {
@@ -176,33 +200,101 @@ app.get('/document/sales/:documentId', async (req, res) => {
 
 app.post('/document/sales/:documentId/lines', async (req, res) => {
   const result = await addSalesDocumentLine(req.params.documentId, req.body);
-  redirectWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
 });
 
 app.post('/document/sales/:documentId/lines/:lineId/update', async (req, res) => {
   const result = await updateSalesDocumentLine(req.params.documentId, req.params.lineId, req.body);
-  redirectWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
 });
 
 app.post('/document/sales/:documentId/lines/:lineId/delete', async (req, res) => {
   const result = await deleteSalesDocumentLine(req.params.documentId, req.params.lineId);
-  redirectWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
 });
 
 app.post('/document/sales/:documentId/recalculate', async (req, res) => {
   const result = await recalculateSalesDocumentTotals(req.params.documentId);
-  redirectWithAction(res, req.params.documentId, result?.code || 'recalculate_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'recalculate_failed');
 });
 
 app.post('/document/sales/:documentId/status', async (req, res) => {
   const result = await updateSalesDocumentStatus(req.params.documentId, req.body.status);
-  redirectWithAction(res, req.params.documentId, result?.code || 'status_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'status_failed');
 });
 
 app.post('/document/sales/:documentId/payments', async (req, res) => {
   const result = await createSalesDocumentPayment(req.params.documentId, req.body);
-  redirectWithAction(res, req.params.documentId, result?.code || 'payment_failed');
+  redirectSalesWithAction(res, req.params.documentId, result?.code || 'payment_failed');
 });
+
+
+app.get('/document/purchase/new/:docType', async (req, res) => {
+  const formData = await getPurchaseNewDocumentFormData(req.params.docType);
+
+  res.render('purchase-document-new', {
+    ...baseViewData({
+      title: `Нов доставен документ — ${formData.title}`,
+      currentScreen: formData.docType === 'PURCHASE_ORDER' ? 'purchase-orders' : formData.docType === 'SUPPLIER_INVOICE' ? 'supplier-invoices' : 'deliveries',
+      statusText: `Нов доставен документ: ${formData.title}`
+    }),
+    formData
+  });
+});
+
+app.post('/document/purchase/new', async (req, res) => {
+  const document = await createPurchaseDocumentFromForm(req.body);
+  res.redirect(`/document/purchase/${document.id}?action=purchase_document_created`);
+});
+
+app.get('/document/purchase/:documentId', async (req, res) => {
+  const documentCard = await getPurchaseDocumentCardData(req.params.documentId, req.query.action || '');
+
+  if (!documentCard) {
+    return res.status(404).render('not-found', {
+      ...baseViewData({
+        title: 'Доставният документ не е намерен',
+        currentScreen: 'deliveries',
+        statusText: 'Доставният документ не е намерен'
+      })
+    });
+  }
+
+  res.render('purchase-document-card', {
+    ...baseViewData({
+      title: `${documentCard.title} ${documentCard.number} — AutoGrand ERP V2`,
+      currentScreen: documentCard.sourceScreenId || 'deliveries',
+      statusText: `Отворена доставна карта: ${documentCard.title} ${documentCard.number}`
+    }),
+    documentCard
+  });
+});
+
+app.post('/document/purchase/:documentId/lines', async (req, res) => {
+  const result = await addPurchaseDocumentLine(req.params.documentId, req.body);
+  redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+});
+
+app.post('/document/purchase/:documentId/lines/:lineId/update', async (req, res) => {
+  const result = await updatePurchaseDocumentLine(req.params.documentId, req.params.lineId, req.body);
+  redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+});
+
+app.post('/document/purchase/:documentId/lines/:lineId/delete', async (req, res) => {
+  const result = await deletePurchaseDocumentLine(req.params.documentId, req.params.lineId);
+  redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'line_action_failed');
+});
+
+app.post('/document/purchase/:documentId/recalculate', async (req, res) => {
+  const result = await recalculatePurchaseDocumentTotals(req.params.documentId);
+  redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'recalculate_failed');
+});
+
+app.post('/document/purchase/:documentId/status', async (req, res) => {
+  const result = await updatePurchaseDocumentStatus(req.params.documentId, req.body.status);
+  redirectPurchaseWithAction(res, req.params.documentId, result?.code || 'status_failed');
+});
+
 app.get('/reference', (req, res) => {
   res.render('reference-local', {
     ...baseViewData({
@@ -217,7 +309,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '2-3-sales-payments-cash-register'
+    step: '2-4-purchases-delivery-stock-in'
   });
 });
 

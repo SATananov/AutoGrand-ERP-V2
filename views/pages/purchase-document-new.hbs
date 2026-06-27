@@ -1,0 +1,52 @@
+<div class="new-document-screen">
+  <header class="document-card-header polished-document-header">
+    <div>
+      <div class="screen-kicker">Доставки / Нов документ</div>
+      <h1>{{formData.title}}</h1>
+      <p>Създаване на нов доставен документ в Prisma</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="{{formData.returnUrl}}">Назад</a>
+    </div>
+  </header>
+
+  <form class="new-document-form" method="post" action="/document/purchase/new">
+    <input type="hidden" name="docType" value="{{formData.docType}}" />
+
+    <section class="document-meta-grid">
+      <label>
+        <span>Тип документ</span>
+        <input type="text" value="{{formData.title}}" readonly />
+      </label>
+
+      <label>
+        <span>Доставчик</span>
+        <select name="supplierId" required>
+          {{#each formData.suppliers}}
+            <option value="{{id}}">{{code}} · {{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Склад</span>
+        <select name="warehouseId" required>
+          {{#each formData.warehouses}}
+            <option value="{{id}}">{{code}} · {{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </section>
+
+    <section class="document-note new-document-note">
+      <span>Бележка</span>
+      <textarea name="note" placeholder="Въведи бележка към доставния документ..."></textarea>
+    </section>
+
+    <section class="new-document-actions">
+      <button type="submit">Създай документ</button>
+      <a href="{{formData.returnUrl}}">Отказ</a>
+    </section>
+  </form>
+</div>
