@@ -3165,3 +3165,301 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
     font-size: 12px !important;
   }
 }
+
+/* Step 2.6 — Stock Module Foundation */
+.stock-screen,
+.stock-card-screen,
+.stock-form-screen {
+  min-height: 100%;
+  display: grid;
+  gap: 12px;
+}
+
+.stock-screen {
+  grid-template-rows: auto auto auto 1fr;
+}
+
+.stock-header .document-card-actions a,
+.stock-form-actions a,
+.stock-form-actions button {
+  white-space: nowrap;
+}
+
+.stock-kpi-grid {
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
+}
+
+.stock-kpi-card strong,
+.stock-kpi-grid .dashboard-card strong {
+  font-size: 24px;
+}
+
+.stock-layout-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.8fr);
+  gap: 12px;
+}
+
+.stock-panel {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 34px 1fr;
+  border: 1px solid #9fb391;
+  background: rgba(255,255,255,0.94);
+  box-shadow: 0 10px 20px rgba(53, 76, 48, 0.12);
+}
+
+.stock-wide-panel {
+  min-height: 280px;
+}
+
+.stock-card-list {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 10px;
+  overflow: auto;
+  background: linear-gradient(180deg, #f7fbf4, #edf6e8);
+}
+
+.stock-mini-card {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid #b9c9b0;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ffffff, #f1f8ec);
+  color: #243024;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(53, 76, 48, 0.08);
+}
+
+.stock-mini-card:hover {
+  border-color: #6f9b5f;
+  background: linear-gradient(180deg, #ffffff, #e2f2d7);
+}
+
+.stock-mini-card span {
+  color: #4e7b3b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stock-mini-card strong {
+  font-size: 16px;
+}
+
+.stock-mini-card small {
+  color: #61705f;
+  font-weight: 800;
+}
+
+.stock-mini-card.is-low {
+  border-color: #d59b43;
+  background: linear-gradient(180deg, #fffaf0, #f6ecd8);
+}
+
+.stock-table-frame {
+  min-height: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.stock-grid a {
+  color: #2e6728;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.stock-grid a:hover {
+  text-decoration: underline;
+}
+
+.stock-form-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #9fb391;
+  background: rgba(255,255,255,0.96);
+  box-shadow: 0 10px 20px rgba(53, 76, 48, 0.12);
+}
+
+.stock-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 10px;
+  padding: 14px;
+  background: linear-gradient(180deg, #f8fbf5, #edf6e8);
+}
+
+.stock-form-grid label {
+  display: grid;
+  gap: 4px;
+}
+
+.stock-form-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.stock-form-grid span,
+.stock-info-stack span {
+  color: #5f6d5d;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stock-form-grid input,
+.stock-form-grid select,
+.stock-form-grid textarea {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #9fb391;
+  border-radius: 3px;
+  padding: 6px 8px;
+  background: #ffffff;
+  color: #1f2b1e;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.stock-form-grid textarea {
+  resize: vertical;
+}
+
+.stock-form-actions {
+  justify-content: flex-end;
+  padding: 10px 14px;
+  border-top: 1px solid #c9d8c0;
+  background: #f4f9f0;
+}
+
+.stock-info-stack {
+  display: grid;
+  gap: 1px;
+  padding: 10px;
+  background: linear-gradient(180deg, #f7fbf4, #edf6e8);
+}
+
+.stock-info-stack div {
+  display: grid;
+  gap: 5px;
+  padding: 10px;
+  background: white;
+  border-bottom: 1px solid #edf2e9;
+}
+
+.stock-info-stack strong {
+  color: #223020;
+  font-size: 16px;
+}
+
+@media (max-width: 1280px) {
+  .stock-kpi-grid {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+  }
+
+  .stock-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 780px) {
+  .stock-kpi-grid,
+  .stock-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Step 2.6.1 — Company locations / trade objects polish */
+.location-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.location-card-list {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.location-mini-card em {
+  color: #4f6a4e;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.location-mini-card.is-current,
+.current-location-card {
+  border-color: rgba(116, 184, 33, 0.9);
+  box-shadow: 0 10px 24px rgba(81, 120, 46, 0.18);
+}
+
+.current-location-panel {
+  margin-bottom: 16px;
+}
+
+.location-details-grid {
+  grid-template-columns: minmax(320px, 1.2fr) minmax(260px, 0.8fr);
+}
+
+.location-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.location-info-grid div,
+.location-role-list .role-pill {
+  border: 1px solid rgba(117, 150, 96, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 10px 12px;
+}
+
+.location-info-grid span {
+  display: block;
+  color: #6f7f6f;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.location-info-grid strong {
+  color: #233625;
+  font-size: 14px;
+}
+
+.location-role-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.role-pill {
+  color: #667466;
+  font-weight: 800;
+}
+
+.role-pill.enabled {
+  color: #1f4a2f;
+  border-color: rgba(116, 184, 33, 0.6);
+  background: rgba(230, 246, 216, 0.82);
+}
+
+.location-details-strip {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 980px) {
+  .location-groups-grid,
+  .location-details-grid,
+  .location-info-grid {
+    grid-template-columns: 1fr;
+  }
+}

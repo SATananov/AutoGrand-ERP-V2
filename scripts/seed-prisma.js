@@ -14,6 +14,7 @@ async function reset() {
   await prisma.priceList.deleteMany();
   await prisma.item.deleteMany();
   await prisma.warehouse.deleteMany();
+  await prisma.companyLocation.deleteMany();
   await prisma.counterparty.deleteMany();
   await prisma.vehicle.deleteMany();
   await prisma.user.deleteMany();
@@ -59,10 +60,50 @@ async function main() {
     })
   ]);
 
-  const warehouses = await Promise.all([
-    prisma.warehouse.create({ data: { code: 'WH-MAIN', name: 'Основен склад', city: 'Кърджали' } }),
-    prisma.warehouse.create({ data: { code: 'WH-SRV', name: 'Сервизен склад', city: 'Кърджали' } })
-  ]);
+  const locationSeed = [
+    { code: 'AG-SOF-OFFICE', name: 'Централен офис', type: 'OFFICE', city: 'София', address: 'бул. Черни връх 157', phone: '+359 2 962 2995', email: 'office@autogrand.bg', canHoldStock: false, canSell: false, canReceivePurchases: false, canTransfer: false, sortOrder: 10 },
+    { code: 'AG-STZ-CENTRAL', name: 'Централен склад', type: 'CENTRAL_WAREHOUSE', city: 'Стара Загора', address: 'ул. Новозагорско шосе 35001, срещу РАЗСАДНИК РАЗЦВЕТ', phone: '0882 442 069', email: 'stz_sklad@autogrand.bg', canHoldStock: true, canSell: false, canReceivePurchases: true, canTransfer: true, sortOrder: 20 },
+    { code: 'AG-SOF-ROJEN', name: 'Регионален склад София Рожен', type: 'REGIONAL_WAREHOUSE', city: 'София', address: 'бул. Рожен 22, НПЗ Военна рампа', phone: '02 936 04 04; 02 488 62 99; 02 426 71 44; 0884 00 03 60; 0878 40 13 62; 0878 40 13 61', email: 'sofia_rojen@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 30 },
+    { code: 'AG-BLG-WH', name: 'Регионален склад Благоевград', type: 'REGIONAL_WAREHOUSE', city: 'Благоевград', address: 'бул. Васил Левски 38', phone: '073 88 23 01; 0884 61 74 47', email: 'blagoevgrad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 40 },
+    { code: 'AG-PDV-WH', name: 'Регионален склад Пловдив', type: 'REGIONAL_WAREHOUSE', city: 'Пловдив', address: 'бул. Асеновградско шосе 2', phone: '0887 90 21 17; 0882 82 90 16', email: 'plovdiv@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 50 },
+    { code: 'AG-PDV-NORTH', name: 'Регионален склад Пловдив Север', type: 'REGIONAL_WAREHOUSE', city: 'Пловдив', address: 'ул. Васил Левски 177', phone: '0882 126 212; 0882 660 051', email: 'plovdiv_sever@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 60 },
+    { code: 'AG-STZ-WH', name: 'Регионален склад Стара Загора', type: 'REGIONAL_WAREHOUSE', city: 'Стара Загора', address: 'ул. Новозагорско шосе 35001, срещу РАЗСАДНИК РАЗЦВЕТ', phone: '042 64 64 60; 0888 56 27 89', email: 'st.zagora@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 70 },
+    { code: 'AG-HSK-WH', name: 'Регионален склад Хасково', type: 'REGIONAL_WAREHOUSE', city: 'Хасково', address: 'бул. Илинден 6', phone: '038 66 41 28; 0882 75 81 00; 0888 26 91 98', email: 'haskovo_sklad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 80 },
+    { code: 'AG-BGS-WH', name: 'Регионален склад Бургас', type: 'REGIONAL_WAREHOUSE', city: 'Бургас', address: 'ул. Индустриална 51', phone: '056 84 02 44; 0882 424 908; 0884 422 131; 0879 140 091; 0879 140 092', email: 'burgas@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 90 },
+    { code: 'AG-YAM-SHOP', name: 'Търговски обект Ямбол', type: 'SHOP', city: 'Ямбол', address: 'ул. Ормана 68', phone: '0887 79 20 33', email: 'yambol@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 110 },
+    { code: 'AG-HRM-SHOP', name: 'Търговски обект Харманли', type: 'SHOP', city: 'Харманли', address: 'Главен път E80 Паркинг КВЕЛЕ', phone: '0888 26 91 99', email: 'harmanli@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 120 },
+    { code: 'AG-SLV-SHOP', name: 'Търговски обект Сливен', type: 'SHOP', city: 'Сливен', address: 'бул. Цар Симеон 43', phone: '044 62 31 39; 0885 33 58 71', email: 'sliven@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 130 },
+    { code: 'AG-SAN-SHOP', name: 'Търговски обект Сандански', type: 'SHOP', city: 'Сандански', address: 'ул. Стефан Стамболов 49', phone: '0892 21 26 83; 0878 28 26 17; 0887 58 59 98', email: 'sandanski@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 140 },
+    { code: 'AG-PET-SHOP', name: 'Търговски обект Петрич', type: 'SHOP', city: 'Петрич', address: 'ул. Места 18 Б', phone: '0884 45 03 23; 0889 49 98 30', email: 'petrich@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 150 },
+    { code: 'AG-KJ-SHOP', name: 'Търговски обект Кърджали', type: 'SHOP', city: 'Кърджали', address: 'бул. България 99', phone: '0887 79 20 28', email: 'kardjali@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, isDefault: true, isCurrent: true, sortOrder: 160 },
+    { code: 'AG-KZK-SHOP', name: 'Търговски обект Казанлък', type: 'SHOP', city: 'Казанлък', address: 'бул. Александър Батенберг 12', phone: '0889 28 66 08', email: 'kazanlak@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 170 },
+    { code: 'AG-DGR-SHOP', name: 'Търговски обект Димитровград', type: 'SHOP', city: 'Димитровград', address: 'бул. Стефан Стамболов 65', phone: '0391 6 38 08; 0887 20 75 95', email: 'dimitrovgrad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 180 }
+  ];
+
+  const locations = [];
+  for (const location of locationSeed) {
+    locations.push(await prisma.companyLocation.create({
+      data: {
+        ...location,
+        companyId: company.id
+      }
+    }));
+  }
+
+  const warehouses = [];
+  for (const location of locations.filter((entry) => entry.canHoldStock)) {
+    warehouses.push(await prisma.warehouse.create({
+      data: {
+        code: location.code,
+        name: location.name,
+        city: location.city,
+        locationId: location.id
+      }
+    }));
+  }
+
+  const activeWarehouse = warehouses.find((warehouse) => warehouse.code === 'AG-KJ-SHOP') || warehouses[0];
+  const centralWarehouse = warehouses.find((warehouse) => warehouse.code === 'AG-STZ-CENTRAL') || activeWarehouse;
 
   const items = await Promise.all([
     prisma.item.create({
@@ -107,7 +148,7 @@ async function main() {
         number,
         docType,
         counterpartyId,
-        warehouseId: warehouses[0].id,
+        warehouseId: activeWarehouse.id,
         status: docType === 'OFFER' ? 'DRAFT' : 'POSTED',
         totalNet: Number((totalGross / 1.2).toFixed(2)),
         totalVat: Number((totalGross - totalGross / 1.2).toFixed(2)),
@@ -121,7 +162,7 @@ async function main() {
         data: {
           documentId: doc.id,
           itemId: items[0].id,
-          warehouseId: warehouses[0].id,
+          warehouseId: activeWarehouse.id,
           quantity: 1,
           price: Math.abs(totalGross),
           discountPercent: 0,
@@ -143,7 +184,7 @@ async function main() {
         number,
         docType,
         supplierId,
-        warehouseId: warehouses[0].id,
+        warehouseId: activeWarehouse.id,
         status: docType === 'PURCHASE_ORDER' ? 'DRAFT' : 'POSTED',
         totalNet: Number((totalGross / 1.2).toFixed(2)),
         totalVat: Number((totalGross - totalGross / 1.2).toFixed(2)),
@@ -156,7 +197,7 @@ async function main() {
       data: {
         documentId: doc.id,
         itemId: items[1].id,
-        warehouseId: warehouses[0].id,
+        warehouseId: activeWarehouse.id,
         quantity: 5,
         price: totalGross / 5,
         lineTotal: totalGross
@@ -180,7 +221,7 @@ async function main() {
   for (const item of items) {
     await prisma.stockBalance.create({
       data: {
-        warehouseId: warehouses[0].id,
+        warehouseId: activeWarehouse.id,
         itemId: item.id,
         quantity: item.code === 'A-0001' ? 34 : item.code === 'A-0002' ? 18 : item.code === 'A-0003' ? 7 : 3,
         reservedQuantity: item.code === 'A-0003' ? 1 : 0,
@@ -190,16 +231,16 @@ async function main() {
   }
 
   await prisma.stockMovement.create({
-    data: { number: 'PM-DEL-000001-1', movementType: 'PURCHASE_IN', warehouseId: warehouses[0].id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'DEL-000001' }
+    data: { number: 'PM-DEL-000001-1', movementType: 'PURCHASE_IN', warehouseId: activeWarehouse.id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'DEL-000001' }
   });
   await prisma.stockMovement.create({
-    data: { number: 'PM-PINV-000001-1', movementType: 'PURCHASE_IN', warehouseId: warehouses[0].id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'PINV-000001' }
+    data: { number: 'PM-PINV-000001-1', movementType: 'PURCHASE_IN', warehouseId: activeWarehouse.id, itemId: items[1].id, quantity: 5, direction: 'IN', reason: 'Осчетоводена доставка', sourceDocument: 'PINV-000001' }
   });
   await prisma.stockMovement.create({
-    data: { number: 'SM-SL-000001-1', movementType: 'SALE_OUT', warehouseId: warehouses[0].id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Осчетоводена продажба', sourceDocument: 'SL-000001' }
+    data: { number: 'SM-SL-000001-1', movementType: 'SALE_OUT', warehouseId: activeWarehouse.id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Осчетоводена продажба', sourceDocument: 'SL-000001' }
   });
   await prisma.stockMovement.create({
-    data: { number: 'TR-000001', movementType: 'TRANSFER', warehouseId: warehouses[1].id, itemId: items[1].id, quantity: 4, direction: 'TRANSFER', reason: 'Трансфер към сервизен склад', sourceDocument: 'TR-000001' }
+    data: { number: 'TR-000001', movementType: 'TRANSFER', warehouseId: centralWarehouse.id, itemId: items[1].id, quantity: 4, direction: 'TRANSFER', reason: 'Трансфер към централен склад', sourceDocument: 'TR-000001' }
   });
 
   const vehicles = await Promise.all([
@@ -233,7 +274,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 2.4 purchases/deliveries seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 2.6.1 company locations foundation seed completed.');
 }
 
 main()

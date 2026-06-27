@@ -1,0 +1,84 @@
+<section class="document-card-screen stock-card-screen location-card-screen">
+  <header class="document-card-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">Обект · {{location.location.typeText}}</div>
+      <h1>{{location.location.code}} · {{location.location.name}}</h1>
+      <p>{{location.location.city}} · {{location.location.address}} · {{location.location.statusText}}</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/locations">Всички обекти</a>
+      <a href="/stock/dashboard">Складов център</a>
+      {{#if location.location.warehouseId}}
+        <a href="/stock/warehouse/{{location.location.warehouseId}}">Складова карта</a>
+      {{/if}}
+    </div>
+  </header>
+
+  <section class="dashboard-cards stock-kpi-grid">
+    <article class="dashboard-card"><span>Позиции</span><strong>{{location.summary.positionsText}}</strong><small>артикули</small></article>
+    <article class="dashboard-card"><span>Наличност</span><strong>{{location.summary.quantityText}}</strong><small>общо количество</small></article>
+    <article class="dashboard-card"><span>Резерв</span><strong>{{location.summary.reservedText}}</strong><small>заета наличност</small></article>
+    <article class="dashboard-card"><span>Свободно</span><strong>{{location.summary.availableText}}</strong><small>за работа</small></article>
+    <article class="dashboard-card"><span>Стойност</span><strong>{{location.summary.valueText}}</strong><small>по средна цена</small></article>
+  </section>
+
+  <section class="stock-layout-grid location-details-grid">
+    <article class="stock-panel">
+      <div class="panel-caption"><strong>Данни за обекта</strong><span>{{location.companyName}}</span></div>
+      <div class="document-info-grid location-info-grid">
+        <div><span>Тип</span><strong>{{location.location.typeText}}</strong></div>
+        <div><span>Град</span><strong>{{location.location.city}}</strong></div>
+        <div><span>Адрес</span><strong>{{location.location.address}}</strong></div>
+        <div><span>Телефон</span><strong>{{location.location.phone}}</strong></div>
+        <div><span>Email</span><strong>{{location.location.email}}</strong></div>
+      </div>
+    </article>
+
+    <article class="stock-panel">
+      <div class="panel-caption"><strong>Роли</strong><span>ERP поведение</span></div>
+      <div class="location-role-list">
+        <span class="role-pill {{#if location.location.canHoldStock}}enabled{{/if}}">Държи наличност: {{location.location.canHoldStockText}}</span>
+        <span class="role-pill {{#if location.location.canSell}}enabled{{/if}}">Продажби: {{location.location.canSellText}}</span>
+        <span class="role-pill {{#if location.location.canReceivePurchases}}enabled{{/if}}">Доставки: {{location.location.canReceivePurchasesText}}</span>
+        <span class="role-pill {{#if location.location.canTransfer}}enabled{{/if}}">Трансфер: {{location.location.canTransferText}}</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="stock-panel stock-wide-panel">
+    <div class="panel-caption"><strong>Наличност в обекта</strong><span>{{location.balances.length}} реда</span></div>
+    <div class="browse-frame stock-table-frame">
+      <table class="browse-grid stock-grid">
+        <thead><tr><th>Код</th><th>Артикул</th><th>Наличност</th><th>Резерв</th><th>Свободно</th><th>Средна цена</th><th>Стойност</th></tr></thead>
+        <tbody>
+          {{#each location.balances}}
+            <tr>
+              <td>{{itemCode}}</td>
+              <td><a href="/stock/item/{{itemId}}">{{itemName}}</a></td>
+              <td>{{quantityText}}</td>
+              <td>{{reservedText}}</td>
+              <td>{{availableText}}</td>
+              <td>{{avgCostText}}</td>
+              <td>{{stockValueText}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="stock-panel stock-wide-panel">
+    <div class="panel-caption"><strong>Последни движения</strong><span>{{location.movements.length}} реда</span></div>
+    <div class="browse-frame stock-table-frame">
+      <table class="browse-grid stock-grid">
+        <thead><tr><th>Номер</th><th>Дата</th><th>Тип</th><th>Артикул</th><th>Количество</th><th>Посока</th><th>Документ</th><th>Основание</th></tr></thead>
+        <tbody>
+          {{#each location.movements}}
+            <tr><td>{{number}}</td><td>{{movementDateText}}</td><td>{{movementType}}</td><td>{{itemCode}} · {{itemName}}</td><td>{{quantityText}}</td><td>{{directionText}}</td><td>{{sourceDocument}}</td><td>{{reason}}</td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

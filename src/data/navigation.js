@@ -38,10 +38,14 @@ export const NAV_GROUPS = [
     title: 'Склад',
     icon: '⌂',
     items: [
-      { id: 'warehouses', title: 'Складове', icon: '▤' },
+      { id: 'stock-dashboard', title: 'Складов център', icon: '▦', href: '/stock/dashboard' },
+      { id: 'company-locations', title: 'Обекти и складове', icon: '⌂', href: '/locations' },
       { id: 'stock', title: 'Наличности', icon: '▤' },
-      { id: 'stock-movements', title: 'Складови движения', icon: '▤' },
-      { id: 'stock-transfers', title: 'Трансфери между складове', icon: '▤' }
+      { id: 'stock-movements', title: 'Складови движения', icon: '⇅' },
+      { id: 'stock-adjustment-new', title: 'Складова корекция', icon: '±', href: '/stock/adjustment/new' },
+      { id: 'stock-transfer-new', title: 'Нов трансфер', icon: '⇄', href: '/stock/transfer/new' },
+      { id: 'stock-transfers', title: 'История трансфери', icon: '▤' },
+      { id: 'warehouses', title: 'Складове', icon: '▥' }
     ],
     folders: ['История', 'Настройки', 'Справки']
   },
@@ -65,6 +69,7 @@ export const NAV_GROUPS = [
       { id: 'counterparties', title: 'Контрагенти', icon: '▤' },
       { id: 'items', title: 'Артикули', icon: '▤' },
       { id: 'item-groups', title: 'Групи артикули', icon: '▤' },
+      { id: 'company-locations', title: 'Обекти и складове', icon: '⌂', href: '/locations' },
       { id: 'warehouses', title: 'Складове', icon: '▤' },
       { id: 'price-list', title: 'Ценови листи', icon: '▤' }
     ],
@@ -102,6 +107,7 @@ export const NAV_GROUPS = [
     title: 'Администриране',
     icon: '⚙',
     items: [
+      { id: 'company-locations', title: 'Обекти на фирмата', icon: '⌂', href: '/locations' },
       { id: 'users', title: 'Потребители', icon: '▤' },
       { id: 'settings', title: 'Настройки', icon: '▤' }
     ]
@@ -124,7 +130,7 @@ export function decorateNavigation(currentScreenId = '') {
       isOpen: group.open || hasActiveItem,
       items: group.items.map((item) => ({
         ...item,
-        href: item.id === 'reference-map' ? '/reference' : `/screen/${item.id}`,
+        href: item.href || (item.id === 'reference-map' ? '/reference' : `/screen/${item.id}`),
         active: item.id === currentScreenId
       }))
     };

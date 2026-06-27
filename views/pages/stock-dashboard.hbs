@@ -1,0 +1,105 @@
+<section class="stock-screen">
+  <header class="document-card-header stock-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">Склад</div>
+      <h1>Складов център</h1>
+      <p>Наличности, движения, корекции и трансфери в AutoGrand ERP V2</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/screen/stock">Наличности</a>
+      <a href="/screen/stock-movements">Движения</a>
+      <a href="/stock/adjustment/new">Корекция</a>
+      <a href="/stock/transfer/new">Трансфер</a>
+      <a href="/locations">Обекти</a>
+    </div>
+  </header>
+
+  {{#if stock.successMessage}}
+    <div class="document-alert success">{{stock.successMessage}}</div>
+  {{/if}}
+
+  <section class="dashboard-cards stock-kpi-grid">
+    {{#each stock.cards}}
+      <article class="dashboard-card stock-kpi-card">
+        <span>{{title}}</span>
+        <strong>{{value}}</strong>
+        <small>{{subtitle}}</small>
+      </article>
+    {{/each}}
+  </section>
+
+  <section class="stock-layout-grid">
+    <article class="stock-panel">
+      <div class="panel-caption">
+        <strong>Складове</strong>
+        <span>{{stock.warehouseCards.length}} обекта с наличност</span>
+      </div>
+
+      <div class="stock-card-list">
+        {{#each stock.warehouseCards}}
+          <a class="stock-mini-card" href="/stock/warehouse/{{id}}">
+            <span>{{code}}</span>
+            <strong>{{name}}</strong>
+            <small>{{typeText}} · {{city}} · Наличност: {{quantityText}} · Стойност: {{valueText}}</small>
+          </a>
+        {{/each}}
+      </div>
+    </article>
+
+    <article class="stock-panel">
+      <div class="panel-caption">
+        <strong>Ниски наличности</strong>
+        <span>наблюдение</span>
+      </div>
+
+      <div class="stock-card-list">
+        {{#each stock.lowStockItems}}
+          <a class="stock-mini-card {{#if isLow}}is-low{{/if}}" href="/stock/item/{{id}}">
+            <span>{{code}}</span>
+            <strong>{{name}}</strong>
+            <small>Свободно: {{availableText}} {{unit}} · {{valueText}}</small>
+          </a>
+        {{/each}}
+      </div>
+    </article>
+  </section>
+
+  <section class="stock-panel stock-wide-panel">
+    <div class="panel-caption">
+      <strong>Последни складови движения</strong>
+      <span>{{stock.movements.length}} последни</span>
+    </div>
+
+    <div class="browse-frame stock-table-frame">
+      <table class="browse-grid stock-grid">
+        <thead>
+          <tr>
+            <th>Номер</th>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Склад</th>
+            <th>Артикул</th>
+            <th>Количество</th>
+            <th>Посока</th>
+            <th>Документ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each stock.movements}}
+            <tr>
+              <td>{{number}}</td>
+              <td>{{movementDateText}}</td>
+              <td>{{movementTypeText}}</td>
+              <td>{{warehouseName}}</td>
+              <td><a href="/stock/item/{{itemId}}">{{itemCode}} · {{itemName}}</a></td>
+              <td>{{quantityText}}</td>
+              <td>{{directionText}}</td>
+              <td>{{sourceDocument}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
 import { getDashboardData, getScreenData } from './services/core-data-service.js';
+import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
 import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
 import {
@@ -29,6 +30,16 @@ import {
   recalculatePurchaseDocumentTotals,
   updatePurchaseDocumentStatus
 } from './services/purchase-actions-service.js';
+import {
+  getStockAdjustmentFormData,
+  getStockDashboardData,
+  getStockItemCardData,
+  getStockTransferFormData,
+  getStockWarehouseCardData,
+  createStockAdjustmentFromForm,
+  createStockTransferFromForm,
+  stockActionMessage
+} from './services/stock-actions-service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +67,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.1.1',
+    appVersion: 'v0.2.0',
     companyName: 'КЪРДЖАЛИ - Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -213,7 +224,10 @@ app.get('/screen/:screenId', async (req, res) => {
 
   screen.isSalesDocument = screen.kind === 'salesDocument';
   screen.isPurchaseDocument = screen.kind === 'purchaseDocument';
+  screen.isStockBalance = screen.kind === 'stockBalance';
+  screen.isStockMovement = screen.kind === 'stockMovement';
   screen.hasDocumentCard = screen.isSalesDocument || screen.isPurchaseDocument;
+  screen.hasStockActions = screen.isStockBalance || screen.isStockMovement;
 
   if (screen.isSalesDocument) {
     const docType = screen.where?.docType || 'SALE';
@@ -416,6 +430,144 @@ app.post('/tools/snapshot/open-folder', async (req, res) => {
   }
 });
 
+
+
+app.get('/locations', async (req, res) => {
+  const locations = await getCompanyLocationsData();
+
+  renderPage(req, res, 'company-locations', {
+    ...baseViewData({
+      title: 'Обекти и складове — AutoGrand ERP V2',
+      currentScreen: 'company-locations',
+      statusText: 'Отворен екран: Обекти и складове'
+    }),
+    locations
+  });
+});
+
+app.get('/locations/:locationId', async (req, res) => {
+  const location = await getCompanyLocationCardData(req.params.locationId);
+
+  if (!location) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Обектът не е намерен',
+        currentScreen: 'company-locations',
+        statusText: 'Обектът не е намерен'
+      })
+    });
+  }
+
+  renderPage(req, res, 'company-location-card', {
+    ...baseViewData({
+      title: `${location.location.code} · ${location.location.name} — AutoGrand ERP V2`,
+      currentScreen: 'company-locations',
+      statusText: `Отворена карта на обект: ${location.location.name}`
+    }),
+    location
+  });
+});
+
+app.get('/stock/dashboard', async (req, res) => {
+  const stock = await getStockDashboardData(req.query.action || '');
+
+  renderPage(req, res, 'stock-dashboard', {
+    ...baseViewData({
+      title: 'Складов център — AutoGrand ERP V2',
+      currentScreen: 'stock-dashboard',
+      statusText: 'Отворен складов център'
+    }),
+    stock
+  });
+});
+
+app.get('/stock/adjustment/new', async (req, res) => {
+  const formData = await getStockAdjustmentFormData();
+
+  renderPage(req, res, 'stock-adjustment-new', {
+    ...baseViewData({
+      title: 'Складова корекция — AutoGrand ERP V2',
+      currentScreen: 'stock-adjustment-new',
+      statusText: 'Нова складова корекция'
+    }),
+    formData,
+    actionMessage: stockActionMessage(req.query.action || '')
+  });
+});
+
+app.post('/stock/adjustment/new', async (req, res) => {
+  const result = await createStockAdjustmentFromForm(req.body);
+  res.redirect(`/stock/dashboard?action=${result?.code || 'stock_adjustment_invalid'}`);
+});
+
+app.get('/stock/transfer/new', async (req, res) => {
+  const formData = await getStockTransferFormData();
+
+  renderPage(req, res, 'stock-transfer-new', {
+    ...baseViewData({
+      title: 'Складов трансфер — AutoGrand ERP V2',
+      currentScreen: 'stock-transfer-new',
+      statusText: 'Нов складов трансфер'
+    }),
+    formData,
+    actionMessage: stockActionMessage(req.query.action || '')
+  });
+});
+
+app.post('/stock/transfer/new', async (req, res) => {
+  const result = await createStockTransferFromForm(req.body);
+  res.redirect(`/stock/dashboard?action=${result?.code || 'stock_transfer_invalid'}`);
+});
+
+app.get('/stock/item/:itemId', async (req, res) => {
+  const stock = await getStockItemCardData(req.params.itemId, req.query.action || '');
+
+  if (!stock) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Артикулът не е намерен',
+        currentScreen: 'stock',
+        statusText: 'Артикулът не е намерен'
+      })
+    });
+  }
+
+  renderPage(req, res, 'stock-item-card', {
+    ...baseViewData({
+      title: `${stock.item.code} · ${stock.item.name} — складова карта`,
+      currentScreen: 'stock',
+      statusText: `Складова карта на артикул: ${stock.item.code}`
+    }),
+    stock
+  });
+});
+
+app.get('/stock/warehouse/:warehouseId', async (req, res) => {
+  const stock = await getStockWarehouseCardData(req.params.warehouseId, req.query.action || '');
+
+  if (!stock) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Складът не е намерен',
+        currentScreen: 'stock',
+        statusText: 'Складът не е намерен'
+      })
+    });
+  }
+
+  renderPage(req, res, 'stock-warehouse-card', {
+    ...baseViewData({
+      title: `${stock.warehouse.code} · ${stock.warehouse.name} — складова карта`,
+      currentScreen: 'warehouses',
+      statusText: `Складова карта: ${stock.warehouse.code}`
+    }),
+    stock
+  });
+});
+
 app.get('/reference', (req, res) => {
   renderPage(req, res, 'reference-local', {
     ...baseViewData({
@@ -430,7 +582,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '2-4-purchases-delivery-stock-in'
+    step: '2-6-3-location-sales-role-fix'
   });
 });
 

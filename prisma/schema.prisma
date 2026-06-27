@@ -16,7 +16,38 @@ model Company {
   phone     String?
   createdAt DateTime @default(now())
 
-  users User[]
+  users     User[]
+  locations CompanyLocation[]
+}
+
+
+model CompanyLocation {
+  id                  Int      @id @default(autoincrement())
+  code                String   @unique
+  name                String
+  type                String   @default("SHOP")
+  city                String?
+  address             String?
+  phone               String?
+  email               String?
+  contactPerson       String?
+  companyId           Int?
+  canHoldStock        Boolean  @default(true)
+  canSell             Boolean  @default(false)
+  canReceivePurchases Boolean  @default(true)
+  canTransfer         Boolean  @default(true)
+  isDefault           Boolean  @default(false)
+  isCurrent           Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  sortOrder           Int      @default(100)
+  createdAt           DateTime @default(now())
+
+  company    Company?    @relation(fields: [companyId], references: [id])
+  warehouses Warehouse[]
+
+  @@index([type])
+  @@index([city])
+  @@index([companyId])
 }
 
 model User {
@@ -69,13 +100,15 @@ model Item {
 }
 
 model Warehouse {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  name      String
-  city      String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  name       String
+  city       String?
+  locationId Int?     @unique
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 
+  location CompanyLocation? @relation(fields: [locationId], references: [id])
   salesDocuments    SalesDocument[]
   salesLines        SalesDocumentLine[]
   purchaseDocuments PurchaseDocument[]

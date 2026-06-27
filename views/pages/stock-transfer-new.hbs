@@ -1,0 +1,68 @@
+<section class="document-card-screen stock-form-screen">
+  <header class="document-card-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">Склад</div>
+      <h1>Трансфер между складове</h1>
+      <p>Преместване на наличност от един склад към друг с две складови движения.</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/stock/dashboard">Складов център</a>
+      <a href="/screen/stock-transfers">История трансфери</a>
+      <a href="/screen/stock">Наличности</a>
+    </div>
+  </header>
+
+  {{#if actionMessage}}
+    <div class="document-alert error">{{actionMessage}}</div>
+  {{/if}}
+
+  <form class="stock-form-card" method="post" action="/stock/transfer/new">
+    <div class="stock-form-grid">
+      <label>
+        <span>От склад</span>
+        <select name="fromWarehouseId" required>
+          <option value="">Избери изходен склад...</option>
+          {{#each formData.warehouses}}
+            <option value="{{id}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Към склад</span>
+        <select name="toWarehouseId" required>
+          <option value="">Избери приемащ склад...</option>
+          {{#each formData.warehouses}}
+            <option value="{{id}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Артикул</span>
+        <select name="itemId" required>
+          <option value="">Избери артикул...</option>
+          {{#each formData.items}}
+            <option value="{{id}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Количество</span>
+        <input name="quantity" type="number" step="0.001" min="0.001" required placeholder="0.000" />
+      </label>
+
+      <label class="wide">
+        <span>Бележка</span>
+        <textarea name="note" rows="3" placeholder="Причина за трансфера"></textarea>
+      </label>
+    </div>
+
+    <div class="document-card-actions stock-form-actions">
+      <button type="submit">Запиши трансфер</button>
+      <a href="/stock/dashboard">Отказ</a>
+    </div>
+  </form>
+</section>

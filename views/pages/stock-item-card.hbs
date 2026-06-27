@@ -1,0 +1,73 @@
+<section class="document-card-screen stock-card-screen">
+  <header class="document-card-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">Складова карта · артикул</div>
+      <h1>{{stock.item.code}} · {{stock.item.name}}</h1>
+      <p>{{stock.item.groupName}} · мярка {{stock.item.unit}} · barcode {{stock.item.barcode}}</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/stock/dashboard">Складов център</a>
+      <a href="/stock/adjustment/new">Корекция</a>
+      <a href="/stock/transfer/new">Трансфер</a>
+    </div>
+  </header>
+
+  {{#if stock.successMessage}}
+    <div class="document-alert success">{{stock.successMessage}}</div>
+  {{/if}}
+
+  <section class="dashboard-cards stock-kpi-grid">
+    <article class="dashboard-card"><span>Общо</span><strong>{{stock.summary.quantityText}}</strong><small>{{stock.item.unit}}</small></article>
+    <article class="dashboard-card"><span>Резервирано</span><strong>{{stock.summary.reservedText}}</strong><small>{{stock.item.unit}}</small></article>
+    <article class="dashboard-card"><span>Свободно</span><strong>{{stock.summary.availableText}}</strong><small>{{stock.item.unit}}</small></article>
+    <article class="dashboard-card"><span>Стойност</span><strong>{{stock.summary.valueText}}</strong><small>по средна цена</small></article>
+    <article class="dashboard-card"><span>Складове</span><strong>{{stock.summary.warehousesText}}</strong><small>позиции</small></article>
+  </section>
+
+  <section class="stock-layout-grid">
+    <article class="stock-panel">
+      <div class="panel-caption"><strong>Наличност по склад</strong><span>{{stock.balances.length}} реда</span></div>
+      <div class="browse-frame stock-table-frame">
+        <table class="browse-grid stock-grid">
+          <thead><tr><th>Склад</th><th>Наличност</th><th>Резерв</th><th>Свободно</th><th>Средна цена</th><th>Стойност</th></tr></thead>
+          <tbody>
+            {{#each stock.balances}}
+              <tr>
+                <td><a href="/stock/warehouse/{{warehouseId}}">{{warehouseCode}} · {{warehouseName}}</a></td>
+                <td>{{quantityText}}</td>
+                <td>{{reservedText}}</td>
+                <td>{{availableText}}</td>
+                <td>{{avgCostText}}</td>
+                <td>{{stockValueText}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-panel">
+      <div class="panel-caption"><strong>Артикул</strong><span>цени</span></div>
+      <div class="stock-info-stack">
+        <div><span>Продажна цена</span><strong>{{stock.item.retailPriceText}}</strong></div>
+        <div><span>Доставна цена</span><strong>{{stock.item.wholesalePriceText}}</strong></div>
+        <div><span>Група</span><strong>{{stock.item.groupName}}</strong></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="stock-panel stock-wide-panel">
+    <div class="panel-caption"><strong>История на движенията</strong><span>{{stock.movements.length}} реда</span></div>
+    <div class="browse-frame stock-table-frame">
+      <table class="browse-grid stock-grid">
+        <thead><tr><th>Номер</th><th>Дата</th><th>Тип</th><th>Склад</th><th>Количество</th><th>Посока</th><th>Документ</th><th>Основание</th></tr></thead>
+        <tbody>
+          {{#each stock.movements}}
+            <tr><td>{{number}}</td><td>{{movementDateText}}</td><td>{{movementTypeText}}</td><td>{{warehouseName}}</td><td>{{quantityText}}</td><td>{{directionText}}</td><td>{{sourceDocument}}</td><td>{{reason}}</td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>

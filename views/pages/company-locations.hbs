@@ -1,0 +1,65 @@
+<section class="stock-screen locations-screen">
+  <header class="document-card-header stock-header">
+    <div class="screen-title-block">
+      <div class="screen-kicker">AutoGrand обекти</div>
+      <h1>Обекти, складове и търговски локации</h1>
+      <p>Единна основа за централен офис, един централен склад, регионални складове и търговски обекти. Регионалните складове също работят с продажби; активният работен обект е Кърджали.</p>
+    </div>
+
+    <div class="document-card-actions">
+      <a href="/stock/dashboard">Складов център</a>
+      <a href="/screen/stock">Наличности</a>
+      <a href="/stock/transfer/new">Трансфер</a>
+    </div>
+  </header>
+
+  <section class="dashboard-cards stock-kpi-grid">
+    {{#each locations.cards}}
+      <article class="dashboard-card stock-kpi-card">
+        <span>{{title}}</span>
+        <strong>{{value}}</strong>
+        <small>{{subtitle}}</small>
+      </article>
+    {{/each}}
+  </section>
+
+  {{#if locations.currentLocation}}
+    <section class="stock-panel stock-wide-panel current-location-panel">
+      <div class="panel-caption">
+        <strong>Текущ работен обект</strong>
+        <span>{{locations.currentLocation.code}}</span>
+      </div>
+      <a class="stock-mini-card current-location-card" href="/locations/{{locations.currentLocation.id}}">
+        <span>{{locations.currentLocation.typeText}}</span>
+        <strong>{{locations.currentLocation.name}}</strong>
+        <small>{{locations.currentLocation.city}} · {{locations.currentLocation.address}} · {{locations.currentLocation.email}}</small>
+      </a>
+    </section>
+  {{/if}}
+
+  <section class="location-groups-grid">
+    {{#each locations.groups}}
+      <article class="stock-panel location-group-panel">
+        <div class="panel-caption">
+          <strong>{{title}}</strong>
+          <span>{{count}} обекта</span>
+        </div>
+
+        <div class="stock-card-list location-card-list">
+          {{#each items}}
+            <a class="stock-mini-card location-mini-card {{#if isCurrent}}is-current{{/if}}" href="/locations/{{id}}">
+              <span>{{code}} · {{typeText}}</span>
+              <strong>{{name}}</strong>
+              <small>{{city}} · {{address}}</small>
+              <em>
+                {{#if canHoldStock}}Наличност{{/if}}
+                {{#if canSell}} · Продажби{{/if}}
+                {{#if canTransfer}} · Трансфер{{/if}}
+              </em>
+            </a>
+          {{/each}}
+        </div>
+      </article>
+    {{/each}}
+  </section>
+</section>

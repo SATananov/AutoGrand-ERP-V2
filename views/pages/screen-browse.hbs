@@ -11,7 +11,13 @@
       {{#if screen.hasDocumentCard}}
         <a class="command-link" href="{{screen.newDocumentUrl}}">Нов документ</a>
       {{else}}
-        <button type="button">Нов ред</button>
+        {{#if screen.hasStockActions}}
+          <a class="command-link" href="/stock/dashboard">Складов център</a>
+          <a class="command-link" href="/stock/adjustment/new">Корекция</a>
+          <a class="command-link" href="/stock/transfer/new">Трансфер</a>
+        {{else}}
+          <button type="button">Нов ред</button>
+        {{/if}}
       {{/if}}
       <button type="button">Копирай ред</button>
       <button type="button" class="open-active-card">Детайли</button>
@@ -73,7 +79,7 @@
           </thead>
           <tbody>
             {{#each screen.rows}}
-              <tr class="selectable-row {{#if @first}}active{{/if}}" data-row-id="{{id}}">
+              <tr class="selectable-row {{#if @first}}active{{/if}}" data-row-id="{{id}}" {{#if rowOpenUrl}}data-row-open-url="{{rowOpenUrl}}"{{else}}{{#if itemCardUrl}}data-row-open-url="{{itemCardUrl}}"{{/if}}{{/if}}>
                 <td class="row-number">{{inc @index}}</td>
                 {{#each ../screen.columns}}
                   <td data-field="{{key}}">{{cell ../this key}}</td>
@@ -121,7 +127,22 @@
               {{#if ../screen.hasDocumentCard}}
                 <a class="preview-open-link" href="{{../screen.documentCardPath}}/{{id}}">Отвори карта</a>
               {{else}}
-                <button type="button">Отвори карта</button>
+                {{#if rowOpenUrl}}
+                  <a class="preview-open-link" href="{{rowOpenUrl}}">Отвори карта</a>
+                {{/if}}
+                {{#if itemCardUrl}}
+                  <a class="preview-open-link" href="{{itemCardUrl}}">Карта артикул</a>
+                {{/if}}
+                {{#if warehouseCardUrl}}
+                  <a class="preview-open-link" href="{{warehouseCardUrl}}">Карта склад</a>
+                {{/if}}
+                {{#unless rowOpenUrl}}
+                  {{#unless itemCardUrl}}
+                    {{#unless warehouseCardUrl}}
+                      <button type="button">Отвори карта</button>
+                    {{/unless}}
+                  {{/unless}}
+                {{/unless}}
               {{/if}}
               <button type="button">История</button>
               <button type="button">Ревизии</button>

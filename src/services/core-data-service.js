@@ -1,4 +1,5 @@
 import prisma from '../db/prisma.js';
+import { locationTypeText } from './company-locations-service.js';
 
 export const screenDefinitions = {
   'price-list': {
@@ -128,6 +129,21 @@ export const screenDefinitions = {
     columns: cashColumns()
   },
 
+  'company-locations': {
+    title: 'Обекти и складове',
+    group: 'Склад',
+    kind: 'companyLocation',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Обект' },
+      { key: 'typeText', label: 'Тип' },
+      { key: 'city', label: 'Град' },
+      { key: 'canHoldStockText', label: 'Наличност' },
+      { key: 'canSellText', label: 'Продажби' },
+      { key: 'statusText', label: 'Статус' }
+    ]
+  },
+
   'warehouses': {
     title: 'Складове',
     group: 'Склад',
@@ -135,6 +151,7 @@ export const screenDefinitions = {
     columns: [
       { key: 'code', label: 'Код' },
       { key: 'name', label: 'Склад' },
+      { key: 'typeText', label: 'Тип обект' },
       { key: 'city', label: 'Град' },
       { key: 'statusText', label: 'Статус' }
     ]
@@ -149,7 +166,9 @@ export const screenDefinitions = {
       { key: 'itemName', label: 'Артикул' },
       { key: 'quantityText', label: 'Наличност' },
       { key: 'reservedText', label: 'Резервирано' },
-      { key: 'avgCostText', label: 'Средна цена' }
+      { key: 'availableText', label: 'Свободно' },
+      { key: 'avgCostText', label: 'Средна цена' },
+      { key: 'stockValueText', label: 'Стойност' }
     ]
   },
   'stock-movements': {
@@ -313,7 +332,7 @@ function stockMovementColumns() {
   return [
     { key: 'number', label: 'Номер' },
     { key: 'movementDateText', label: 'Дата' },
-    { key: 'movementType', label: 'Тип' },
+    { key: 'movementTypeText', label: 'Тип' },
     { key: 'warehouseName', label: 'Склад' },
     { key: 'itemName', label: 'Артикул' },
     { key: 'quantityText', label: 'Количество' },
@@ -332,6 +351,19 @@ function numberText(value) {
 function dateText(value) {
   if (!value) return '';
   return new Intl.DateTimeFormat('bg-BG').format(new Date(value));
+}
+
+function movementTypeText(type) {
+  const map = {
+    PURCHASE_IN: 'Вход от доставка',
+    SALE_OUT: 'Изход от продажба',
+    SALE_RETURN_IN: 'Вход от кредитно известие',
+    PURCHASE_RETURN_OUT: 'Изход към доставчик',
+    ADJUSTMENT_IN: 'Корекция вход',
+    ADJUSTMENT_OUT: 'Корекция изход',
+    TRANSFER: 'Трансфер'
+  };
+  return map[type] || type || '';
 }
 
 function kindText(kind) {
@@ -373,6 +405,7 @@ export async function getDashboardData() {
       counterparties,
       items,
       warehouses,
+      companyLocations,
       priceLists,
       salesDocuments,
       purchaseDocuments,
@@ -385,6 +418,7 @@ export async function getDashboardData() {
       prisma.counterparty.count(),
       prisma.item.count(),
       prisma.warehouse.count(),
+      prisma.companyLocation.count(),
       prisma.priceList.count(),
       prisma.salesDocument.count(),
       prisma.purchaseDocument.count(),
@@ -400,7 +434,8 @@ export async function getDashboardData() {
       cards: [
         { title: 'Контрагенти', value: counterparties, subtitle: 'клиенти и доставчици' },
         { title: 'Артикули', value: items, subtitle: 'номенклатури' },
-        { title: 'Складове', value: warehouses, subtitle: 'активни обекти' },
+        { title: 'Обекти', value: companyLocations, subtitle: 'офиси, складове и магазини' },
+        { title: 'Складове', value: warehouses, subtitle: 'локации с наличност' },
         { title: 'Ценови листи', value: priceLists, subtitle: 'продажбени цени' },
         { title: 'Продажби', value: salesDocuments, subtitle: 'документи' },
         { title: 'Доставки', value: purchaseDocuments, subtitle: 'доставни документи' },
@@ -558,8 +593,29 @@ export async function getScreenData(screenId) {
       }));
     }
 
+    if (definition.kind === 'companyLocation') {
+      const result = await prisma.companyLocation.findMany({
+        orderBy: [{ sortOrder: 'asc' }, { code: 'asc' }]
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        typeText: locationTypeText(row.type),
+        city: row.city || '',
+        canHoldStockText: row.canHoldStock ? 'Да' : 'Не',
+        canSellText: row.canSell ? 'Да' : 'Не',
+        canReceivePurchasesText: row.canReceivePurchases ? 'Да' : 'Не',
+        canTransferText: row.canTransfer ? 'Да' : 'Не',
+        statusText: row.isActive ? 'Активен' : 'Спрян',
+        rowOpenUrl: `/locations/${row.id}`
+      }));
+    }
+
     if (definition.kind === 'warehouse') {
       const result = await prisma.warehouse.findMany({
+        include: { location: true },
         orderBy: { code: 'asc' }
       });
 
@@ -567,32 +623,47 @@ export async function getScreenData(screenId) {
         id: row.id,
         code: row.code,
         name: row.name,
-        city: row.city || '',
-        statusText: row.isActive ? 'Активен' : 'Спрян'
+        typeText: locationTypeText(row.location?.type),
+        city: row.city || row.location?.city || '',
+        statusText: row.isActive ? 'Активен' : 'Спрян',
+        rowOpenUrl: `/stock/warehouse/${row.id}`
       }));
     }
 
     if (definition.kind === 'stockBalance') {
       const result = await prisma.stockBalance.findMany({
-        include: { warehouse: true, item: true },
+        include: { warehouse: { include: { location: true } }, item: true },
         orderBy: [{ warehouseId: 'asc' }, { itemId: 'asc' }]
       });
 
-      rows = result.map((row) => ({
-        id: row.id,
-        warehouseName: row.warehouse?.name || '',
-        itemCode: row.item?.code || '',
-        itemName: row.item?.name || '',
-        quantityText: numberText(row.quantity),
-        reservedText: numberText(row.reservedQuantity),
-        avgCostText: money(row.avgCost)
-      }));
+      rows = result.map((row) => {
+        const quantity = Number(row.quantity || 0);
+        const reserved = Number(row.reservedQuantity || 0);
+        const avgCost = Number(row.avgCost || 0);
+
+        return {
+          id: row.id,
+          warehouseId: row.warehouseId,
+          warehouseCode: row.warehouse?.code || '',
+          warehouseName: row.warehouse?.name || '',
+          itemId: row.itemId,
+          itemCode: row.item?.code || '',
+          itemName: row.item?.name || '',
+          quantityText: numberText(quantity),
+          reservedText: numberText(reserved),
+          availableText: numberText(quantity - reserved),
+          avgCostText: money(avgCost),
+          stockValueText: money(quantity * avgCost),
+          itemCardUrl: `/stock/item/${row.itemId}`,
+          warehouseCardUrl: `/stock/warehouse/${row.warehouseId}`
+        };
+      });
     }
 
     if (definition.kind === 'stockMovement') {
       const result = await prisma.stockMovement.findMany({
         where: definition.where || {},
-        include: { warehouse: true, item: true },
+        include: { warehouse: { include: { location: true } }, item: true },
         orderBy: { movementDate: 'desc' }
       });
 
@@ -601,10 +672,17 @@ export async function getScreenData(screenId) {
         number: row.number,
         movementDateText: dateText(row.movementDate),
         movementType: row.movementType,
+        movementTypeText: movementTypeText(row.movementType),
+        warehouseId: row.warehouseId,
         warehouseName: row.warehouse?.name || '',
+        itemId: row.itemId,
         itemName: row.item?.name || '',
         quantityText: numberText(row.quantity),
-        directionText: row.direction === 'IN' ? 'Вход' : row.direction === 'OUT' ? 'Изход' : 'Трансфер'
+        directionText: row.direction === 'IN' ? 'Вход' : row.direction === 'OUT' ? 'Изход' : 'Трансфер',
+        sourceDocument: row.sourceDocument || '',
+        reason: row.reason || '',
+        itemCardUrl: row.itemId ? `/stock/item/${row.itemId}` : '',
+        warehouseCardUrl: row.warehouseId ? `/stock/warehouse/${row.warehouseId}` : ''
       }));
     }
 
