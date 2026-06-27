@@ -41,7 +41,7 @@ function todayText() {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.1.0',
+    appVersion: 'v0.1.1',
     companyName: 'КЪРДЖАЛИ - Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -51,6 +51,20 @@ function baseViewData({ title, currentScreen = '', statusText = 'Отворен 
     navigationGroups: decorateNavigation(currentScreen),
     ribbonGroups: RIBBON_GROUPS
   };
+}
+
+
+function isWorkspacePartialRequest(req) {
+  return req.query?.workspace === '1' || req.get('X-AG-Workspace') === '1';
+}
+
+function renderPage(req, res, view, data = {}, options = {}) {
+  const renderOptions = {
+    ...data,
+    ...(isWorkspacePartialRequest(req) ? { layout: false } : options)
+  };
+
+  res.render(view, renderOptions);
 }
 
 function redirectSalesWithAction(res, documentId, code) {
@@ -110,7 +124,7 @@ app.use('/public', express.static(path.join(rootDir, 'public')));
 app.get('/', async (req, res) => {
   const dashboard = await getDashboardData();
 
-  res.render('moneta-home', {
+  renderPage(req, res, 'moneta-home', {
     ...baseViewData({
       title: 'AutoGrand ERP V2 — Начало',
       statusText: 'Отворен екран: Начало'
@@ -123,7 +137,8 @@ app.get('/screen/:screenId', async (req, res) => {
   const screen = await getScreenData(req.params.screenId);
 
   if (!screen) {
-    return res.status(404).render('not-found', {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
       ...baseViewData({
         title: 'Екранът не е намерен',
         statusText: 'Екранът не е намерен'
@@ -147,7 +162,7 @@ app.get('/screen/:screenId', async (req, res) => {
     screen.documentCardPath = '/document/purchase';
   }
 
-  res.render('screen-browse', {
+  renderPage(req, res, 'screen-browse', {
     ...baseViewData({
       title: `${screen.title} — AutoGrand ERP V2`,
       currentScreen: screen.id,
@@ -160,7 +175,7 @@ app.get('/screen/:screenId', async (req, res) => {
 app.get('/document/sales/new/:docType', async (req, res) => {
   const formData = await getSalesNewDocumentFormData(req.params.docType);
 
-  res.render('sales-document-new', {
+  renderPage(req, res, 'sales-document-new', {
     ...baseViewData({
       title: `Нов документ — ${formData.title}`,
       currentScreen: 'sales',
@@ -179,7 +194,8 @@ app.get('/document/sales/:documentId', async (req, res) => {
   const documentCard = await getSalesDocumentCardData(req.params.documentId, req.query.action || '');
 
   if (!documentCard) {
-    return res.status(404).render('not-found', {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
       ...baseViewData({
         title: 'Документът не е намерен',
         currentScreen: 'sales',
@@ -188,7 +204,7 @@ app.get('/document/sales/:documentId', async (req, res) => {
     });
   }
 
-  res.render('sales-document-card', {
+  renderPage(req, res, 'sales-document-card', {
     ...baseViewData({
       title: `${documentCard.title} ${documentCard.number} — AutoGrand ERP V2`,
       currentScreen: documentCard.sourceScreenId || 'sales',
@@ -232,7 +248,7 @@ app.post('/document/sales/:documentId/payments', async (req, res) => {
 app.get('/document/purchase/new/:docType', async (req, res) => {
   const formData = await getPurchaseNewDocumentFormData(req.params.docType);
 
-  res.render('purchase-document-new', {
+  renderPage(req, res, 'purchase-document-new', {
     ...baseViewData({
       title: `Нов доставен документ — ${formData.title}`,
       currentScreen: formData.docType === 'PURCHASE_ORDER' ? 'purchase-orders' : formData.docType === 'SUPPLIER_INVOICE' ? 'supplier-invoices' : 'deliveries',
@@ -251,7 +267,8 @@ app.get('/document/purchase/:documentId', async (req, res) => {
   const documentCard = await getPurchaseDocumentCardData(req.params.documentId, req.query.action || '');
 
   if (!documentCard) {
-    return res.status(404).render('not-found', {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
       ...baseViewData({
         title: 'Доставният документ не е намерен',
         currentScreen: 'deliveries',
@@ -260,7 +277,7 @@ app.get('/document/purchase/:documentId', async (req, res) => {
     });
   }
 
-  res.render('purchase-document-card', {
+  renderPage(req, res, 'purchase-document-card', {
     ...baseViewData({
       title: `${documentCard.title} ${documentCard.number} — AutoGrand ERP V2`,
       currentScreen: documentCard.sourceScreenId || 'deliveries',
@@ -296,7 +313,7 @@ app.post('/document/purchase/:documentId/status', async (req, res) => {
 });
 
 app.get('/reference', (req, res) => {
-  res.render('reference-local', {
+  renderPage(req, res, 'reference-local', {
     ...baseViewData({
       title: 'Client Reference Map — AutoGrand ERP V2',
       currentScreen: 'reference-map',
@@ -314,7 +331,8 @@ app.get('/health', (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).render('not-found', {
+  res.status(404);
+    return renderPage(req, res, 'not-found', {
     ...baseViewData({
       title: 'Страницата не е намерена',
       statusText: 'Страницата не е намерена'

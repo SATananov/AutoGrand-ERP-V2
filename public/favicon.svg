@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 64" role="img" aria-label="AutoGrand">
+  <rect width="96" height="64" fill="#ffffff"/>
+  <polygon points="0,0 34,0 0,64" fill="#7fba17"/>
+  <polygon points="34,0 96,0 96,64 0,64" fill="#4a4d4c"/>
+  <polygon points="51,0 63,0 35,64 23,64" fill="#ffffff"/>
+  <polygon points="56,16 64,16 58,31 50,31" fill="#4a4d4c"/>
+  <polygon points="45,41 53,41 47,56 39,56" fill="#4a4d4c"/>
+</svg>

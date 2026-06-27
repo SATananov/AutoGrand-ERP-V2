@@ -4,8 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{title}}</title>
-    <link rel="icon" type="image/png" href="/public/assets/brand/autogrand-road-icon.png" />
-    <link rel="shortcut icon" type="image/png" href="/public/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/public/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/public/favicon-64.png" />
+    <link rel="icon" type="image/png" sizes="128x128" href="/public/favicon-128.png" />
+    <link rel="apple-touch-icon" sizes="256x256" href="/public/favicon-256.png" />
+    <link rel="shortcut icon" href="/public/favicon.ico" />
+    <link rel="manifest" href="/public/manifest.webmanifest" />
     <link rel="stylesheet" href="/public/css/styles.css" />
   </head>
   <body>
@@ -44,11 +51,11 @@
       </section>
 
       <div class="erp-main">
-        <aside class="erp-menu">
+        <aside class="erp-menu" id="ag-v2-sidebar">
           <div class="menu-title">
             <span>Меню</span>
-            <span class="pin">📍</span>
-            <span class="collapse">◀</span>
+            <button class="pin" type="button" data-ag-menu-pin aria-label="Закачи менюто">📍</button>
+            <button class="collapse" type="button" data-ag-menu-collapse aria-label="Свий менюто">◀</button>
           </div>
 
           <div class="menu-scroll">
@@ -61,7 +68,7 @@
 
                 <div class="tree-items">
                   {{#each items}}
-                    <a class="tree-item {{#if active}}active{{/if}}" href="{{href}}">
+                    <a class="tree-item {{#if active}}active{{/if}}" href="{{href}}" data-ag-open-screen data-ag-screen-title="{{title}}">
                       <span class="doc-icon">{{icon}}</span>
                       <span>{{title}}</span>
                     </a>
@@ -80,20 +87,24 @@
           </div>
         </aside>
 
-        <main class="erp-workspace">
-          <div class="tab-strip">
-            <a href="/" class="workspace-tab">Начало</a>
+        <main class="erp-workspace" id="ag-v2-workspace">
+          <div class="tab-strip" id="ag-v2-workspace-tabs">
+            <button type="button" class="workspace-tab is-active" data-workspace-home>Начало</button>
           </div>
 
-          <section class="workspace-window">
-            {{{body}}}
+          <section class="workspace-stage" id="ag-v2-workspace-stage">
+            <section class="workspace-window workspace-home-window is-active" id="ag-v2-workspace-home" data-window-title="{{title}}">
+              {{{body}}}
+            </section>
+            <div class="ag-v2-window-layer" id="ag-v2-window-layer" aria-live="polite"></div>
+            <div class="ag-v2-minimized-dock" id="ag-v2-minimized-dock" aria-label="Минимизирани прозорци"></div>
           </section>
         </main>
       </div>
 
       <footer class="erp-statusbar">
-        <div>▣ {{statusText}}</div>
-        <div>◇ Отворен екран</div>
+        <div data-ag-status-message>▣ {{statusText}}</div>
+        <div>◇ Работна среда</div>
         <div>📍 КЪРДЖАЛИ</div>
         <div>👤 {{userName}}</div>
         <div>▥ AutoGrand ERP</div>
@@ -103,5 +114,6 @@
     </div>
 
     <script src="/public/js/app.js"></script>
+    <script src="/public/js/erp-v2-workspace-manager.js"></script>
   </body>
 </html>

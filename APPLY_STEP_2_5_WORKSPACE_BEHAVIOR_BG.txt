@@ -1,0 +1,22 @@
+AutoGrand ERP V2 — Step 2.5 Desktop Workspace Behavior
+
+Как да приложиш:
+1. Разархивирай този ZIP върху корена на последния AutoGrand ERP V2 Step 2.4 проект.
+2. Позволи replace/overwrite на съществуващите файлове.
+3. Във VS Code отвори проекта и пусни:
+   node scripts/check-project.mjs
+4. Стартирай както досега:
+   npm run dev
+
+Какво променя:
+- добавя MDI/workspace behavior като в autogrand-erp-step1;
+- менюто отваря вътрешни ERP прозорци;
+- добавя tabs, close/minimize/maximize, drag/resize;
+- формите вътре в прозорец остават в прозореца;
+- добавя favicon пакета от step1.
+
+Какво НЕ променя:
+- Prisma schema;
+- база;
+- sales/purchase services;
+- posting / stock / payments логика.

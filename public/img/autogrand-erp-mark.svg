@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AutoGrand ERP">
+  <rect x="8" y="6" width="48" height="52" rx="9" fill="#ffffff" stroke="#303437" stroke-width="4"/>
+  <path d="M31.5 14 L47.5 50 H39.5 L36.7 43 H26.4 L23.8 50 H16 L30.7 14 H31.5Z" fill="#6fae18"/>
+  <path d="M29.1 36.5 H34.2 L31.7 29.4 Z" fill="#ffffff"/>
+  <path d="M22 52 H42" stroke="#303437" stroke-width="3" stroke-linecap="round"/>
+</svg>

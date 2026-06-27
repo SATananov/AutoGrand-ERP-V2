@@ -1771,3 +1771,325 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+/* Step 2.5 — Desktop Workspace Behavior Layer
+   Structural behavior only: MDI windows, tabs, menu collapse, drag/resize handles. */
+.erp-workspace {
+  overflow: hidden;
+}
+
+.workspace-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.25), transparent 28%),
+    linear-gradient(180deg, #e7f2e0, #d9e8d0);
+}
+
+.workspace-home-window {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.workspace-home-window.is-active {
+  display: block;
+}
+
+.ag-v2-window-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ag-v2-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 540px;
+  min-height: 320px;
+  border: 1px solid #7d9c70;
+  background: #eef6e8;
+  box-shadow: 0 18px 38px rgba(27, 45, 24, 0.28);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.ag-v2-window.is-front-window {
+  box-shadow: 0 22px 48px rgba(20, 40, 21, 0.36);
+}
+
+.ag-v2-window.is-maximized {
+  min-width: 0;
+  min-height: 0;
+}
+
+.ag-v2-window-titlebar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 4px 0 10px;
+  background: linear-gradient(180deg, #2a5a3d, #163b27);
+  color: white;
+  cursor: move;
+  user-select: none;
+}
+
+.ag-v2-window-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.ag-v2-window-title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.ag-v2-window-title em {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #dbeed0;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.ag-v2-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ag-v2-window-controls button,
+.pin,
+.collapse {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ag-v2-window-controls button {
+  width: 33px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.11);
+  color: white;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.ag-v2-window-controls button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.ag-v2-window-body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.08)),
+    #dfeeda;
+}
+
+.ag-v2-window-body.is-loading-form {
+  opacity: 0.72;
+  cursor: progress;
+}
+
+.ag-v2-window-loading,
+.ag-v2-window-error {
+  margin: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid #afc49f;
+  background: rgba(255,255,255,0.84);
+  color: #22301f;
+}
+
+.ag-v2-window-error {
+  border-color: #c47c70;
+  background: #fff3f0;
+}
+
+.ag-v2-resize-edge {
+  position: absolute;
+  z-index: 4;
+}
+
+.ag-v2-edge-n,
+.ag-v2-edge-s {
+  left: 12px;
+  right: 12px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.ag-v2-edge-n { top: 0; }
+.ag-v2-edge-s { bottom: 0; }
+
+.ag-v2-edge-e,
+.ag-v2-edge-w {
+  top: 12px;
+  bottom: 12px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.ag-v2-edge-e { right: 0; }
+.ag-v2-edge-w { left: 0; }
+
+.ag-v2-edge-ne,
+.ag-v2-edge-nw,
+.ag-v2-edge-se,
+.ag-v2-edge-sw {
+  width: 14px;
+  height: 14px;
+}
+
+.ag-v2-edge-ne { top: 0; right: 0; cursor: nesw-resize; }
+.ag-v2-edge-nw { top: 0; left: 0; cursor: nwse-resize; }
+.ag-v2-edge-se { right: 0; bottom: 0; cursor: nwse-resize; }
+.ag-v2-edge-sw { left: 0; bottom: 0; cursor: nesw-resize; }
+
+.workspace-tab {
+  cursor: pointer;
+}
+
+.workspace-tab.is-active {
+  background: #f9fff5;
+  border-top: 3px solid #5f963f;
+}
+
+.ag-v2-tab {
+  gap: 8px;
+  max-width: 260px;
+}
+
+.ag-v2-tab [data-ag-tab-title] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ag-v2-tab-close {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #31502b;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ag-v2-tab-close:hover {
+  background: #dcebd5;
+}
+
+.ag-v2-minimized-dock {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  z-index: 100000;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.ag-v2-dock-button {
+  max-width: 230px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #7c9c70;
+  background: rgba(255,255,255,0.96);
+  color: #1f2f1d;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.erp-main.is-menu-collapsed {
+  grid-template-columns: 54px 1fr;
+}
+
+.erp-main.is-menu-collapsed .erp-menu {
+  overflow: hidden;
+}
+
+.erp-main.is-menu-collapsed .menu-title span:first-child,
+.erp-main.is-menu-collapsed .pin,
+.erp-main.is-menu-collapsed .menu-scroll {
+  display: none;
+}
+
+.erp-main.is-menu-collapsed .collapse {
+  width: 54px;
+  min-width: 54px;
+  transform: rotate(180deg);
+}
+
+.ag-v2-context-menu {
+  position: fixed;
+  z-index: 200000;
+  min-width: 180px;
+  display: grid;
+  padding: 5px;
+  border: 1px solid #719964;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(20, 40, 20, 0.22);
+}
+
+.ag-v2-context-menu button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: #1e2e1d;
+  text-align: left;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ag-v2-context-menu button:hover {
+  background: #e9f4e2;
+}
+
+.ag-v2-window-body .sales-screen,
+.ag-v2-window-body .document-card-screen {
+  min-height: auto;
+}
+
+.ag-v2-window-body .document-card-layout,
+.ag-v2-window-body .document-card-layout-polished {
+  grid-template-columns: minmax(640px, 1fr) 320px;
+}
+
+@media (max-width: 1200px) {
+  .ag-v2-window {
+    min-width: 420px;
+  }
+
+  .ag-v2-window-body .document-card-layout,
+  .ag-v2-window-body .document-card-layout-polished {
+    grid-template-columns: 1fr;
+  }
+}

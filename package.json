@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 2.4 — Purchases, Deliveries and Stock IN clean checkpoint.",
+  "description": "AutoGrand ERP V2 Step 2.5 — Desktop Workspace Behavior over Step 2.4 clean checkpoint.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
