@@ -4,6 +4,8 @@ async function reset() {
   await prisma.serviceOrderLine.deleteMany();
   await prisma.serviceOrder.deleteMany();
   await prisma.stockMovement.deleteMany();
+  await prisma.stockTransferLine.deleteMany();
+  await prisma.stockTransferDocument.deleteMany();
   await prisma.stockBalance.deleteMany();
   await prisma.purchaseDocumentLine.deleteMany();
   await prisma.purchaseDocument.deleteMany();
@@ -239,8 +241,26 @@ async function main() {
   await prisma.stockMovement.create({
     data: { number: 'SM-SL-000001-1', movementType: 'SALE_OUT', warehouseId: activeWarehouse.id, itemId: items[0].id, quantity: 1, direction: 'OUT', reason: 'Осчетоводена продажба', sourceDocument: 'SL-000001' }
   });
+  const transferDocument = await prisma.stockTransferDocument.create({
+    data: {
+      number: 'TR-000001',
+      fromWarehouseId: centralWarehouse.id,
+      toWarehouseId: activeWarehouse.id,
+      status: 'POSTED',
+      note: 'Начален публикуван трансфер за демонстрация',
+      postedAt: new Date()
+    }
+  });
+
+  await prisma.stockTransferLine.create({
+    data: { documentId: transferDocument.id, itemId: items[1].id, quantity: 4, note: 'Начален ред' }
+  });
+
   await prisma.stockMovement.create({
-    data: { number: 'TR-000001', movementType: 'TRANSFER', warehouseId: centralWarehouse.id, itemId: items[1].id, quantity: 4, direction: 'TRANSFER', reason: 'Трансфер към централен склад', sourceDocument: 'TR-000001' }
+    data: { number: 'TR-000001-OUT-001', movementType: 'TRANSFER', warehouseId: centralWarehouse.id, itemId: items[1].id, quantity: 4, direction: 'OUT', reason: `Трансфер към ${activeWarehouse.name}`, sourceDocument: 'TR-000001' }
+  });
+  await prisma.stockMovement.create({
+    data: { number: 'TR-000001-IN-002', movementType: 'TRANSFER', warehouseId: activeWarehouse.id, itemId: items[1].id, quantity: 4, direction: 'IN', reason: `Трансфер от ${centralWarehouse.name}`, sourceDocument: 'TR-000001' }
   });
 
   const vehicles = await Promise.all([
@@ -274,7 +294,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 2.6.1 company locations foundation seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 2.7 stock transfer document card seed completed.');
 }
 
 main()

@@ -222,7 +222,7 @@ function balanceRow(row) {
 }
 
 export async function getStockDashboardData(action = '') {
-  const [balancesRaw, movementsRaw, warehousesRaw, itemsRaw] = await Promise.all([
+  const [balancesRaw, movementsRaw, warehousesRaw, itemsRaw, transferDocumentsCount] = await Promise.all([
     prisma.stockBalance.findMany({
       include: { warehouse: { include: { location: true } }, item: true },
       orderBy: [{ warehouseId: 'asc' }, { itemId: 'asc' }]
@@ -233,7 +233,8 @@ export async function getStockDashboardData(action = '') {
       take: 12
     }),
     prisma.warehouse.findMany({ include: { location: true }, orderBy: { code: 'asc' } }),
-    prisma.item.findMany({ orderBy: { code: 'asc' } })
+    prisma.item.findMany({ orderBy: { code: 'asc' } }),
+    prisma.stockTransferDocument.count()
   ]);
 
   const balances = balancesRaw.map(balanceRow);
@@ -316,7 +317,8 @@ export async function getStockDashboardData(action = '') {
       { title: 'Наличност', value: numberText(totalQuantity), subtitle: 'общо количество' },
       { title: 'Резервирано', value: numberText(totalReserved), subtitle: 'заета наличност' },
       { title: 'Стойност', value: money(totalValue), subtitle: 'по средна цена' },
-      { title: 'Ниски наличности', value: lowStockCount, subtitle: `≤ ${STOCK_LOW_THRESHOLD}` }
+      { title: 'Ниски наличности', value: lowStockCount, subtitle: `≤ ${STOCK_LOW_THRESHOLD}` },
+      { title: 'Трансфери', value: transferDocumentsCount, subtitle: 'складови документи' }
     ],
     warehouseCards,
     lowStockItems: itemCards,
@@ -395,63 +397,405 @@ export async function createStockAdjustmentFromForm(body = {}) {
   });
 }
 
+
+async function nextTransferNumber(tx) {
+  const count = await tx.stockTransferDocument.count();
+  return stockSourceNumber('TR', count + 1);
+}
+
+function transferStatusText(status) {
+  const map = {
+    DRAFT: 'Чернова',
+    POSTED: 'Публикуван',
+    CANCELLED: 'Отказан'
+  };
+
+  return map[status] || status || '';
+}
+
+function transferStatusKind(status) {
+  const map = {
+    DRAFT: 'warning',
+    POSTED: 'success',
+    CANCELLED: 'danger'
+  };
+
+  return map[status] || 'neutral';
+}
+
+function normalizeStatus(value) {
+  const status = String(value || '').trim().toUpperCase();
+  return ['DRAFT', 'POSTED', 'CANCELLED'].includes(status) ? status : '';
+}
+
+function transferLineRow(line, index, fromWarehouseId = null) {
+  const quantity = Number(line.quantity || 0);
+  const available = line.item?.stockBalances?.find((balance) => Number(balance.warehouseId) === Number(fromWarehouseId));
+  const availableQuantity = Number(available?.quantity || 0) - Number(available?.reservedQuantity || 0);
+
+  return {
+    index,
+    lineId: line.id,
+    itemId: line.itemId,
+    itemCode: line.item?.code || '',
+    itemName: line.item?.name || '',
+    unit: line.item?.unit || '',
+    rawQuantity: quantity,
+    quantityText: numberText(quantity),
+    availableQuantityText: fromWarehouseId ? numberText(availableQuantity) : '',
+    note: line.note || '',
+    hasEnoughStock: !fromWarehouseId || availableQuantity >= quantity
+  };
+}
+
+function transferDocumentRow(document) {
+  const totalQuantity = document.lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+  const lineCount = document.lines.length;
+
+  return {
+    id: document.id,
+    number: document.number,
+    transferDateText: dateTimeText(document.transferDate),
+    fromWarehouseName: document.fromWarehouse?.name || '',
+    fromWarehouseCode: document.fromWarehouse?.code || '',
+    toWarehouseName: document.toWarehouse?.name || '',
+    toWarehouseCode: document.toWarehouse?.code || '',
+    status: document.status,
+    statusText: transferStatusText(document.status),
+    statusKind: transferStatusKind(document.status),
+    lineCount,
+    lineCountText: String(lineCount),
+    quantityText: numberText(totalQuantity),
+    note: document.note || '',
+    rowOpenUrl: `/stock/transfer/${document.id}`
+  };
+}
+
+export async function getStockTransferDocumentsData() {
+  const documents = await prisma.stockTransferDocument.findMany({
+    include: {
+      fromWarehouse: true,
+      toWarehouse: true,
+      lines: true
+    },
+    orderBy: { transferDate: 'desc' }
+  });
+
+  return documents.map(transferDocumentRow);
+}
+
 export async function createStockTransferFromForm(body = {}) {
+  return createStockTransferDocumentFromForm(body);
+}
+
+export async function createStockTransferDocumentFromForm(body = {}) {
   const fromWarehouseId = normalizeId(body.fromWarehouseId);
   const toWarehouseId = normalizeId(body.toWarehouseId);
   const itemId = normalizeId(body.itemId);
   const quantity = normalizeQuantity(body.quantity);
   const note = safeNote(body.note);
 
-  if (!fromWarehouseId || !toWarehouseId || !itemId || !quantity || fromWarehouseId === toWarehouseId) {
+  if (!fromWarehouseId || !toWarehouseId || fromWarehouseId === toWarehouseId) {
     return { ok: false, code: 'stock_transfer_invalid' };
   }
 
-  return prisma.$transaction(async (tx) => {
-    const item = await tx.item.findUnique({ where: { id: itemId } });
-    const fromWarehouse = await tx.warehouse.findUnique({ where: { id: fromWarehouseId } });
-    const toWarehouse = await tx.warehouse.findUnique({ where: { id: toWarehouseId } });
+  if ((itemId && !quantity) || (!itemId && quantity)) {
+    return { ok: false, code: 'stock_transfer_line_invalid' };
+  }
 
-    if (!item || !fromWarehouse || !toWarehouse) {
+  return prisma.$transaction(async (tx) => {
+    const [fromWarehouse, toWarehouse] = await Promise.all([
+      tx.warehouse.findUnique({ where: { id: fromWarehouseId } }),
+      tx.warehouse.findUnique({ where: { id: toWarehouseId } })
+    ]);
+
+    if (!fromWarehouse || !toWarehouse) {
       return { ok: false, code: 'stock_transfer_invalid' };
     }
 
-    const decrease = await decrementBalance(tx, fromWarehouseId, itemId, quantity);
-    if (!decrease.ok) return decrease;
+    if (itemId) {
+      const item = await tx.item.findUnique({ where: { id: itemId } });
+      if (!item) return { ok: false, code: 'stock_transfer_line_invalid' };
+    }
 
-    await incrementBalance(tx, toWarehouseId, itemId, quantity, decrease.avgCost || Number(item.wholesalePrice || 0));
-
-    const sequence = await nextMovementSequence(tx);
-    const sourceDocument = stockSourceNumber('TR', sequence);
-
-    await tx.stockMovement.create({
+    const number = await nextTransferNumber(tx);
+    const document = await tx.stockTransferDocument.create({
       data: {
-        number: `${sourceDocument}-OUT`,
-        movementType: 'TRANSFER',
-        warehouseId: fromWarehouseId,
-        itemId,
-        quantity,
-        direction: 'OUT',
-        reason: `Трансфер към ${toWarehouse.name}`,
-        sourceDocument,
+        number,
+        fromWarehouseId,
+        toWarehouseId,
+        status: 'DRAFT',
         note
       }
     });
 
-    await tx.stockMovement.create({
-      data: {
-        number: `${sourceDocument}-IN`,
-        movementType: 'TRANSFER',
-        warehouseId: toWarehouseId,
-        itemId,
-        quantity,
-        direction: 'IN',
-        reason: `Трансфер от ${fromWarehouse.name}`,
-        sourceDocument,
-        note
+    if (itemId && quantity) {
+      await tx.stockTransferLine.create({
+        data: {
+          documentId: document.id,
+          itemId,
+          quantity,
+          note
+        }
+      });
+    }
+
+    return { ok: true, code: 'stock_transfer_document_created', documentId: document.id, number };
+  });
+}
+
+export async function getStockTransferCardData(documentId, action = '') {
+  const id = normalizeId(documentId);
+  if (!id) return null;
+
+  const [document, availableItems] = await Promise.all([
+    prisma.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: { include: { location: true } },
+        toWarehouse: { include: { location: true } },
+        lines: {
+          include: {
+            item: {
+              include: {
+                stockBalances: true
+              }
+            }
+          },
+          orderBy: { id: 'asc' }
+        }
+      }
+    }),
+    prisma.item.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } })
+  ]);
+
+  if (!document) return null;
+
+  const movementRows = await prisma.stockMovement.findMany({
+    where: { sourceDocument: document.number },
+    include: { warehouse: { include: { location: true } }, item: true },
+    orderBy: [{ movementDate: 'desc' }, { id: 'asc' }]
+  });
+
+  const rows = document.lines.map((line, index) => transferLineRow(line, index + 1, document.fromWarehouseId));
+  const isEditable = document.status === 'DRAFT';
+  const totalQuantity = rows.reduce((sum, row) => sum + Number(row.rawQuantity || 0), 0);
+  const canPost = isEditable && rows.length > 0;
+  const canCancel = document.status === 'DRAFT';
+  const hasInsufficientStock = rows.some((row) => !row.hasEnoughStock);
+
+  return {
+    action,
+    actionMessage: stockActionMessage(action),
+    id: document.id,
+    number: document.number,
+    transferDateText: dateTimeText(document.transferDate),
+    status: document.status,
+    statusText: transferStatusText(document.status),
+    statusKind: transferStatusKind(document.status),
+    note: document.note || '',
+    isEditable,
+    canPost,
+    canCancel,
+    hasInsufficientStock,
+    lockMessage: document.status === 'POSTED'
+      ? 'Трансферът е публикуван и складовите движения са заключени.'
+      : document.status === 'CANCELLED'
+        ? 'Трансферът е отказан и не може да се редактира.'
+        : '',
+    fromWarehouse: {
+      id: document.fromWarehouse.id,
+      code: document.fromWarehouse.code,
+      name: document.fromWarehouse.name,
+      city: document.fromWarehouse.city || document.fromWarehouse.location?.city || '',
+      typeText: locationTypeText(document.fromWarehouse.location?.type)
+    },
+    toWarehouse: {
+      id: document.toWarehouse.id,
+      code: document.toWarehouse.code,
+      name: document.toWarehouse.name,
+      city: document.toWarehouse.city || document.toWarehouse.location?.city || '',
+      typeText: locationTypeText(document.toWarehouse.location?.type)
+    },
+    rows,
+    editableRows: isEditable ? rows : [],
+    availableItems: availableItems.map((item) => ({
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      unit: item.unit,
+      label: `${item.code} · ${item.name}`
+    })),
+    stockMovementRows: movementRows.map(movementRow),
+    summary: {
+      linesText: String(rows.length),
+      quantityText: numberText(totalQuantity),
+      movementRowsText: String(movementRows.length)
+    },
+    historyRows: [
+      { time: dateTimeText(document.createdAt), user: 'СТЕФАН ТАНАНОВ', action: 'Създаден', details: `Складов трансфер ${document.number}` },
+      ...(document.postedAt ? [{ time: dateTimeText(document.postedAt), user: 'СТЕФАН ТАНАНОВ', action: 'Публикуван', details: 'Създадени са складови OUT/IN движения.' }] : []),
+      ...(document.cancelledAt ? [{ time: dateTimeText(document.cancelledAt), user: 'СТЕФАН ТАНАНОВ', action: 'Отказан', details: 'Документът е заключен без складово движение.' }] : [])
+    ]
+  };
+}
+
+export async function addStockTransferLine(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const itemId = normalizeId(body.itemId);
+  const quantity = normalizeQuantity(body.quantity);
+  const note = safeNote(body.note);
+
+  if (!id || !itemId || !quantity) return { ok: false, code: 'stock_transfer_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({ where: { id } });
+    const item = await tx.item.findUnique({ where: { id: itemId } });
+
+    if (!document || !item || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    await tx.stockTransferLine.create({
+      data: { documentId: id, itemId, quantity, note }
+    });
+
+    return { ok: true, code: 'stock_transfer_line_added' };
+  });
+}
+
+export async function updateStockTransferLine(documentId, lineId, body = {}) {
+  const id = normalizeId(documentId);
+  const rowId = normalizeId(lineId);
+  const quantity = normalizeQuantity(body.quantity);
+  const note = safeNote(body.note);
+
+  if (!id || !rowId || !quantity) return { ok: false, code: 'stock_transfer_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({ where: { id } });
+    const line = await tx.stockTransferLine.findFirst({ where: { id: rowId, documentId: id } });
+
+    if (!document || !line || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    await tx.stockTransferLine.update({ where: { id: rowId }, data: { quantity, note } });
+
+    return { ok: true, code: 'stock_transfer_line_updated' };
+  });
+}
+
+export async function deleteStockTransferLine(documentId, lineId) {
+  const id = normalizeId(documentId);
+  const rowId = normalizeId(lineId);
+
+  if (!id || !rowId) return { ok: false, code: 'stock_transfer_line_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({ where: { id } });
+    const line = await tx.stockTransferLine.findFirst({ where: { id: rowId, documentId: id } });
+
+    if (!document || !line || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    await tx.stockTransferLine.delete({ where: { id: rowId } });
+
+    return { ok: true, code: 'stock_transfer_line_deleted' };
+  });
+}
+
+export async function updateStockTransferDocumentStatus(documentId, nextStatusValue) {
+  const id = normalizeId(documentId);
+  const nextStatus = normalizeStatus(nextStatusValue);
+
+  if (!id || !nextStatus || nextStatus === 'DRAFT') {
+    return { ok: false, code: 'stock_transfer_status_invalid' };
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: true,
+        toWarehouse: true,
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
       }
     });
 
-    return { ok: true, code: 'stock_transfer_success', sourceDocument };
+    if (!document || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    if (nextStatus === 'CANCELLED') {
+      await tx.stockTransferDocument.update({
+        where: { id },
+        data: { status: 'CANCELLED', cancelledAt: new Date() }
+      });
+      return { ok: true, code: 'stock_transfer_cancelled' };
+    }
+
+    if (document.lines.length === 0) {
+      return { ok: false, code: 'stock_transfer_empty' };
+    }
+
+    for (const line of document.lines) {
+      if (!line.itemId || Number(line.quantity || 0) <= 0) {
+        return { ok: false, code: 'stock_transfer_line_invalid' };
+      }
+
+      const balance = await findBalance(tx, document.fromWarehouseId, line.itemId);
+      const available = Number(balance?.quantity || 0) - Number(balance?.reservedQuantity || 0);
+      if (!balance || available < Number(line.quantity || 0)) {
+        return { ok: false, code: 'insufficient_stock' };
+      }
+    }
+
+    let sequence = await nextMovementSequence(tx);
+    for (const line of document.lines) {
+      const decrease = await decrementBalance(tx, document.fromWarehouseId, line.itemId, Number(line.quantity || 0));
+      if (!decrease.ok) return decrease;
+
+      await incrementBalance(tx, document.toWarehouseId, line.itemId, Number(line.quantity || 0), decrease.avgCost || Number(line.item?.wholesalePrice || 0));
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-OUT-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: document.fromWarehouseId,
+          itemId: line.itemId,
+          quantity: Number(line.quantity || 0),
+          direction: 'OUT',
+          reason: `Трансфер към ${document.toWarehouse.name}`,
+          sourceDocument: document.number,
+          note: document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-IN-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: document.toWarehouseId,
+          itemId: line.itemId,
+          quantity: Number(line.quantity || 0),
+          direction: 'IN',
+          reason: `Трансфер от ${document.fromWarehouse.name}`,
+          sourceDocument: document.number,
+          note: document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+    }
+
+    await tx.stockTransferDocument.update({
+      where: { id },
+      data: { status: 'POSTED', postedAt: new Date() }
+    });
+
+    return { ok: true, code: 'stock_transfer_posted' };
   });
 }
 
@@ -567,8 +911,18 @@ export function stockActionMessage(action = '') {
   const map = {
     stock_adjustment_success: 'Складовата корекция е записана успешно.',
     stock_transfer_success: 'Складовият трансфер е записан успешно.',
+    stock_transfer_document_created: 'Създаден е нов складов трансфер в статус Чернова.',
+    stock_transfer_line_added: 'Редът е добавен към трансфера.',
+    stock_transfer_line_updated: 'Редът е обновен.',
+    stock_transfer_line_deleted: 'Редът е изтрит.',
+    stock_transfer_posted: 'Складовият трансфер е публикуван и движенията са записани.',
+    stock_transfer_cancelled: 'Складовият трансфер е отказан.',
     stock_adjustment_invalid: 'Провери склад, артикул и количество за корекцията.',
-    stock_transfer_invalid: 'Провери складовете, артикула и количеството за трансфера.',
+    stock_transfer_invalid: 'Провери изходния и приемащия склад за трансфера.',
+    stock_transfer_line_invalid: 'Провери артикул и количество за реда на трансфера.',
+    stock_transfer_locked: 'Трансферът е заключен и не може да се редактира.',
+    stock_transfer_empty: 'Добави поне един ред преди публикуване.',
+    stock_transfer_status_invalid: 'Невалиден статус за складовия трансфер.',
     insufficient_stock: 'Няма достатъчна наличност за избраната операция.'
   };
 

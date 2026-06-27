@@ -35,9 +35,14 @@ import {
   getStockDashboardData,
   getStockItemCardData,
   getStockTransferFormData,
+  getStockTransferCardData,
   getStockWarehouseCardData,
   createStockAdjustmentFromForm,
   createStockTransferFromForm,
+  addStockTransferLine,
+  updateStockTransferLine,
+  deleteStockTransferLine,
+  updateStockTransferDocumentStatus,
   stockActionMessage
 } from './services/stock-actions-service.js';
 
@@ -67,7 +72,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.2.0',
+    appVersion: 'v0.2.1',
     companyName: 'КЪРДЖАЛИ - Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -102,6 +107,11 @@ function redirectSalesWithAction(res, documentId, code) {
 function redirectPurchaseWithAction(res, documentId, code) {
   const actionCode = encodeURIComponent(code || 'done');
   res.redirect(`/document/purchase/${documentId}?action=${actionCode}`);
+}
+
+function redirectTransferWithAction(res, documentId, code) {
+  const actionCode = encodeURIComponent(code || 'done');
+  res.redirect(`/stock/transfer/${documentId}?action=${actionCode}`);
 }
 
 
@@ -226,8 +236,9 @@ app.get('/screen/:screenId', async (req, res) => {
   screen.isPurchaseDocument = screen.kind === 'purchaseDocument';
   screen.isStockBalance = screen.kind === 'stockBalance';
   screen.isStockMovement = screen.kind === 'stockMovement';
+  screen.isStockTransferDocument = screen.kind === 'stockTransferDocument';
   screen.hasDocumentCard = screen.isSalesDocument || screen.isPurchaseDocument;
-  screen.hasStockActions = screen.isStockBalance || screen.isStockMovement;
+  screen.hasStockActions = screen.isStockBalance || screen.isStockMovement || screen.isStockTransferDocument;
 
   if (screen.isSalesDocument) {
     const docType = screen.where?.docType || 'SALE';
@@ -517,7 +528,56 @@ app.get('/stock/transfer/new', async (req, res) => {
 
 app.post('/stock/transfer/new', async (req, res) => {
   const result = await createStockTransferFromForm(req.body);
-  res.redirect(`/stock/dashboard?action=${result?.code || 'stock_transfer_invalid'}`);
+
+  if (result?.ok && result.documentId) {
+    return redirectTransferWithAction(res, result.documentId, result.code);
+  }
+
+  res.redirect(`/stock/transfer/new?action=${result?.code || 'stock_transfer_invalid'}`);
+});
+
+app.get('/stock/transfer/:documentId', async (req, res) => {
+  const transferCard = await getStockTransferCardData(req.params.documentId, req.query.action || '');
+
+  if (!transferCard) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Складовият трансфер не е намерен',
+        currentScreen: 'stock-transfers',
+        statusText: 'Складовият трансфер не е намерен'
+      })
+    });
+  }
+
+  renderPage(req, res, 'stock-transfer-card', {
+    ...baseViewData({
+      title: `${transferCard.number} — складов трансфер`,
+      currentScreen: 'stock-transfers',
+      statusText: `Отворена карта на трансфер: ${transferCard.number}`
+    }),
+    transferCard
+  });
+});
+
+app.post('/stock/transfer/:documentId/lines', async (req, res) => {
+  const result = await addStockTransferLine(req.params.documentId, req.body);
+  redirectTransferWithAction(res, req.params.documentId, result?.code || 'stock_transfer_line_invalid');
+});
+
+app.post('/stock/transfer/:documentId/lines/:lineId/update', async (req, res) => {
+  const result = await updateStockTransferLine(req.params.documentId, req.params.lineId, req.body);
+  redirectTransferWithAction(res, req.params.documentId, result?.code || 'stock_transfer_line_invalid');
+});
+
+app.post('/stock/transfer/:documentId/lines/:lineId/delete', async (req, res) => {
+  const result = await deleteStockTransferLine(req.params.documentId, req.params.lineId);
+  redirectTransferWithAction(res, req.params.documentId, result?.code || 'stock_transfer_line_invalid');
+});
+
+app.post('/stock/transfer/:documentId/status', async (req, res) => {
+  const result = await updateStockTransferDocumentStatus(req.params.documentId, req.body.status);
+  redirectTransferWithAction(res, req.params.documentId, result?.code || 'stock_transfer_status_invalid');
 });
 
 app.get('/stock/item/:itemId', async (req, res) => {
@@ -582,7 +642,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '2-6-3-location-sales-role-fix'
+    step: '2-7-stock-transfer-document-card'
   });
 });
 

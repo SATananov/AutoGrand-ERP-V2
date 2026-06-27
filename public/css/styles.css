@@ -3463,3 +3463,88 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
     grid-template-columns: 1fr;
   }
 }
+
+/* Step 2.6.2 — Shell/menu sync and ribbon layout guard */
+.erp-ribbon {
+  height: 116px !important;
+  min-height: 116px !important;
+  max-height: 116px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.ribbon-group {
+  grid-template-rows: 96px 20px !important;
+  min-height: 116px !important;
+  max-height: 116px !important;
+  overflow: hidden !important;
+}
+
+.ribbon-buttons {
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+  overflow: hidden !important;
+}
+
+.ribbon-group-title {
+  grid-row: 2 !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.ribbon-button {
+  height: 96px !important;
+  min-height: 96px !important;
+  max-height: 96px !important;
+}
+
+.tree-leaf[data-module-title="Обекти и складове"] .tree-icon,
+.tree-leaf[data-module-title="Складов център"] .tree-icon,
+.tree-leaf[data-module-title="Наличности"] .tree-icon,
+.tree-leaf[data-module-title="Складова корекция"] .tree-icon,
+.tree-leaf[data-module-title="Нов трансфер"] .tree-icon,
+.tree-leaf[data-module-title="История трансфери"] .tree-icon {
+  color: #184a2f !important;
+}
+
+/* Step 2.7 — stock transfer document card polish */
+.stock-transfer-card .stock-transfer-route-box {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stock-transfer-card .stock-transfer-route-box em {
+  display: block;
+  margin-top: 4px;
+  color: #5f6d5e;
+  font-style: normal;
+  font-size: 12px;
+}
+
+.stock-transfer-card .transfer-route-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stock-transfer-card .document-lines-grid td:nth-child(6),
+.stock-transfer-card .document-lines-grid th:nth-child(6) {
+  text-align: right;
+}
+
+.stock-transfer-card .document-action-message.warning {
+  border-color: #d9a441;
+  background: #fff8e5;
+  color: #594514;
+}
+
+@media (max-width: 1100px) {
+  .stock-transfer-card .transfer-route-grid,
+  .stock-transfer-card .stock-transfer-route-box {
+    grid-template-columns: 1fr;
+  }
+}

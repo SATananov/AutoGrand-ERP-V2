@@ -179,11 +179,10 @@ export const screenDefinitions = {
     columns: stockMovementColumns()
   },
   'stock-transfers': {
-    title: 'Трансфери между складове',
+    title: 'Складови трансфери',
     group: 'Склад',
-    kind: 'stockMovement',
-    where: { movementType: 'TRANSFER' },
-    columns: stockMovementColumns()
+    kind: 'stockTransferDocument',
+    columns: stockTransferDocumentColumns()
   },
 
   'cash': {
@@ -340,6 +339,18 @@ function stockMovementColumns() {
   ];
 }
 
+function stockTransferDocumentColumns() {
+  return [
+    { key: 'number', label: 'Номер' },
+    { key: 'transferDateText', label: 'Дата' },
+    { key: 'fromWarehouseName', label: 'От склад' },
+    { key: 'toWarehouseName', label: 'Към склад' },
+    { key: 'statusText', label: 'Статус' },
+    { key: 'lineCountText', label: 'Редове' },
+    { key: 'quantityText', label: 'Количество' }
+  ];
+}
+
 function money(value, currency = 'BGN') {
   return String(Number(value || 0).toFixed(2)) + ' ' + currency;
 }
@@ -411,6 +422,7 @@ export async function getDashboardData() {
       purchaseDocuments,
       stockBalances,
       stockMovements,
+      stockTransferDocuments,
       cashEntries,
       vehicles,
       serviceOrders
@@ -424,6 +436,7 @@ export async function getDashboardData() {
       prisma.purchaseDocument.count(),
       prisma.stockBalance.count(),
       prisma.stockMovement.count(),
+      prisma.stockTransferDocument.count(),
       prisma.cashEntry.count(),
       prisma.vehicle.count(),
       prisma.serviceOrder.count()
@@ -441,6 +454,7 @@ export async function getDashboardData() {
         { title: 'Доставки', value: purchaseDocuments, subtitle: 'доставни документи' },
         { title: 'Наличности', value: stockBalances, subtitle: 'складови позиции' },
         { title: 'Движения', value: stockMovements, subtitle: 'складова история' },
+        { title: 'Трансфери', value: stockTransferDocuments, subtitle: 'складови документи' },
         { title: 'Каса', value: cashEntries, subtitle: 'плащания' },
         { title: 'Автомобили', value: vehicles, subtitle: 'регистър' },
         { title: 'Сервиз', value: serviceOrders, subtitle: 'сервизни поръчки' }
@@ -684,6 +698,35 @@ export async function getScreenData(screenId) {
         itemCardUrl: row.itemId ? `/stock/item/${row.itemId}` : '',
         warehouseCardUrl: row.warehouseId ? `/stock/warehouse/${row.warehouseId}` : ''
       }));
+    }
+
+    if (definition.kind === 'stockTransferDocument') {
+      const result = await prisma.stockTransferDocument.findMany({
+        include: {
+          fromWarehouse: true,
+          toWarehouse: true,
+          lines: true
+        },
+        orderBy: { transferDate: 'desc' }
+      });
+
+      rows = result.map((row) => {
+        const totalQuantity = row.lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+        const statusMap = { DRAFT: 'Чернова', POSTED: 'Публикуван', CANCELLED: 'Отказан' };
+
+        return {
+          id: row.id,
+          number: row.number,
+          transferDateText: dateText(row.transferDate),
+          fromWarehouseName: row.fromWarehouse?.name || '',
+          toWarehouseName: row.toWarehouse?.name || '',
+          status: row.status,
+          statusText: statusMap[row.status] || row.status,
+          lineCountText: String(row.lines.length),
+          quantityText: numberText(totalQuantity),
+          rowOpenUrl: `/stock/transfer/${row.id}`
+        };
+      });
     }
 
     if (definition.kind === 'vehicle') {

@@ -94,9 +94,10 @@ model Item {
   priceListItems PriceListItem[]
   salesLines     SalesDocumentLine[]
   purchaseLines  PurchaseDocumentLine[]
-  stockBalances  StockBalance[]
-  stockMovements StockMovement[]
-  serviceLines   ServiceOrderLine[]
+  stockBalances      StockBalance[]
+  stockMovements     StockMovement[]
+  stockTransferLines StockTransferLine[]
+  serviceLines       ServiceOrderLine[]
 }
 
 model Warehouse {
@@ -115,6 +116,8 @@ model Warehouse {
   purchaseLines     PurchaseDocumentLine[]
   stockBalances     StockBalance[]
   stockMovements    StockMovement[]
+  transferFromDocs  StockTransferDocument[] @relation("StockTransferFromWarehouse")
+  transferToDocs    StockTransferDocument[] @relation("StockTransferToWarehouse")
 }
 
 model PriceList {
@@ -240,6 +243,43 @@ model StockMovement {
 
   warehouse Warehouse? @relation(fields: [warehouseId], references: [id])
   item      Item?      @relation(fields: [itemId], references: [id])
+}
+
+
+model StockTransferDocument {
+  id              Int      @id @default(autoincrement())
+  number          String   @unique
+  transferDate    DateTime @default(now())
+  fromWarehouseId Int
+  toWarehouseId   Int
+  status          String   @default("DRAFT")
+  note            String?
+  createdAt       DateTime @default(now())
+  postedAt        DateTime?
+  cancelledAt     DateTime?
+
+  fromWarehouse Warehouse           @relation("StockTransferFromWarehouse", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse           @relation("StockTransferToWarehouse", fields: [toWarehouseId], references: [id])
+  lines         StockTransferLine[]
+
+  @@index([status])
+  @@index([transferDate])
+  @@index([fromWarehouseId])
+  @@index([toWarehouseId])
+}
+
+model StockTransferLine {
+  id         Int    @id @default(autoincrement())
+  documentId Int
+  itemId     Int?
+  quantity   Float  @default(1)
+  note       String?
+
+  document StockTransferDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  item     Item?                 @relation(fields: [itemId], references: [id])
+
+  @@index([documentId])
+  @@index([itemId])
 }
 
 model CashEntry {

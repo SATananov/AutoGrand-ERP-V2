@@ -15,6 +15,7 @@ const required = [
   'views/pages/stock-dashboard.hbs',
   'views/pages/stock-adjustment-new.hbs',
   'views/pages/stock-transfer-new.hbs',
+  'views/pages/stock-transfer-card.hbs',
   'views/pages/stock-item-card.hbs',
   'views/pages/stock-warehouse-card.hbs',
   'views/pages/company-locations.hbs',
@@ -58,10 +59,13 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '2-6-3-location-sales-role-fix'"), 'Step 2.6.3 health label'],
+  [server.includes("step: '2-7-stock-transfer-document-card'"), 'Step 2.7 health label'],
   [browse.includes('screen.hasDocumentCard'), 'generic document browse flag'],
   [browse.includes('screen.hasStockActions'), 'stock browse action strip'],
   [stockActions.includes('createStockTransferFromForm'), 'createStockTransferFromForm'],
+  [stockActions.includes('getStockTransferCardData'), 'getStockTransferCardData'],
+  [stockActions.includes('updateStockTransferDocumentStatus'), 'updateStockTransferDocumentStatus'],
+  [stockActions.includes('addStockTransferLine'), 'addStockTransferLine'],
   [stockActions.includes('createStockAdjustmentFromForm'), 'createStockAdjustmentFromForm'],
   [stockActions.includes('getStockItemCardData'), 'getStockItemCardData'],
   [stockDashboard.includes('/stock/transfer/new'), 'stock dashboard transfer link'],
@@ -71,8 +75,10 @@ const checks = [
   [server.includes("/stock/dashboard"), 'stock dashboard route'],
   [server.includes("/stock/adjustment/new"), 'stock adjustment route'],
   [server.includes("/stock/transfer/new"), 'stock transfer route'],
+  [server.includes("/stock/transfer/:documentId"), 'stock transfer card route'],
   [appJs.includes('rowOpenUrl'), 'generic row open url'],
-  [seedText.includes("type: 'REGIONAL_WAREHOUSE'") && seedText.includes("canSell: true"), 'regional warehouses can sell']
+  [seedText.includes("type: 'REGIONAL_WAREHOUSE'") && seedText.includes("canSell: true"), 'regional warehouses can sell'],
+  [seedText.includes('stockTransferDocument.create'), 'stock transfer document seed']
 ];
 
 for (const [passed, label] of checks) {
@@ -88,4 +94,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 2.6.3 Regional Warehouse Sales Role Fix patch check passed.');
+console.log('OK: Step 2.7 Stock Transfer Document Card patch check passed.');
