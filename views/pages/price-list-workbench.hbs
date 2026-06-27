@@ -95,6 +95,11 @@
             </div>
           </header>
 
+          <label class="transfer-request-note-field">
+            <span>Коментар към заявката / за кого е</span>
+            <input type="text" data-transfer-request-note placeholder="Напр. за клиент Автосервиз Иванов, чака части..." />
+          </label>
+
           <div class="transfer-basket-empty" data-transfer-basket-empty>
             Няма добавени артикули. Натисни <strong>Добави</strong> срещу обект със свободно количество.
           </div>
@@ -133,8 +138,8 @@
 
             <nav class="price-detail-tabs" aria-label="Долни панели">
               <button type="button" class="active" data-price-detail-tab="availability">Наличности по обекти</button>
-              <button type="button" class="needs-action-tab {{#if incomingRequestCount}}has-alert{{/if}}" data-price-detail-tab="incoming">Заявки към моя обект</button>
-              <button type="button" data-price-detail-tab="outgoing">Моите заявки</button>
+              <button type="button" class="needs-action-tab {{#if incomingRequestCount}}has-alert{{/if}}" data-price-detail-tab="incoming">Заявки към текущ обект</button>
+              <button type="button" data-price-detail-tab="outgoing">Заявки от текущ обект</button>
               <button type="button" data-price-detail-tab="history">История</button>
             </nav>
 

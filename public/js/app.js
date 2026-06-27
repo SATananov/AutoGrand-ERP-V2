@@ -470,6 +470,7 @@
       const basketSummary = screen.querySelector('[data-transfer-basket-summary]');
       const submitBasketButton = screen.querySelector('[data-price-command="submit-request-basket"]');
       const clearBasketButton = screen.querySelector('[data-price-command="clear-request-basket"]');
+      const requestNoteInput = screen.querySelector('[data-transfer-request-note]');
 
       function activeRow() {
         return screen.querySelector('[data-price-row].active:not([hidden])') || rows.find((row) => !row.hidden) || rows[0] || null;
@@ -718,6 +719,7 @@
 
       function clearRequestBasket() {
         requestBasket.splice(0, requestBasket.length);
+        if (requestNoteInput) requestNoteInput.value = '';
         renderRequestBasket();
         setStatusText('Текущата заявка е изчистена');
       }
@@ -732,7 +734,7 @@
           itemId: line.itemId,
           fromWarehouseId: line.fromWarehouseId,
           quantity: line.quantity,
-          note: `Заявено от ценова листа: ${line.itemCode}`
+          note: [requestNoteInput?.value?.trim(), `Заявено от ценова листа: ${line.itemCode}`].filter(Boolean).join(' · ')
         }));
 
         if (!lines.length) {
@@ -746,7 +748,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             toWarehouseId: basket?.dataset.toWarehouseId || '',
-            note: 'Заявка от ценова листа — чака проверка на рафт.',
+            note: requestNoteInput?.value?.trim() || 'Заявка от ценова листа — чака проверка на рафт.',
             lines
           })
         });
@@ -773,7 +775,7 @@
           setStatusText('Изпращане: не успя. Провери свободното количество в обекта.');
           return;
         }
-        setStatusText('Изпращане: трансферът е публикуван и стоката е изпратена.');
+        setStatusText('Изпращане: трансферът е в статус Пътува и е във В път.');
         window.setTimeout(() => window.location.reload(), 700);
       }
 
@@ -1079,6 +1081,159 @@
     });
   }
 
+
+  function initTransferRequestCenter(root) {
+    const scope = root || document;
+
+    scope.querySelectorAll('[data-transfer-center]').forEach((center) => {
+      if (center.dataset.agTransferCenterReady === 'true') return;
+      center.dataset.agTransferCenterReady = 'true';
+
+      function activateTab(tabName) {
+        const target = tabName || 'incoming';
+        center.querySelectorAll('[data-transfer-center-tab]').forEach((button) => {
+          button.classList.toggle('active', button.dataset.transferCenterTab === target);
+        });
+        center.querySelectorAll('[data-transfer-center-panel]').forEach((panel) => {
+          panel.classList.toggle('active', panel.dataset.transferCenterPanel === target);
+        });
+        setStatusText(`Трансфери и заявки: ${target}`);
+      }
+
+      function openTransfer(button) {
+        const transferUrl = button?.dataset.transferUrl || '';
+        if (!transferUrl) return;
+        if (window.AutoGrandERPWorkspace?.openUrl) {
+          window.AutoGrandERPWorkspace.openUrl(transferUrl, { title: 'Трансфер', kind: 'document-card' });
+        } else {
+          window.location.href = transferUrl;
+        }
+      }
+
+      function actionComment(button) {
+        const row = button?.closest('tr');
+        return row?.querySelector('[data-transfer-action-note]')?.value?.trim() || '';
+      }
+
+      async function postTransferAction(button, url, body = null, errorText = 'Операцията не успя.') {
+        const transferId = button?.dataset.transferId || '';
+        if (!transferId) return null;
+        button.disabled = true;
+        const options = { method: 'POST' };
+        if (body) {
+          options.headers = { 'Content-Type': 'application/json' };
+          options.body = JSON.stringify(body);
+        }
+        const response = await fetch(url.replace('{id}', encodeURIComponent(transferId)), options);
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.ok) {
+          button.disabled = false;
+          setStatusText(errorText);
+          return null;
+        }
+        return result;
+      }
+
+      async function sendTransfer(button) {
+        const result = await postTransferAction(
+          button,
+          '/api/stock/transfer-requests/{id}/send',
+          { comment: actionComment(button) },
+          'Изпращане: не успя. Провери свободното количество и редовете на трансфера.'
+        );
+        if (!result) return;
+        setStatusText('Изпращане: трансферът е в статус Пътува и стои във В път до приемане.');
+        window.setTimeout(() => window.location.reload(), 700);
+      }
+
+      async function markMissing(button) {
+        const ok = window.confirm('Маркирай като ЛИПСА НА РАФТ? Това означава: системата показва свободно количество, но стоката не е намерена физически.');
+        if (!ok) return;
+        const result = await postTransferAction(
+          button,
+          '/api/stock/transfer-requests/{id}/not-found',
+          { reason: 'ЛИПСА НА РАФТ: заявената стока не е намерена физически.' },
+          'Липса на рафт: маркирането не успя.'
+        );
+        if (!result) return;
+        setStatusText('Липса на рафт: заявката е маркирана като проблем за заявителя.');
+        window.setTimeout(() => window.location.reload(), 700);
+      }
+
+      async function receiveTransfer(button, withPrint = false) {
+        const result = await postTransferAction(
+          button,
+          '/api/stock/transfer-requests/{id}/receive',
+          { print: withPrint ? '1' : '0', comment: actionComment(button) },
+          'Приемане: трансферът не може да бъде приет.'
+        );
+        if (!result) return;
+        setStatusText(withPrint ? 'Приемане: трансферът е приет. Печатът е placeholder.' : 'Приемане: трансферът е приет в текущия обект.');
+        window.setTimeout(() => window.location.reload(), 700);
+      }
+
+      async function returnTransfer(button) {
+        const ok = window.confirm('Върни трансфера към обекта изпращач? Използвай това, ако стоката не е дошла, е грешна, повредена или текущият обект не я приема.');
+        if (!ok) return;
+        const result = await postTransferAction(
+          button,
+          '/api/stock/transfer-requests/{id}/return',
+          { reason: actionComment(button) || 'Върнат към обекта изпращач: текущият обект не приема трансфера.' },
+          'Връщане: трансферът не може да бъде върнат към изпращача.'
+        );
+        if (!result) return;
+        setStatusText('Връщане: трансферът е върнат към обекта изпращач.');
+        window.setTimeout(() => window.location.reload(), 700);
+      }
+
+      center.addEventListener('click', (event) => {
+        const tabButton = event.target.closest('[data-transfer-center-tab]');
+        if (tabButton && center.contains(tabButton)) {
+          event.preventDefault();
+          activateTab(tabButton.dataset.transferCenterTab);
+          return;
+        }
+
+        const commandButton = event.target.closest('[data-transfer-center-command]');
+        if (!commandButton || !center.contains(commandButton)) return;
+        event.preventDefault();
+
+        const command = commandButton.dataset.transferCenterCommand;
+        if (command === 'open') return openTransfer(commandButton);
+        if (command === 'send') {
+          sendTransfer(commandButton).catch((error) => {
+            console.warn('AutoGrand transfer center send failed:', error);
+            setStatusText('Изпращане: операцията не успя.');
+          });
+          return;
+        }
+        if (command === 'missing') {
+          markMissing(commandButton).catch((error) => {
+            console.warn('AutoGrand transfer center missing failed:', error);
+            setStatusText('Липса на рафт: операцията не успя.');
+          });
+          return;
+        }
+        if (command === 'receive' || command === 'receive-print') {
+          receiveTransfer(commandButton, command === 'receive-print').catch((error) => {
+            console.warn('AutoGrand transfer center receive failed:', error);
+            setStatusText('Приемане: операцията не успя.');
+          });
+          return;
+        }
+        if (command === 'return') {
+          returnTransfer(commandButton).catch((error) => {
+            console.warn('AutoGrand transfer center return failed:', error);
+            setStatusText('Връщане: операцията не успя.');
+          });
+        }
+      });
+
+      const requestedTab = new URLSearchParams(window.location.search).get('tab');
+      activateTab(requestedTab || 'incoming');
+    });
+  }
+
   function initDocumentTabs(root) {
     const scope = root || document;
 
@@ -1111,6 +1266,7 @@
     initRibbon(root);
     initBrowseScreens(root);
     initPriceWorkbench(root);
+    initTransferRequestCenter(root);
     initDocumentTabs(root);
   }
 

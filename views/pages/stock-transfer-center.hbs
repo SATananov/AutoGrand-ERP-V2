@@ -1,0 +1,336 @@
+<section class="transfer-center-screen" data-transfer-center>
+  <header class="transfer-center-hero">
+    <div>
+      <div class="screen-kicker">СКЛАД / ТРАНСФЕРИ</div>
+      <h1>Трансфери и заявки</h1>
+      <p>Работен център по текущ обект: заявки, изпращане, приемане, липси на рафт и история.</p>
+    </div>
+
+    <div class="transfer-center-actions">
+      <a class="ag-soft-command" href="/stock/dashboard">Складов център</a>
+      <a class="ag-soft-command" href="/stock/transfer/new">Нов трансфер</a>
+      <a class="ag-soft-command strong" href="/price-list">Ценова листа</a>
+    </div>
+  </header>
+
+  {{#if transferCenter.actionMessage}}
+    <section class="document-action-message success">
+      <strong>Съобщение</strong>
+      <span>{{transferCenter.actionMessage}}</span>
+    </section>
+  {{/if}}
+
+  <section class="transfer-current-location">
+    <strong>Текущ обект: {{transferCenter.currentWarehouse.name}}</strong>
+    <span>Червено = действие от текущ обект · Синьо = пътува/чакаме · Жълто = чака приемане · Меко червено = проблем</span>
+  </section>
+
+  <section class="transfer-center-cards">
+    {{#each transferCenter.cards}}
+      <button type="button" class="transfer-center-card tone-{{tone}}" data-transfer-center-tab="{{tab}}">
+        <span>{{title}}</span>
+        <strong>{{value}}</strong>
+        <small>{{subtitle}}</small>
+      </button>
+    {{/each}}
+  </section>
+
+  <nav class="transfer-center-tabs" aria-label="Табове за трансферни заявки">
+    <button type="button" class="active" data-transfer-center-tab="incoming">Заявки към текущ обект <span>{{transferCenter.counters.incoming}}</span></button>
+    <button type="button" data-transfer-center-tab="outgoing">Заявки от текущ обект <span>{{transferCenter.counters.outgoing}}</span></button>
+    <button type="button" data-transfer-center-tab="expected">Очаквани към текущ обект <span>{{transferCenter.counters.expected}}</span></button>
+    <button type="button" data-transfer-center-tab="sent">Пътува от текущ обект <span>{{transferCenter.counters.sent}}</span></button>
+    <button type="button" data-transfer-center-tab="received">Получени <span>{{transferCenter.counters.received}}</span></button>
+    <button type="button" data-transfer-center-tab="missing">Липса на рафт <span>{{transferCenter.counters.missing}}</span></button>
+    <button type="button" data-transfer-center-tab="history">История <span>{{transferCenter.counters.all}}</span></button>
+  </nav>
+
+  <section class="transfer-center-panel active" data-transfer-center-panel="incoming">
+    <div class="transfer-panel-title">
+      <strong>Заявки към текущ обект</strong>
+      <span>Други обекти чакат текущият обект да провери рафта и да изпрати стоката.</span>
+    </div>
+
+    {{#if transferCenter.incomingRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Маршрут</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Коментар</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.incomingRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{createdAtText}}</span></td>
+                <td>{{routeText}}<span>{{helperText}}</span></td>
+                <td>
+                  {{#each items}}
+                    <div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>
+                  {{/each}}
+                </td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-note-cell">
+                  <span>{{note}}</span>
+                  <input type="text" data-transfer-action-note placeholder="Коментар при изпращане..." />
+                </td>
+                <td class="transfer-row-actions">
+                  <button type="button" class="ag-transfer-send" data-transfer-center-command="send" data-transfer-id="{{id}}">Изпрати</button>
+                  <button type="button" class="ag-transfer-missing" data-transfer-center-command="missing" data-transfer-id="{{id}}">Липса</button>
+                  <button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма чакащи заявки към {{transferCenter.currentWarehouse.name}}.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="outgoing">
+    <div class="transfer-panel-title">
+      <strong>Заявки от текущ обект</strong>
+      <span>Текущият обект е поискал тези артикули от други обекти и чака проверка на рафт.</span>
+    </div>
+
+    {{#if transferCenter.outgoingRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>От обект</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.outgoingRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{createdAtText}}</span></td>
+                <td>{{fromWarehouseName}}<span>{{helperText}}</span></td>
+                <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма активни заявки от {{transferCenter.currentWarehouse.name}} към други обекти.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="expected">
+    <div class="transfer-panel-title">
+      <strong>Очаквани към текущ обект</strong>
+      <span>Това са изпратени трансфери към текущия обект. Приеми ги само след реална проверка.</span>
+    </div>
+
+    {{#if transferCenter.expectedRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>От обект</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Коментар</th>
+              <th>Приемане</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.expectedRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{createdAtText}}</span></td>
+                <td>{{fromWarehouseName}}<span>{{helperText}}</span></td>
+                <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-note-cell">
+                  <span>{{note}}</span>
+                  <input type="text" data-transfer-action-note placeholder="Коментар при приемане/връщане..." />
+                </td>
+                <td class="transfer-row-actions receive-actions">
+                  <button type="button" class="ag-transfer-receive-print" data-transfer-center-command="receive-print" data-transfer-id="{{id}}">Приеми и печат</button>
+                  <button type="button" class="ag-transfer-receive" data-transfer-center-command="receive" data-transfer-id="{{id}}">Само приеми</button>
+                  <button type="button" class="ag-transfer-return" data-transfer-center-command="return" data-transfer-id="{{id}}">Върни към обекта изпращач</button>
+                  <button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма трансфери, които чакат приемане в {{transferCenter.currentWarehouse.name}}.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="sent">
+    <div class="transfer-panel-title">
+      <strong>Пътува от текущ обект</strong>
+      <span>Стоката вече не е в текущия обект и още не е приета от получателя — води се във В път.</span>
+    </div>
+
+    {{#if transferCenter.sentRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table compact">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Към обект</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.sentRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{transferDateText}}</span></td>
+                <td>{{toWarehouseName}}<span>{{helperText}}</span></td>
+                <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма изпратени трансфери от текущия обект.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="received">
+    <div class="transfer-panel-title">
+      <strong>Получени в текущ обект</strong>
+      <span>Това са трансферите, които вече са приети в текущия обект.</span>
+    </div>
+
+    {{#if transferCenter.receivedRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table compact">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>От обект</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.receivedRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{transferDateText}}</span></td>
+                <td>{{fromWarehouseName}}<span>{{helperText}}</span></td>
+                <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма приети трансфери в текущия обект.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="missing">
+    <div class="transfer-panel-title">
+      <strong>Липса на рафт</strong>
+      <span>Свободното количество го е имало по система, но стоката не е намерена физически на рафта.</span>
+    </div>
+
+    {{#if transferCenter.missingRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Маршрут</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.missingRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{createdAtText}}</span></td>
+                <td>{{routeText}}<span>{{helperText}}</span></td>
+                <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Няма маркирани липси на рафт за текущия обект.</div>
+    {{/if}}
+  </section>
+
+  <section class="transfer-center-panel" data-transfer-center-panel="history">
+    <div class="transfer-panel-title">
+      <strong>История</strong>
+      <span>Последни трансферни документи — изпратени, приети, върнати и проблемни.</span>
+    </div>
+
+    {{#if transferCenter.historyRows}}
+      <div class="transfer-table-wrap">
+        <table class="transfer-center-table compact">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Маршрут</th>
+              <th>Артикули</th>
+              <th>Количество</th>
+              <th>Статус</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each transferCenter.historyRows}}
+              <tr class="transfer-center-row tone-{{tone}}">
+                <td><strong>{{number}}</strong><span>{{transferDateText}}</span></td>
+                <td>{{routeText}}<span>{{helperText}}</span></td>
+                <td>{{itemsText}}{{#if hasMoreItems}}...{{/if}}</td>
+                <td>{{quantityText}}</td>
+                <td><mark>{{statusText}}</mark></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <div class="transfer-empty-state">Все още няма приключени трансфери.</div>
+    {{/if}}
+  </section>
+</section>

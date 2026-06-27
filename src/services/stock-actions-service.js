@@ -2,6 +2,8 @@ import prisma from '../db/prisma.js';
 import { locationTypeText } from './company-locations-service.js';
 
 const STOCK_LOW_THRESHOLD = 5;
+const TRANSIT_WAREHOUSE_CODE = 'AG-TRANSIT';
+const TRANSIT_WAREHOUSE_NAME = 'Трансферен склад / В път';
 
 function numberText(value) {
   return Number(value || 0).toFixed(2);
@@ -141,6 +143,29 @@ async function decrementBalance(tx, warehouseId, itemId, quantity) {
   });
 
   return { ok: true, avgCost: Number(existing.avgCost || 0) };
+}
+
+async function ensureTransitWarehouse(tx) {
+  const existing = await tx.warehouse.findUnique({ where: { code: TRANSIT_WAREHOUSE_CODE } });
+  if (existing) return existing;
+
+  return tx.warehouse.create({
+    data: {
+      code: TRANSIT_WAREHOUSE_CODE,
+      name: TRANSIT_WAREHOUSE_NAME,
+      city: 'В път',
+      isActive: false
+    }
+  });
+}
+
+async function decrementTransitIfAvailable(tx, transitWarehouseId, itemId, quantity) {
+  const balance = await findBalance(tx, transitWarehouseId, itemId);
+  if (!balance || Number(balance.quantity || 0) < Number(quantity || 0)) {
+    return { ok: false, code: 'transit_stock_not_found' };
+  }
+
+  return decrementBalance(tx, transitWarehouseId, itemId, quantity);
 }
 
 async function getStockFormLists() {
@@ -312,6 +337,7 @@ export async function getStockDashboardData(action = '') {
   const totalReserved = balances.reduce((sum, row) => sum + row.reserved, 0);
   const totalValue = balances.reduce((sum, row) => sum + row.quantity * row.avgCost, 0);
   const lowStockCount = balances.filter((row) => row.isLow).length;
+  const transferCenter = await getStockTransferRequestsCenterData();
 
   return {
     action,
@@ -328,6 +354,7 @@ export async function getStockDashboardData(action = '') {
     ],
     warehouseCards,
     lowStockItems: itemCards,
+    transferRequestCards: transferCenter.cards.slice(0, 3),
     movements,
     balancesCount: balances.length
   };
@@ -793,6 +820,9 @@ async function nextTransferNumber(tx) {
 function transferStatusText(status) {
   const map = {
     DRAFT: 'Чернова',
+    SENT: 'Пътува',
+    RECEIVED: 'Приет',
+    RETURNED_TO_SENDER: 'Върнат към изпращач',
     POSTED: 'Публикуван',
     CANCELLED: 'Отказан'
   };
@@ -803,6 +833,9 @@ function transferStatusText(status) {
 function transferStatusKind(status) {
   const map = {
     DRAFT: 'warning',
+    SENT: 'info',
+    RECEIVED: 'success',
+    RETURNED_TO_SENDER: 'danger',
     POSTED: 'success',
     CANCELLED: 'danger'
   };
@@ -812,7 +845,7 @@ function transferStatusKind(status) {
 
 function normalizeStatus(value) {
   const status = String(value || '').trim().toUpperCase();
-  return ['DRAFT', 'POSTED', 'CANCELLED'].includes(status) ? status : '';
+  return ['DRAFT', 'SENT', 'RECEIVED', 'RETURNED_TO_SENDER', 'POSTED', 'CANCELLED'].includes(status) ? status : '';
 }
 
 function transferLineRow(line, index, fromWarehouseId = null) {
@@ -1063,6 +1096,271 @@ export async function markStockTransferNotFoundOnShelf(documentId, body = {}) {
   });
 }
 
+
+function warehouseDisplayName(warehouse) {
+  return warehouse?.location?.name || warehouse?.name || '';
+}
+
+function transferHasShelfMissing(document) {
+  const text = `${document?.note || ''} ${(document?.lines || []).map((line) => line.note || '').join(' ')}`.toLocaleLowerCase('bg-BG');
+  return text.includes('липса на рафт') || text.includes('не е намерено') || text.includes('shelf_missing');
+}
+
+function transferCenterStatus(document, currentWarehouseId) {
+  const isMissing = transferHasShelfMissing(document);
+  const fromCurrent = Number(document.fromWarehouseId) === Number(currentWarehouseId);
+  const toCurrent = Number(document.toWarehouseId) === Number(currentWarehouseId);
+
+  if (document.status === 'DRAFT' && fromCurrent) {
+    return {
+      tone: 'needs-action',
+      statusText: 'Чака проверка на рафт',
+      helperText: 'Друг обект очаква текущият обект да провери рафта и да изпрати стоката.',
+      canSend: true,
+      canMarkMissing: true,
+      canReceive: false,
+      canReturn: false,
+      group: 'incoming'
+    };
+  }
+
+  if (document.status === 'DRAFT' && toCurrent) {
+    return {
+      tone: 'waiting',
+      statusText: 'Заявено към друг обект',
+      helperText: 'Текущият обект е изпратил заявка и чака проверка от изходния обект.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'outgoing'
+    };
+  }
+
+  if (document.status === 'SENT' && fromCurrent) {
+    return {
+      tone: 'in-transit',
+      statusText: 'Пътува към друг обект',
+      helperText: 'Стоката е извадена от текущия обект и е във В път до приемане от получателя.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'sent'
+    };
+  }
+
+  if (document.status === 'SENT' && toCurrent) {
+    return {
+      tone: 'receive',
+      statusText: 'Пътува към текущ обект',
+      helperText: 'Стоката е във В път. Приеми я само след реална проверка на пристигналото.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: true,
+      canReturn: true,
+      group: 'expected'
+    };
+  }
+
+  if (document.status === 'RECEIVED' && fromCurrent) {
+    return {
+      tone: 'done',
+      statusText: 'Приет от получателя',
+      helperText: 'Трансферът е приет от приемащия обект.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'sent'
+    };
+  }
+
+  if (document.status === 'RECEIVED' && toCurrent) {
+    return {
+      tone: 'done',
+      statusText: 'Приет в текущия обект',
+      helperText: 'Трансферът е приет и входящите движения са записани.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'received'
+    };
+  }
+
+  if (document.status === 'RETURNED_TO_SENDER') {
+    return {
+      tone: 'returned',
+      statusText: 'Върнат към обекта изпращач',
+      helperText: 'Приемащият обект не е приел трансфера. Стоката е върната към изходния обект по системата.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'history'
+    };
+  }
+
+  if (document.status === 'CANCELLED' && isMissing) {
+    return {
+      tone: 'missing',
+      statusText: 'ЛИПСА НА РАФТ',
+      helperText: 'Системата е показвала свободно количество, но човекът не го е намерил физически.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: 'missing'
+    };
+  }
+
+  if (document.status === 'POSTED') {
+    return {
+      tone: 'done',
+      statusText: fromCurrent ? 'Изпратен и осчетоводен' : toCurrent ? 'Получен и осчетоводен' : 'Публикуван',
+      helperText: 'Стар тип трансфер: изходът и входът са записани едновременно.',
+      canSend: false,
+      canMarkMissing: false,
+      canReceive: false,
+      canReturn: false,
+      group: fromCurrent ? 'sent' : toCurrent ? 'received' : 'history'
+    };
+  }
+
+  return {
+    tone: 'cancelled',
+    statusText: transferStatusText(document.status),
+    helperText: 'Документът е приключен или отказан.',
+    canSend: false,
+    canMarkMissing: false,
+    canReceive: false,
+    canReturn: false,
+    group: 'history'
+  };
+}
+
+function transferCenterRow(document, currentWarehouseId) {
+  const quantity = document.lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+  const status = transferCenterStatus(document, currentWarehouseId);
+  const fromName = warehouseDisplayName(document.fromWarehouse);
+  const toName = warehouseDisplayName(document.toWarehouse);
+  const items = document.lines.map((line) => ({
+    itemId: line.itemId,
+    itemCode: line.item?.code || '',
+    itemName: line.item?.name || '',
+    quantity: Number(line.quantity || 0),
+    quantityText: numberText(line.quantity),
+    note: line.note || '',
+    itemCardUrl: line.itemId ? `/stock/item/${line.itemId}` : ''
+  }));
+
+  return {
+    id: document.id,
+    number: document.number,
+    transferDateText: dateTimeText(document.transferDate),
+    createdAtText: dateTimeText(document.createdAt),
+    fromWarehouseId: document.fromWarehouseId,
+    toWarehouseId: document.toWarehouseId,
+    fromWarehouseName: fromName,
+    toWarehouseName: toName,
+    routeText: `${fromName} → ${toName}`,
+    status: document.status,
+    statusText: status.statusText,
+    helperText: status.helperText,
+    tone: status.tone,
+    group: status.group,
+    canSend: status.canSend,
+    canMarkMissing: status.canMarkMissing,
+    canReceive: status.canReceive,
+    canReturn: status.canReturn,
+    quantity,
+    quantityText: numberText(quantity),
+    lineCount: document.lines.length,
+    lineCountText: String(document.lines.length),
+    items,
+    itemsText: items.slice(0, 3).map((item) => `${item.itemCode} · ${item.quantityText}`).join(', '),
+    hasMoreItems: items.length > 3,
+    note: document.note || '',
+    cardUrl: `/stock/transfer/${document.id}`,
+    isShelfMissing: transferHasShelfMissing(document)
+  };
+}
+
+function centerCard(title, value, subtitle, tone, tab) {
+  return {
+    title,
+    value: String(value),
+    subtitle,
+    tone,
+    tab
+  };
+}
+
+export async function getStockTransferRequestsCenterData(action = '') {
+  const [warehouses, documents] = await Promise.all([
+    prisma.warehouse.findMany({ where: { isActive: true }, include: { location: true }, orderBy: { code: 'asc' } }),
+    prisma.stockTransferDocument.findMany({
+      include: {
+        fromWarehouse: { include: { location: true } },
+        toWarehouse: { include: { location: true } },
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      },
+      orderBy: [{ transferDate: 'desc' }, { id: 'desc' }],
+      take: 180
+    })
+  ]);
+
+  const currentWarehouse = warehouses.find((warehouse) => warehouse.location?.isCurrent) || warehouses[0] || null;
+  const currentWarehouseId = currentWarehouse?.id || 0;
+  const rows = documents.map((document) => transferCenterRow(document, currentWarehouseId));
+
+  const incomingRows = rows.filter((row) => row.group === 'incoming');
+  const outgoingRows = rows.filter((row) => row.group === 'outgoing');
+  const expectedRows = rows.filter((row) => row.group === 'expected');
+  const sentRows = rows.filter((row) => row.group === 'sent' && Number(row.fromWarehouseId) === Number(currentWarehouseId));
+  const receivedRows = rows.filter((row) => row.group === 'received' && Number(row.toWarehouseId) === Number(currentWarehouseId));
+  const missingRows = rows.filter((row) => row.group === 'missing' && (Number(row.fromWarehouseId) === Number(currentWarehouseId) || Number(row.toWarehouseId) === Number(currentWarehouseId)));
+  const historyRows = rows.filter((row) => !['incoming', 'outgoing', 'expected'].includes(row.group));
+
+  return {
+    action,
+    actionMessage: stockActionMessage(action),
+    currentWarehouse: currentWarehouse ? {
+      id: currentWarehouse.id,
+      code: currentWarehouse.code,
+      name: warehouseDisplayName(currentWarehouse),
+      typeText: locationTypeText(currentWarehouse.location?.type),
+      city: currentWarehouse.city || currentWarehouse.location?.city || ''
+    } : null,
+    cards: [
+      centerCard('Заявки към текущ обект', incomingRows.length, 'чака проверка и изпращане', 'red', 'incoming'),
+      centerCard('Заявки от текущ обект', outgoingRows.length, 'чакаме друг обект', 'blue', 'outgoing'),
+      centerCard('Очаквани към текущ обект', expectedRows.length, 'пътува / чака приемане', 'yellow', 'expected'),
+      centerCard('Пътува от текущ обект', sentRows.length, 'в трансферен склад / В път', 'blue', 'sent'),
+      centerCard('Получени в текущ обект', receivedRows.length, 'приети в текущия обект', 'green', 'received'),
+      centerCard('Липса на рафт', missingRows.length, 'свободно по система, но не е намерено', 'red-soft', 'missing')
+    ],
+    incomingRows,
+    outgoingRows,
+    expectedRows,
+    sentRows,
+    receivedRows,
+    missingRows,
+    historyRows,
+    rows,
+    counters: {
+      incoming: incomingRows.length,
+      outgoing: outgoingRows.length,
+      expected: expectedRows.length,
+      missing: missingRows.length,
+      sent: sentRows.length,
+      received: receivedRows.length,
+      all: rows.length
+    }
+  };
+}
+
 export async function getStockTransferCardData(documentId, action = '') {
   const id = normalizeId(documentId);
   if (!id) return null;
@@ -1117,11 +1415,17 @@ export async function getStockTransferCardData(documentId, action = '') {
     canPost,
     canCancel,
     hasInsufficientStock,
-    lockMessage: document.status === 'POSTED'
-      ? 'Трансферът е публикуван и складовите движения са заключени.'
-      : document.status === 'CANCELLED'
-        ? 'Трансферът е отказан и не може да се редактира.'
-        : '',
+    lockMessage: document.status === 'SENT'
+      ? 'Трансферът пътува: стоката е извадена от изпращащия обект и чака приемане.'
+      : document.status === 'RECEIVED'
+        ? 'Трансферът е приет и складовите движения са заключени.'
+        : document.status === 'RETURNED_TO_SENDER'
+          ? 'Трансферът е върнат към обекта изпращач и не може да се редактира.'
+          : document.status === 'POSTED'
+            ? 'Трансферът е публикуван и складовите движения са заключени.'
+            : document.status === 'CANCELLED'
+              ? 'Трансферът е отказан и не може да се редактира.'
+              : '',
     fromWarehouse: {
       id: document.fromWarehouse.id,
       code: document.fromWarehouse.code,
@@ -1222,6 +1526,265 @@ export async function deleteStockTransferLine(documentId, lineId) {
     await tx.stockTransferLine.delete({ where: { id: rowId } });
 
     return { ok: true, code: 'stock_transfer_line_deleted' };
+  });
+}
+
+
+async function appendTransferNote(tx, document, note) {
+  const text = safeNote(note);
+  if (!text) return document.note || '';
+  return `${document.note || ''}${document.note ? ' | ' : ''}${text}`;
+}
+
+export async function sendStockTransferRequestDocument(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const sendComment = safeNote(body.comment || body.note);
+  if (!id) return { ok: false, code: 'stock_transfer_status_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: true,
+        toWarehouse: true,
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      }
+    });
+
+    if (!document || document.status !== 'DRAFT') {
+      return { ok: false, code: 'stock_transfer_locked' };
+    }
+
+    if (document.lines.length === 0) {
+      return { ok: false, code: 'stock_transfer_empty' };
+    }
+
+    for (const line of document.lines) {
+      if (!line.itemId || Number(line.quantity || 0) <= 0) {
+        return { ok: false, code: 'stock_transfer_line_invalid' };
+      }
+
+      const balance = await findBalance(tx, document.fromWarehouseId, line.itemId);
+      const available = Number(balance?.quantity || 0) - Number(balance?.reservedQuantity || 0);
+      if (!balance || available < Number(line.quantity || 0)) {
+        return { ok: false, code: 'insufficient_stock' };
+      }
+    }
+
+    const transitWarehouse = await ensureTransitWarehouse(tx);
+    let sequence = await nextMovementSequence(tx);
+    for (const line of document.lines) {
+      const quantity = Number(line.quantity || 0);
+      const decrease = await decrementBalance(tx, document.fromWarehouseId, line.itemId, quantity);
+      if (!decrease.ok) return decrease;
+
+      await incrementBalance(tx, transitWarehouse.id, line.itemId, quantity, decrease.avgCost || Number(line.item?.wholesalePrice || 0));
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-OUT-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: document.fromWarehouseId,
+          itemId: line.itemId,
+          quantity,
+          direction: 'OUT',
+          reason: `Изпратен трансфер към ${document.toWarehouse.name}`,
+          sourceDocument: document.number,
+          note: document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-TRANSIT-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: transitWarehouse.id,
+          itemId: line.itemId,
+          quantity,
+          direction: 'IN',
+          reason: `В път от ${document.fromWarehouse.name} към ${document.toWarehouse.name}`,
+          sourceDocument: document.number,
+          note: sendComment || document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+    }
+
+    const sendNote = sendComment
+      ? `Статус: Пътува. ${sendComment}`
+      : 'Статус: Пътува. Стоката е преместена във В път до приемане.';
+
+    await tx.stockTransferDocument.update({
+      where: { id },
+      data: {
+        status: 'SENT',
+        postedAt: new Date(),
+        note: await appendTransferNote(tx, document, sendNote)
+      }
+    });
+
+    return { ok: true, code: 'stock_transfer_in_transit', documentId: id };
+  });
+}
+
+export async function receiveStockTransferRequestDocument(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const withPrint = String(body.print || '').trim() === '1' || body.print === true;
+  const receiveComment = safeNote(body.comment || body.note);
+  if (!id) return { ok: false, code: 'stock_transfer_status_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: true,
+        toWarehouse: true,
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      }
+    });
+
+    if (!document || document.status !== 'SENT') {
+      return { ok: false, code: 'stock_transfer_receive_invalid' };
+    }
+
+    const transitWarehouse = await ensureTransitWarehouse(tx);
+    let sequence = await nextMovementSequence(tx);
+    for (const line of document.lines) {
+      if (!line.itemId || Number(line.quantity || 0) <= 0) {
+        return { ok: false, code: 'stock_transfer_line_invalid' };
+      }
+
+      const quantity = Number(line.quantity || 0);
+      const transitDecrease = await decrementTransitIfAvailable(tx, transitWarehouse.id, line.itemId, quantity);
+      const avgCost = transitDecrease.ok ? transitDecrease.avgCost : Number(line.item?.wholesalePrice || 0);
+
+      if (transitDecrease.ok) {
+        await tx.stockMovement.create({
+          data: {
+            number: `${document.number}-TRANSIT-OUT-${String(sequence).padStart(3, '0')}`,
+            movementType: 'TRANSFER',
+            warehouseId: transitWarehouse.id,
+            itemId: line.itemId,
+            quantity,
+            direction: 'OUT',
+            reason: `Изход от В път към ${document.toWarehouse.name}`,
+            sourceDocument: document.number,
+            note: receiveComment || document.note || line.note || ''
+          }
+        });
+        sequence += 1;
+      }
+
+      await incrementBalance(tx, document.toWarehouseId, line.itemId, quantity, avgCost);
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-IN-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: document.toWarehouseId,
+          itemId: line.itemId,
+          quantity,
+          direction: 'IN',
+          reason: `Приет трансфер от ${document.fromWarehouse.name}`,
+          sourceDocument: document.number,
+          note: receiveComment || document.note || line.note || ''
+        }
+      });
+      sequence += 1;
+    }
+
+    const receiveNote = [withPrint ? 'Приет трансфер. Печат: placeholder.' : 'Приет трансфер без печат.', receiveComment]
+      .filter(Boolean)
+      .join(' ');
+
+    await tx.stockTransferDocument.update({
+      where: { id },
+      data: {
+        status: 'RECEIVED',
+        note: await appendTransferNote(tx, document, receiveNote)
+      }
+    });
+
+    return { ok: true, code: withPrint ? 'stock_transfer_received_print_placeholder' : 'stock_transfer_received', documentId: id };
+  });
+}
+
+export async function returnStockTransferRequestToSender(documentId, body = {}) {
+  const id = normalizeId(documentId);
+  const reason = safeNote(body.reason) || 'Върнат към обекта изпращач: приемащият обект не приема трансфера.';
+  if (!id) return { ok: false, code: 'stock_transfer_status_invalid' };
+
+  return prisma.$transaction(async (tx) => {
+    const document = await tx.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: true,
+        toWarehouse: true,
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      }
+    });
+
+    if (!document || document.status !== 'SENT') {
+      return { ok: false, code: 'stock_transfer_return_invalid' };
+    }
+
+    const transitWarehouse = await ensureTransitWarehouse(tx);
+    let sequence = await nextMovementSequence(tx);
+    for (const line of document.lines) {
+      if (!line.itemId || Number(line.quantity || 0) <= 0) {
+        return { ok: false, code: 'stock_transfer_line_invalid' };
+      }
+
+      const quantity = Number(line.quantity || 0);
+      const transitDecrease = await decrementTransitIfAvailable(tx, transitWarehouse.id, line.itemId, quantity);
+      const avgCost = transitDecrease.ok ? transitDecrease.avgCost : Number(line.item?.wholesalePrice || 0);
+
+      if (transitDecrease.ok) {
+        await tx.stockMovement.create({
+          data: {
+            number: `${document.number}-TRANSIT-RETURN-${String(sequence).padStart(3, '0')}`,
+            movementType: 'TRANSFER',
+            warehouseId: transitWarehouse.id,
+            itemId: line.itemId,
+            quantity,
+            direction: 'OUT',
+            reason: `Изход от В път обратно към ${document.fromWarehouse.name}`,
+            sourceDocument: document.number,
+            note: reason
+          }
+        });
+        sequence += 1;
+      }
+
+      await incrementBalance(tx, document.fromWarehouseId, line.itemId, quantity, avgCost);
+
+      await tx.stockMovement.create({
+        data: {
+          number: `${document.number}-RETURN-${String(sequence).padStart(3, '0')}`,
+          movementType: 'TRANSFER',
+          warehouseId: document.fromWarehouseId,
+          itemId: line.itemId,
+          quantity,
+          direction: 'IN',
+          reason: `Върнат трансфер от ${document.toWarehouse.name}`,
+          sourceDocument: document.number,
+          note: reason
+        }
+      });
+      sequence += 1;
+    }
+
+    await tx.stockTransferDocument.update({
+      where: { id },
+      data: {
+        status: 'RETURNED_TO_SENDER',
+        cancelledAt: new Date(),
+        note: await appendTransferNote(tx, document, reason)
+      }
+    });
+
+    return { ok: true, code: 'stock_transfer_returned_to_sender', documentId: id };
   });
 }
 
@@ -1441,6 +2004,10 @@ export function stockActionMessage(action = '') {
     stock_transfer_line_updated: 'Редът е обновен.',
     stock_transfer_line_deleted: 'Редът е изтрит.',
     stock_transfer_posted: 'Складовият трансфер е публикуван и движенията са записани.',
+    stock_transfer_sent_waiting_receive: 'Трансферът е изпратен и чака приемане от получаващия обект.',
+    stock_transfer_received: 'Трансферът е приет в текущия обект.',
+    stock_transfer_received_print_placeholder: 'Трансферът е приет. Печатът е подготвен като placeholder.',
+    stock_transfer_returned_to_sender: 'Трансферът е върнат към обекта изпращач.',
     stock_transfer_cancelled: 'Складовият трансфер е отказан.',
     transfer_request_created: 'Заявката за трансфер е изпратена към избраните обекти.',
     transfer_request_created_with_missing: 'Заявката е изпратена, но някои редове вече нямат свободно количество.',
@@ -1455,6 +2022,8 @@ export function stockActionMessage(action = '') {
     stock_transfer_locked: 'Трансферът е заключен и не може да се редактира.',
     stock_transfer_empty: 'Добави поне един ред преди публикуване.',
     stock_transfer_status_invalid: 'Невалиден статус за складовия трансфер.',
+    stock_transfer_receive_invalid: 'Трансферът не е в статус, който може да бъде приет.',
+    stock_transfer_return_invalid: 'Трансферът не е в статус, който може да бъде върнат към изпращача.',
     transfer_request_empty: 'Добави поне един артикул към текущата заявка.',
     transfer_request_invalid: 'Провери обекта и редовете в заявката.',
     transfer_request_no_free_quantity: 'Нито един ред вече няма свободно количество за заявяване.',

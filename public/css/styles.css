@@ -3552,6 +3552,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 .tree-leaf[data-module-title="Нова складова корекция"] .tree-icon,
 .tree-leaf[data-module-title="Складова корекция"] .tree-icon,
 .tree-leaf[data-module-title="Нов трансфер"] .tree-icon,
+.tree-leaf[data-module-title="Трансфери и заявки"] .tree-icon,
 .tree-leaf[data-module-title="История трансфери"] .tree-icon {
   color: #184a2f !important;
 }
@@ -4600,4 +4601,542 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
     align-items: stretch;
     flex-direction: column;
   }
+}
+
+/* Step 3.1 — Transfer requests center */
+.transfer-center-screen {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  color: #233d27;
+}
+
+.transfer-center-hero,
+.transfer-current-location,
+.transfer-panel-title {
+  border: 1px solid rgba(118, 155, 102, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 38px rgba(40, 78, 37, 0.08);
+}
+
+.transfer-center-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 24px;
+}
+
+.transfer-center-hero h1 {
+  margin: 4px 0 6px;
+  color: #203b24;
+  font-size: 32px;
+  line-height: 1.05;
+}
+
+.transfer-center-hero p,
+.transfer-current-location span,
+.transfer-panel-title span {
+  margin: 0;
+  color: #74806f;
+  font-weight: 750;
+}
+
+.transfer-center-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.transfer-center-actions a {
+  text-decoration: none;
+}
+
+.transfer-current-location {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.transfer-current-location strong {
+  color: #244229;
+  font-size: 16px;
+}
+
+.transfer-center-cards {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.transfer-center-card,
+.stock-transfer-alert-card {
+  display: grid;
+  gap: 4px;
+  min-height: 92px;
+  padding: 12px 14px;
+  border: 1px solid rgba(91, 134, 74, 0.3);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfff7, #e6f4dd);
+  color: #243f28;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 12px 24px rgba(40, 78, 37, 0.08);
+}
+
+.transfer-center-card span,
+.stock-transfer-alert-card span {
+  color: #4d6a45;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.transfer-center-card strong,
+.stock-transfer-alert-card strong {
+  color: #1f3b22;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.transfer-center-card small,
+.stock-transfer-alert-card small {
+  color: #6f7d6a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.transfer-center-card.active,
+.transfer-center-card:hover,
+.stock-transfer-alert-card:hover {
+  border-color: rgba(70, 124, 40, 0.55);
+  box-shadow: 0 0 0 2px rgba(134, 192, 70, 0.22), 0 16px 30px rgba(40, 78, 37, 0.12);
+}
+
+.transfer-center-card.tone-red,
+.stock-transfer-alert-card.tone-red {
+  border-color: rgba(184, 88, 74, 0.38);
+  background: linear-gradient(180deg, #fff7f4, #f6cbc4);
+}
+
+.transfer-center-card.tone-red-soft,
+.stock-transfer-alert-card.tone-red-soft {
+  border-color: rgba(196, 112, 99, 0.3);
+  background: linear-gradient(180deg, #fff9f7, #f3ded9);
+}
+
+.transfer-center-card.tone-blue,
+.stock-transfer-alert-card.tone-blue {
+  border-color: rgba(80, 126, 180, 0.35);
+  background: linear-gradient(180deg, #f7fbff, #dbeaff);
+}
+
+.transfer-center-card.tone-green,
+.stock-transfer-alert-card.tone-green {
+  border-color: rgba(75, 139, 60, 0.35);
+  background: linear-gradient(180deg, #f7fff0, #d8efc9);
+}
+
+.transfer-center-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(118, 155, 102, 0.28);
+  border-radius: 14px;
+  background: rgba(229, 244, 218, 0.88);
+}
+
+.transfer-center-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(76, 126, 42, 0.38);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fbfff6, #dcefd2);
+  color: #29432b;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.transfer-center-tabs button.active {
+  border-color: rgba(76, 126, 42, 0.75);
+  background: linear-gradient(180deg, #efffd8, #bfe778);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 2px 8px rgba(77, 118, 52, 0.22);
+}
+
+.transfer-center-tabs span {
+  min-width: 24px;
+  min-height: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.transfer-center-panel {
+  display: none;
+  min-height: 360px;
+  border: 1px solid rgba(118, 155, 102, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  overflow: hidden;
+}
+
+.transfer-center-panel.active {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.transfer-panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-width: 0 0 1px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(180deg, #f8fff3, #e4f2dc);
+}
+
+.transfer-panel-title strong {
+  color: #213c25;
+  font-size: 18px;
+}
+
+.transfer-table-wrap {
+  overflow: auto;
+}
+
+.transfer-center-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fbfff8;
+}
+
+.transfer-center-table th,
+.transfer-center-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(119, 157, 100, 0.24);
+  border-right: 1px solid rgba(119, 157, 100, 0.14);
+  color: #2f4430;
+  vertical-align: middle;
+}
+
+.transfer-center-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #e9f6df;
+  color: #243c27;
+  font-weight: 950;
+}
+
+.transfer-center-table td:first-child span,
+.transfer-center-table td:nth-child(2) span {
+  display: block;
+  margin-top: 2px;
+  color: #6d7b69;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.transfer-center-row.tone-needs-action {
+  background: #fdecea;
+  color: #5d2d28;
+}
+
+.transfer-center-row.tone-waiting {
+  background: #eef5ff;
+  color: #29415f;
+}
+
+.transfer-center-row.tone-missing {
+  background: #fde5e1;
+  color: #642f29;
+}
+
+.transfer-center-row.tone-done {
+  background: #f3ffed;
+}
+
+.transfer-center-row.tone-cancelled {
+  background: #f2f2f2;
+  color: #747c70;
+}
+
+.transfer-center-row mark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(87, 132, 63, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  color: inherit;
+  font-weight: 950;
+}
+
+.transfer-center-row.tone-needs-action mark,
+.transfer-center-row.tone-missing mark {
+  border-color: rgba(181, 87, 72, 0.32);
+  background: #f8ccc5;
+  color: #693028;
+}
+
+.transfer-center-row.tone-waiting mark {
+  border-color: rgba(85, 128, 180, 0.32);
+  background: #dcecff;
+  color: #29415f;
+}
+
+.transfer-item-line {
+  color: #2f4430;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.transfer-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.transfer-row-actions button {
+  min-height: 32px;
+  padding: 5px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(76, 126, 42, 0.45);
+  background: linear-gradient(180deg, #f7ffe6, #bde97d);
+  color: #24451f;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 1px 2px rgba(55, 85, 45, 0.18);
+}
+
+.transfer-row-actions .ag-transfer-missing {
+  border-color: rgba(164, 80, 68, 0.45);
+  background: linear-gradient(180deg, #fff2ee, #efb4aa);
+  color: #74362e;
+}
+
+.transfer-row-actions button:not(.ag-transfer-send):not(.ag-transfer-missing) {
+  border-color: rgba(68, 111, 57, 0.3);
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+}
+
+.transfer-empty-state {
+  margin: 16px;
+  padding: 18px;
+  border: 1px dashed rgba(111, 148, 97, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #657261;
+  font-weight: 850;
+}
+
+.stock-transfer-alert-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 1180px) {
+  .transfer-center-hero,
+  .transfer-current-location,
+  .transfer-panel-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .transfer-center-cards,
+  .stock-transfer-alert-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .transfer-center-screen {
+    padding: 12px;
+  }
+
+  .transfer-center-cards,
+  .stock-transfer-alert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Step 3.2 — Transfer receiving actions and object-based labels */
+.transfer-center-cards {
+  grid-template-columns: repeat(6, minmax(145px, 1fr));
+}
+
+.transfer-center-card.tone-yellow,
+.stock-transfer-alert-card.tone-yellow {
+  border-color: rgba(181, 145, 48, 0.38);
+  background: linear-gradient(180deg, #fffdf2, #f5e8b7);
+}
+
+.transfer-center-row.tone-sent {
+  background: #eff9e8;
+}
+
+.transfer-center-row.tone-receive {
+  background: #fff8e6;
+  color: #4f4525;
+}
+
+.transfer-center-row.tone-returned {
+  background: #fce8e2;
+  color: #67342c;
+}
+
+.transfer-center-row.tone-receive mark {
+  border-color: rgba(181, 145, 48, 0.36);
+  background: #faeab5;
+  color: #4f4525;
+}
+
+.transfer-center-row.tone-sent mark,
+.transfer-center-row.tone-done mark {
+  border-color: rgba(77, 139, 60, 0.34);
+  background: #dcf1cf;
+  color: #244229;
+}
+
+.transfer-center-row.tone-returned mark {
+  border-color: rgba(166, 82, 67, 0.36);
+  background: #f4c7bd;
+  color: #6d3129;
+}
+
+.transfer-row-actions.receive-actions {
+  min-width: 330px;
+}
+
+.transfer-row-actions .ag-transfer-send,
+.transfer-row-actions .ag-transfer-receive,
+.transfer-row-actions .ag-transfer-receive-print {
+  border-color: rgba(76, 126, 42, 0.5);
+  background: linear-gradient(180deg, #f7ffe6, #bde97d);
+  color: #24451f;
+}
+
+.transfer-row-actions .ag-transfer-receive-print::before {
+  content: '🖨️';
+  margin-right: 5px;
+}
+
+.transfer-row-actions .ag-transfer-receive::before {
+  content: '✓';
+  margin-right: 5px;
+}
+
+.transfer-row-actions .ag-transfer-return {
+  border-color: rgba(166, 82, 67, 0.45);
+  background: linear-gradient(180deg, #fff2ee, #efb4aa);
+  color: #74362e;
+}
+
+.transfer-row-actions .ag-transfer-open {
+  border-color: rgba(68, 111, 57, 0.3);
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+}
+
+.transfer-row-actions button:not(.ag-transfer-send):not(.ag-transfer-missing):not(.ag-transfer-receive):not(.ag-transfer-receive-print):not(.ag-transfer-return):not(.ag-transfer-open) {
+  border-color: rgba(68, 111, 57, 0.3);
+  background: linear-gradient(180deg, #f9fff3, #dfeeda);
+  color: #244229;
+}
+
+@media (max-width: 1380px) {
+  .transfer-center-cards {
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+  }
+}
+
+/* Step 3.3 — Transfer in transit status and request comments */
+.transfer-request-note-field {
+  display: grid;
+  gap: 5px;
+  margin: 8px 0 10px;
+}
+
+.transfer-request-note-field span,
+.transfer-note-cell span {
+  color: #5f705a;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.transfer-request-note-field input,
+.transfer-note-cell input {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid rgba(91, 134, 74, 0.34);
+  border-radius: 10px;
+  background: #fbfff8;
+  color: #254027;
+  font-weight: 850;
+  outline: none;
+  box-shadow: inset 0 1px 2px rgba(33, 61, 35, 0.06);
+}
+
+.transfer-request-note-field input:focus,
+.transfer-note-cell input:focus {
+  border-color: rgba(75, 132, 45, 0.72);
+  box-shadow: 0 0 0 2px rgba(142, 193, 76, 0.2), inset 0 1px 2px rgba(33, 61, 35, 0.06);
+}
+
+.transfer-note-cell {
+  min-width: 220px;
+}
+
+.transfer-note-cell span {
+  display: block;
+  max-width: 280px;
+  margin-bottom: 5px;
+  white-space: normal;
+}
+
+.transfer-center-row.tone-in-transit {
+  background: #eef6ff;
+  color: #29415f;
+}
+
+.transfer-center-row.tone-in-transit mark {
+  border-color: rgba(75, 126, 184, 0.34);
+  background: #dcecff;
+  color: #29415f;
+}
+
+.transfer-center-row.tone-in-transit td:first-child::before,
+.transfer-center-row.tone-receive td:first-child::before {
+  content: 'В ПЪТ';
+  display: inline-flex;
+  margin-right: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcecff;
+  color: #29415f;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.transfer-row-actions .ag-transfer-send::before {
+  content: '↗';
+  margin-right: 5px;
 }

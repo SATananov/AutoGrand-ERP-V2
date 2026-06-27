@@ -179,7 +179,7 @@ export const screenDefinitions = {
     columns: stockMovementColumns()
   },
   'stock-transfers': {
-    title: 'Складови трансфери',
+    title: 'Трансфери и заявки',
     group: 'Склад',
     kind: 'stockTransferDocument',
     columns: stockTransferDocumentColumns()

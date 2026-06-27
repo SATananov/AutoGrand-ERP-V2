@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.3.0",
+  "version": "0.3.4",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 3.0 — Transfer Request Basket and Shelf Confirmation Workflow.",
+  "description": "AutoGrand ERP V2 Step 3.3 — Transfer In Transit Status and Request Comments.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

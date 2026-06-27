@@ -45,7 +45,7 @@ export const NAV_GROUPS = [
       { id: 'stock-adjustment-new', title: 'Нова складова корекция', icon: '🧾', href: '/stock/adjustment/new' },
       { id: 'stock-adjustments', title: 'История складови корекции', icon: '▤' },
       { id: 'stock-transfer-new', title: 'Нов трансфер', icon: '⇄', href: '/stock/transfer/new' },
-      { id: 'stock-transfers', title: 'История трансфери', icon: '▤' },
+      { id: 'stock-transfers', title: 'Трансфери и заявки', icon: '⇄', href: '/stock/transfers' },
       { id: 'warehouses', title: 'Складове', icon: '▥' }
     ],
     folders: ['История', 'Настройки', 'Справки']

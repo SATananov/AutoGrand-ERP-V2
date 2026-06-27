@@ -38,11 +38,15 @@ import {
   getStockItemCardData,
   getStockTransferFormData,
   getStockTransferCardData,
+  getStockTransferRequestsCenterData,
   getStockWarehouseCardData,
   createStockAdjustmentFromForm,
   createStockTransferFromForm,
   createTransferRequestsFromBasket,
   markStockTransferNotFoundOnShelf,
+  sendStockTransferRequestDocument,
+  receiveStockTransferRequestDocument,
+  returnStockTransferRequestToSender,
   addStockAdjustmentLine,
   updateStockAdjustmentLine,
   deleteStockAdjustmentLine,
@@ -331,11 +335,31 @@ app.post('/api/stock/transfer-requests', async (req, res) => {
 
 app.post('/api/stock/transfer-requests/:documentId/send', async (req, res) => {
   try {
-    const result = await updateStockTransferDocumentStatus(req.params.documentId, 'POSTED');
+    const result = await sendStockTransferRequestDocument(req.params.documentId, req.body || {});
     return res.status(result.ok ? 200 : 400).json(result);
   } catch (error) {
     console.error('AutoGrand transfer request send failed:', error);
     return res.status(400).json({ ok: false, code: 'transfer_request_send_failed' });
+  }
+});
+
+app.post('/api/stock/transfer-requests/:documentId/receive', async (req, res) => {
+  try {
+    const result = await receiveStockTransferRequestDocument(req.params.documentId, req.body || {});
+    return res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error('AutoGrand transfer request receive failed:', error);
+    return res.status(400).json({ ok: false, code: 'transfer_request_receive_failed' });
+  }
+});
+
+app.post('/api/stock/transfer-requests/:documentId/return', async (req, res) => {
+  try {
+    const result = await returnStockTransferRequestToSender(req.params.documentId, req.body || {});
+    return res.status(result.ok ? 200 : 400).json(result);
+  } catch (error) {
+    console.error('AutoGrand transfer request return failed:', error);
+    return res.status(400).json({ ok: false, code: 'transfer_request_return_failed' });
   }
 });
 
@@ -621,6 +645,19 @@ app.get('/stock/dashboard', async (req, res) => {
       statusText: 'Отворен складов център'
     }),
     stock
+  });
+});
+
+app.get('/stock/transfers', async (req, res) => {
+  const transferCenter = await getStockTransferRequestsCenterData(req.query.action || '');
+
+  renderPage(req, res, 'stock-transfer-center', {
+    ...baseViewData({
+      title: 'Трансфери и заявки — AutoGrand ERP V2',
+      currentScreen: 'stock-transfers',
+      statusText: 'Отворен екран: Трансфери и заявки'
+    }),
+    transferCenter
   });
 });
 

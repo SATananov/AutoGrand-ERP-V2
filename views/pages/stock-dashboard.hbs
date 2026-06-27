@@ -30,6 +30,16 @@
     {{/each}}
   </section>
 
+  <section class="stock-transfer-alert-grid">
+    {{#each stock.transferRequestCards}}
+      <a class="stock-transfer-alert-card tone-{{tone}}" href="/stock/transfers" data-transfer-tab-link="{{tab}}">
+        <span>{{title}}</span>
+        <strong>{{value}}</strong>
+        <small>{{subtitle}}</small>
+      </a>
+    {{/each}}
+  </section>
+
   <section class="stock-layout-grid">
     <article class="stock-panel">
       <div class="panel-caption">
