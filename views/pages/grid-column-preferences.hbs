@@ -1,0 +1,105 @@
+<section class="ag-grid-prefs-page" data-step="4.4-grid-column-preferences">
+  <header class="ag-grid-prefs-hero">
+    <div>
+      <p class="ag-grid-prefs-kicker">Step 4.4 · Global Grid Column Preferences</p>
+      <h1>Глобални настройки на колони</h1>
+      <p>{{gridPrefs.subtitle}}</p>
+      <div class="ag-grid-prefs-concepts" aria-label="Moneta grid concepts">
+        {{#each gridPrefs.monetaConcepts}}
+          <code>{{this}}</code>
+        {{/each}}
+      </div>
+    </div>
+    <div class="ag-grid-prefs-health">
+      <span>Health label</span>
+      <strong>{{gridPrefs.healthLabel}}</strong>
+      <em>v{{gridPrefs.version}}</em>
+    </div>
+  </header>
+
+  <section class="ag-grid-prefs-summary" aria-label="Обобщение">
+    <article><span>Grid изгледи</span><strong>{{gridPrefs.diagnostics.grids}}</strong><em>регистрирани ключа</em></article>
+    <article><span>Колони</span><strong>{{gridPrefs.diagnostics.columns}}</strong><em>foundation настройки</em></article>
+    <article><span>Скрити по подразбиране</span><strong>{{gridPrefs.diagnostics.hiddenByDefault}}</strong><em>готови за добавяне</em></article>
+    <article><span>Moneta hooks</span><strong>{{gridPrefs.diagnostics.monetaConcepts}}</strong><em>референтни концепции</em></article>
+  </section>
+
+  <section class="ag-grid-prefs-grid ag-grid-prefs-grid-2">
+    <article class="ag-grid-prefs-panel">
+      <header>
+        <h2>Обхват на настройките</h2>
+        <p>Настройките се държат като Moneta grid view: форма + потребител + роля + активен обект.</p>
+      </header>
+      <div class="ag-grid-prefs-scope-list">
+        {{#each gridPrefs.scopeDimensions}}
+          <div>
+            <strong>{{name}}</strong>
+            <span>{{code}}</span>
+            <em>{{monetaHint}}</em>
+          </div>
+        {{/each}}
+      </div>
+    </article>
+
+    <article class="ag-grid-prefs-panel">
+      <header>
+        <h2>Правила</h2>
+        <p>Това е UI/runtime foundation без Prisma schema промяна.</p>
+      </header>
+      <ul class="ag-grid-prefs-rules">
+        {{#each gridPrefs.rules}}
+          <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </article>
+  </section>
+
+  <section class="ag-grid-prefs-panel">
+    <header>
+      <h2>Регистрирани grid изгледи</h2>
+      <p>Тези keys са основата за бъдещо DB persistence и права по колони.</p>
+    </header>
+    <div class="ag-grid-prefs-table-wrap">
+      <table class="ag-grid-prefs-table" data-ag-grid-key="grid.preferences.registry" data-ag-grid-title="Регистрирани grid изгледи">
+        <thead>
+          <tr>
+            <th>Grid key</th>
+            <th>Екран</th>
+            <th>Колони</th>
+            <th>Moneta hooks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each gridPrefs.registry}}
+            <tr>
+              <td><code>{{key}}</code><small>{{title}}</small></td>
+              <td>{{screen}}</td>
+              <td>{{columns.length}}</td>
+              <td>{{monetaHooks}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ag-grid-prefs-panel">
+    <header>
+      <h2>Колонен foundation registry</h2>
+      <p>Показва фабричните колони, ширини и Moneta field hints.</p>
+    </header>
+    <div class="ag-grid-prefs-card-list">
+      {{#each gridPrefs.registry}}
+        <article class="ag-grid-prefs-card">
+          <h3>{{title}}</h3>
+          <code>{{key}}</code>
+          <div class="ag-grid-prefs-column-pills">
+            {{#each columns}}
+              <span title="{{monetaField}}">{{label}} · {{width}}px</span>
+            {{/each}}
+          </div>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+</section>

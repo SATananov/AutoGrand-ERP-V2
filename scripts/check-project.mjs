@@ -55,7 +55,12 @@ const required = [
   'docs/steps/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_BG.md',
   'docs/checkpoints/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_CLEAN_EXPORT_BG.md',
   'docs/steps/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_BG.md',
-  'docs/checkpoints/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_CLEAN_EXPORT_BG.md'
+  'docs/checkpoints/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_CLEAN_EXPORT_BG.md',
+  'src/services/grid-column-preferences-service.js',
+  'public/js/ag-grid-column-preferences.js',
+  'views/pages/grid-column-preferences.hbs',
+  'docs/steps/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_BG.md',
+  'docs/checkpoints/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -116,6 +121,11 @@ const catalogFoundationService = fs.readFileSync(path.resolve('src/services/cata
 const catalogFoundationView = fs.readFileSync(path.resolve('views/pages/catalog-foundation.hbs'), 'utf8');
 const step43CatalogDoc = fs.readFileSync(path.resolve('docs/steps/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_BG.md'), 'utf8');
 const step43CatalogCheckpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_CLEAN_EXPORT_BG.md'), 'utf8');
+const gridPrefsService = fs.readFileSync(path.resolve('src/services/grid-column-preferences-service.js'), 'utf8');
+const gridPrefsJs = fs.readFileSync(path.resolve('public/js/ag-grid-column-preferences.js'), 'utf8');
+const gridPrefsView = fs.readFileSync(path.resolve('views/pages/grid-column-preferences.hbs'), 'utf8');
+const step44Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_BG.md'), 'utf8');
+const step44Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_CLEAN_EXPORT_BG.md'), 'utf8');
 
 const checks = [
   [salesActions.includes('createSalesDocumentPayment'), 'createSalesDocumentPayment'],
@@ -138,7 +148,7 @@ const checks = [
   [autograndIdentity.includes('AUTOGRAND_ROLE_TEMPLATES') && autograndIdentity.includes('MONETA_RIGHT_ACTIONS') && autograndIdentity.includes('AUTOGRAND_PERMISSIONS') && autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS'), 'Step 4.2 identity foundation data'],
   [seedText.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && seedText.includes('AUTOGRAND_ROLE_TEMPLATES') && seedText.includes('seedIdentityFoundation') && seedText.includes('userLocationAccess.create'), 'Step 4.2 seed identity foundation'],
   [step42Doc.includes('Employee') && step42Doc.includes('RolePermission') && step42Doc.includes('UserLocationAccess') && step42Checkpoint.includes('0.4.2'), 'Step 4.2 docs and checkpoint'],
-  [server.includes("appVersion: 'v0.4.7'") && packageJson.includes('0.4.7'), 'Step 4.3 catalog foundation version label'],
+  [server.includes("appVersion: 'v0.4.8'") && packageJson.includes('0.4.8'), 'Step 4.4 grid preferences version label'],
   [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
   [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
   [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
@@ -209,8 +219,17 @@ const checks = [
   [permissionService.includes('catalog.view') && permissionService.includes('/catalog/foundation') && permissionService.includes('Номенклатурна основа'), 'Step 4.3 catalog permissions'],
   [catalogFoundationView.includes('Артикули, мерни единици, ДДС, цени и доставчици') && catalogFoundationView.includes('{{catalog.healthLabel}}') && catalogFoundationView.includes('Foundation артикули'), 'Step 4.3 catalog foundation UI'],
   [catalogFoundationView.includes('G_VATPostingSetup') && catalogFoundationView.includes('N_Contragent') && catalogFoundationView.includes('N_ItemCrossRef') && catalogFoundationView.includes('Мерни преобразувания'), 'Step 4.3 Moneta-aligned catalog UI'],
-  [mainLayout.includes('styles.css?v=4.3-catalog-foundation') && mainLayout.includes('app.js?v=4.3-catalog-foundation'), 'Step 4.3 cache version sync'],
-  [step43CatalogDoc.includes('Items, Units, VAT, Prices and Suppliers Foundation') && step43CatalogDoc.includes('Moneta-aligned') && step43CatalogDoc.includes('G_VATPostingSetup') && step43CatalogCheckpoint.includes('0.4.7'), 'Step 4.3 catalog docs and checkpoint']
+  [mainLayout.includes('styles.css?v=4.4-grid-column-preferences') && mainLayout.includes('app.js?v=4.4-grid-column-preferences'), 'Step 4.4 cache version sync'],
+  [step43CatalogDoc.includes('Items, Units, VAT, Prices and Suppliers Foundation') && step43CatalogDoc.includes('Moneta-aligned') && step43CatalogDoc.includes('G_VATPostingSetup') && step43CatalogCheckpoint.includes('0.4.7'), 'Step 4.3 catalog docs and checkpoint'],
+  [gridPrefsService.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL') && gridPrefsService.includes('LoadGridView') && gridPrefsService.includes('DoSaveGridView') && gridPrefsService.includes('GridColWidthChanged'), 'Step 4.4 Moneta grid preference concepts'],
+  [gridPrefsService.includes('GLOBAL_GRID_COLUMN_REGISTRY') && gridPrefsService.includes('catalog.foundation.items') && gridPrefsService.includes('price-list.items') && gridPrefsService.includes('stock.transfers.center'), 'Step 4.4 global grid registry'],
+  [server.includes("app.get('/grid/preferences'") && server.includes("app.get('/api/grid/preferences/diagnostics'") && server.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL'), 'Step 4.4 grid preferences routes and health label'],
+  [permissionService.includes('grid_preferences.view') && permissionService.includes('/grid/preferences') && permissionService.includes('Глобални настройки на колони'), 'Step 4.4 grid preferences permissions'],
+  [gridPrefsJs.includes('localStorage') && gridPrefsJs.includes('GridTitleButtonClick') && gridPrefsJs.includes('ag-grid-column-toolbar') && gridPrefsJs.includes('data-ag-grid-key'), 'Step 4.4 browser column preferences runtime'],
+  [mainLayout.includes('ag-grid-column-preferences.js?v=4.4-grid-column-preferences') && mainLayout.includes('data-ag-current-user') && mainLayout.includes('styles.css?v=4.4-grid-column-preferences'), 'Step 4.4 layout integration and cache version'],
+  [gridPrefsView.includes('Глобални настройки на колони') && gridPrefsView.includes('{{gridPrefs.healthLabel}}') && gridPrefsView.includes('Moneta hooks'), 'Step 4.4 grid preferences UI'],
+  [catalogFoundationView.includes('data-ag-grid-key="catalog.foundation.items"') && catalogFoundationView.includes('data-ag-column-key="supplierCode"'), 'Step 4.4 catalog table grid keys'],
+  [step44Doc.includes('Global Grid Column Preferences') && step44Doc.includes('LoadGridView') && step44Checkpoint.includes('0.4.8'), 'Step 4.4 docs and checkpoint']
 ];
 
 for (const [passed, label] of checks) {
@@ -226,4 +245,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.3 Items, Units, VAT, Prices and Suppliers Foundation patch check passed.');
+console.log('OK: Step 4.4 Global Grid Column Preferences patch check passed.');
