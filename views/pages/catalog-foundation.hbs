@@ -1,0 +1,287 @@
+<section class="ag-catalog-page" data-step="4.3-catalog-foundation">
+  <header class="ag-catalog-hero">
+    <div>
+      <p class="ag-catalog-kicker">Step 4.3 · Номенклатурна основа</p>
+      <h1>Артикули, мерни единици, ДДС, цени и доставчици</h1>
+      <p>
+        Moneta-aligned foundation за каталога на AutoGrand ERP: не само групи и цени,
+        а основа по модел N_Item, N_ItemCategory, N_ItemProductGroup, N_ItemProductClass,
+        G_VATPostingSetup, N_Contragent и N_ItemCrossRef.
+      </p>
+      <div class="ag-catalog-concepts" aria-label="Moneta concepts">
+        {{#each catalog.monetaConcepts}}
+          <code>{{this}}</code>
+        {{/each}}
+      </div>
+    </div>
+    <div class="ag-catalog-health">
+      <span>Health label</span>
+      <strong>{{catalog.healthLabel}}</strong>
+      <em>v{{catalog.version}}</em>
+    </div>
+  </header>
+
+  <section class="ag-catalog-summary" aria-label="Каталог обобщение">
+    {{#each catalog.summaryCards}}
+      <article class="ag-catalog-summary-card">
+        <span>{{label}}</span>
+        <strong>{{value}}</strong>
+        <em>{{hint}}</em>
+      </article>
+    {{/each}}
+    {{#each catalog.operationalCards}}
+      <article class="ag-catalog-summary-card is-soft">
+        <span>{{label}}</span>
+        <strong>{{value}}</strong>
+        <em>{{hint}}</em>
+      </article>
+    {{/each}}
+  </section>
+
+  <section class="ag-catalog-grid ag-catalog-grid-3">
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>Мерни единици</h2>
+        <p>Measure_Id / PurchMeasure с десетичност и бъдещи преобразувания.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Име</th>
+              <th>Дес.</th>
+              <th>Moneta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.measures}}
+              <tr>
+                <td><code>{{code}}</code></td>
+                <td>{{name}} <small>{{shortName}}</small></td>
+                <td>{{decimalPlaces}}</td>
+                <td>{{monetaField}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>ДДС продуктови групи</h2>
+        <p>VATProd_PostingGroup за артикули, услуги и нулеви режими.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Име</th>
+              <th>Ставка</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.vatProductPostingGroups}}
+              <tr>
+                <td><code>{{code}}</code></td>
+                <td>{{name}}</td>
+                <td>{{vatPercent}}%</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>Ценови нива</h2>
+        <p>TfEdPrices / TfBrPriceList + UnitPrice, UnitCost и цена с/без ДДС.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Име</th>
+              <th>Поле</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.priceLevels}}
+              <tr>
+                <td><code>{{code}}</code></td>
+                <td>{{name}} <small>{{#if includesVat}}с ДДС{{else}}без ДДС{{/if}}</small></td>
+                <td>{{priceField}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="ag-catalog-grid ag-catalog-grid-2">
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>Категории и продуктови групи</h2>
+        <p>N_ItemCategory → N_ItemProductGroup: по-близко до Moneta от прост “item group”.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Група</th>
+              <th>Категория</th>
+              <th>Склад</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.itemProductGroups}}
+              <tr>
+                <td><code>{{code}}</code></td>
+                <td>{{name}}</td>
+                <td>{{categoryName}}</td>
+                <td>{{stockControlText}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>ДДС posting setup</h2>
+        <p>G_VATPostingSetup: бизнес група × продуктова група × ставка × дневник.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Setup</th>
+              <th>ДДС</th>
+              <th>Дневник</th>
+              <th>Цена</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.vatPostingSetup}}
+              <tr>
+                <td><code>{{code}}</code><small>{{nameText}}</small></td>
+                <td>{{vatPercent}}%</td>
+                <td>{{vatLedger}}</td>
+                <td>{{priceIncludingVATText}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="ag-catalog-grid ag-catalog-grid-2">
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>Контрагенти доставчици</h2>
+        <p>N_Contragent с роля SUPPLIER; доставчикът не е отделна изолирана таблица.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Код</th>
+              <th>Име</th>
+              <th>Роли</th>
+              <th>Срок</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.contragents}}
+              <tr>
+                <td><code>{{code}}</code></td>
+                <td>{{name}} <small>{{groupsText}}</small></td>
+                <td>{{rolesText}}</td>
+                <td>{{leadTimeDays}} дни</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="ag-catalog-panel">
+      <header>
+        <h2>Мерни преобразувания</h2>
+        <p>R_ItemUnitOfMeasure / QtyPerUnitOfMeasure за доставка и продажба.</p>
+      </header>
+      <div class="ag-catalog-table-wrap">
+        <table class="ag-catalog-table">
+          <thead>
+            <tr>
+              <th>Артикул</th>
+              <th>Ед.</th>
+              <th>Дост.</th>
+              <th>Коеф.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each catalog.itemUnitConversions}}
+              <tr>
+                <td><code>{{itemCode}}</code></td>
+                <td>{{measureName}}</td>
+                <td>{{purchMeasureName}}</td>
+                <td>{{qtyPerUnitOfMeasure}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="ag-catalog-panel ag-catalog-items-panel">
+    <header>
+      <h2>Foundation артикули</h2>
+      <p>N_Item редове с продуктова група, клас, шаблон, ДДС posting група, доставчик и cross reference кодове.</p>
+    </header>
+    <div class="ag-catalog-table-wrap">
+      <table class="ag-catalog-table ag-catalog-items-table">
+        <thead>
+          <tr>
+            <th>Код</th>
+            <th>Артикул</th>
+            <th>Група / клас</th>
+            <th>Ед.</th>
+            <th>ДДС</th>
+            <th>Контрагент</th>
+            <th>Код при доставчик</th>
+            <th>Вътр.</th>
+            <th>Прод.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each catalog.items}}
+            <tr>
+              <td><code>{{code}}</code></td>
+              <td>
+                <strong>{{name}}</strong>
+                <small>{{barcode}}</small>
+              </td>
+              <td>{{groupName}} <small>{{productClassName}}</small></td>
+              <td>{{unitName}} <small>дост. {{purchaseUnitName}}</small></td>
+              <td>{{vatPercentText}}</td>
+              <td>{{supplierName}}</td>
+              <td>{{supplierCodeText}}</td>
+              <td>{{internalPriceText}}</td>
+              <td>{{retailPriceText}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
