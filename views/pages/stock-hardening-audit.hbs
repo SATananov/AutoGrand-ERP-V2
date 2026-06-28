@@ -1,12 +1,12 @@
-{{!-- AutoGrand ERP V2 — Step 4.7.3 Stock Engine Hardening audit page --}}
-<section class="ag47-stock-hardening-page" data-ag-step="4.7.3">
+{{!-- AutoGrand ERP V2 — Step 4.7.4 Stock Audit Resolution View --}}
+<section class="ag47-stock-hardening-page" data-ag-step="4.7.4">
   <header class="ag47-hero">
     <div>
-      <p class="ag47-eyebrow">Step 4.7 · Stock Engine Hardening</p>
+      <p class="ag47-eyebrow">Step 4.7.4 · Stock Audit Resolution View</p>
       <h1>Складов контрол</h1>
       <p class="ag47-lead">
-        Проверка на складовия журнал по Moneta логика: наличности по обект, отрицателни количества,
-        дублирани движения и еднократен ефект от документните редове.
+        Moneta-подобен изглед за решаване на складови несъответствия: показва кои артикул/обект
+        записи са отрицателни, кои движения изглеждат дублирани и кои последни записи трябва да се прегледат.
       </p>
     </div>
     <div class="ag47-health {{#if step47Audit.ok}}is-ok{{else}}is-warning{{/if}}">
@@ -18,8 +18,8 @@
   <section class="ag47-panel ag47-warning-panel">
     <h2>Диагностика</h2>
     <p>
-      Складовият audit вече се зарежда безопасно. Ако има предупреждения, те показват реални
-      складови несъответствия в журнала, а не грешка на страницата.
+      Това вече не е грешка на страницата. Това са реални складови сигнали от журнала,
+      които трябва да се изчистят чрез обратни записи или блокиране на повторно осчетоводяване.
     </p>
     <ul class="ag47-error-list">
       {{#each step47Audit.errors}}
@@ -36,6 +36,127 @@
     <article class="ag47-card"><span>Дубликати</span><strong>{{step47Audit.summary.duplicateMovementCount}}</strong></article>
   </div>
 
+  <section class="ag47-panel ag474-resolution-panel">
+    <div class="ag474-section-head">
+      <div>
+        <p class="ag47-eyebrow">Resolution</p>
+        <h2>План за корекция</h2>
+      </div>
+      <a class="ag474-api-link" href="/api/stock/hardening/resolution" target="_blank" rel="noreferrer">API Resolution</a>
+    </div>
+    <ol class="ag474-plan">
+      {{#each step47Resolution.resolutionPlan}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ol>
+  </section>
+
+  <section class="ag47-panel ag474-resolution-panel">
+    <div class="ag474-section-head">
+      <div>
+        <p class="ag47-eyebrow">Negative balances</p>
+        <h2>Отрицателни наличности</h2>
+      </div>
+      <strong class="ag474-counter">{{step47Resolution.resolutionSummary.negativeIssueCount}}</strong>
+    </div>
+
+    {{#if step47Resolution.negativeBalanceDetails.length}}
+      <div class="ag474-table-wrap">
+        <table class="ag474-table">
+          <thead>
+            <tr>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th>Наличност</th>
+              <th>Липса</th>
+              <th>Движения</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each step47Resolution.negativeBalanceDetails}}
+              <tr>
+                <td>{{itemId}}</td>
+                <td>{{locationId}}</td>
+                <td class="ag474-danger">{{onHand}}</td>
+                <td>{{shortageQuantity}}</td>
+                <td>{{relatedMovementCount}}</td>
+                <td>{{suggestedAction}}</td>
+              </tr>
+              {{#if relatedMovements.length}}
+              <tr class="ag474-detail-row">
+                <td colspan="6">
+                  <div class="ag474-movement-list">
+                    {{#each relatedMovements}}
+                      <span>ID {{id}} · {{type}} · {{signedQuantity}} · doc {{documentId}} · line {{lineId}} · {{createdAt}}</span>
+                    {{/each}}
+                  </div>
+                </td>
+              </tr>
+              {{/if}}
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="ag474-empty">Няма отрицателни наличности.</p>
+    {{/if}}
+  </section>
+
+  <section class="ag47-panel ag474-resolution-panel">
+    <div class="ag474-section-head">
+      <div>
+        <p class="ag47-eyebrow">Duplicate signatures</p>
+        <h2>Дублирани складови ефекти</h2>
+      </div>
+      <strong class="ag474-counter">{{step47Resolution.resolutionSummary.duplicateIssueCount}}</strong>
+    </div>
+
+    {{#if step47Resolution.duplicateMovementDetails.length}}
+      <div class="ag474-table-wrap">
+        <table class="ag474-table">
+          <thead>
+            <tr>
+              <th>Документ</th>
+              <th>Ред</th>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th>Ефект</th>
+              <th>Брой</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each step47Resolution.duplicateMovementDetails}}
+              <tr>
+                <td>{{documentId}}</td>
+                <td>{{lineId}}</td>
+                <td>{{itemId}}</td>
+                <td>{{locationId}}</td>
+                <td>{{signedQuantity}}</td>
+                <td class="ag474-danger">{{count}}</td>
+                <td>{{suggestedAction}}</td>
+              </tr>
+              {{#if movements.length}}
+              <tr class="ag474-detail-row">
+                <td colspan="7">
+                  <div class="ag474-movement-list">
+                    {{#each movements}}
+                      <span>ID {{id}} · {{type}} · {{signedQuantity}} · {{createdAt}}</span>
+                    {{/each}}
+                  </div>
+                </td>
+              </tr>
+              {{/if}}
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="ag474-empty">Няма дублирани складови ефекти.</p>
+    {{/if}}
+  </section>
+
   <section class="ag47-panel">
     <h2>Moneta правила</h2>
     <ul>
@@ -48,7 +169,7 @@
   </section>
 
   <section class="ag47-panel">
-    <h2>Audit JSON</h2>
-    <pre class="ag47-json">{{step47AuditJson}}</pre>
+    <h2>Resolution JSON</h2>
+    <pre class="ag47-json">{{step47ResolutionJson}}</pre>
   </section>
 </section>

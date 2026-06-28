@@ -1,11 +1,12 @@
-// AutoGrand ERP V2 — Step 4.7 Stock Engine Hardening
-// Marker: AG_STEP_4_7_STOCK_ENGINE_HARDENING_SERVICE
-// Purpose: central, auditable stock ledger guard for posted stock movements.
+// AutoGrand ERP V2 — Step 4.7.4 Stock Audit Resolution View
+// Marker: AG_STEP_4_7_4_STOCK_AUDIT_RESOLUTION_SERVICE
+// Purpose: central stock ledger audit plus operator-friendly resolution details.
 
 let cachedPrisma = null;
 
 const STEP_4_7_STOCK_HEALTH_LABEL = "4-7-stock-engine-hardening";
 const DEFAULT_LIMIT = 50000;
+const DETAIL_LIMIT = 12;
 const EPSILON = 0.000001;
 
 const MODEL_CANDIDATES = [
@@ -42,6 +43,12 @@ function numberValue(value) {
 function safeString(value) {
   if (value === null || value === undefined) return "";
   return String(value);
+}
+
+function safeDateString(value) {
+  if (!value) return "";
+  if (value instanceof Date) return value.toISOString();
+  return safeString(value);
 }
 
 async function tryImportPrisma(path) {
@@ -95,9 +102,7 @@ function findDelegateName(prisma, candidates) {
   for (const candidate of candidates) {
     const lower = normalizeName(candidate);
     const exact = keys.find((key) => normalizeName(key) === lower);
-    if (exact && prisma[exact] && typeof prisma[exact].findMany === "function") {
-      return exact;
-    }
+    if (exact && prisma[exact] && typeof prisma[exact].findMany === "function") return exact;
   }
 
   return keys.find((key) => {
@@ -190,6 +195,79 @@ function sortBalances(a, b) {
   return safeString(a.itemId).localeCompare(safeString(b.itemId));
 }
 
+function normalizeMovement(row, fieldMap) {
+  const signed = signedQuantity(row, fieldMap);
+  return {
+    id: row.id ?? null,
+    itemId: fieldMap.itemId ? row[fieldMap.itemId] : null,
+    locationId: fieldMap.locationId ? row[fieldMap.locationId] : null,
+    quantity: fieldMap.quantity ? numberValue(row[fieldMap.quantity]) : 0,
+    signedQuantity: Number(signed.toFixed(6)),
+    direction: fieldMap.direction ? safeString(row[fieldMap.direction]) : "",
+    type: fieldMap.type ? safeString(row[fieldMap.type]) : "",
+    documentId: fieldMap.documentId ? row[fieldMap.documentId] ?? null : null,
+    lineId: fieldMap.lineId ? row[fieldMap.lineId] ?? null : null,
+    createdAt: fieldMap.createdAt ? safeDateString(row[fieldMap.createdAt]) : "",
+    signature: movementSignature(row, fieldMap)
+  };
+}
+
+function sortMovementsNewestFirst(a, b) {
+  const dateA = a.createdAt ? Date.parse(a.createdAt) : 0;
+  const dateB = b.createdAt ? Date.parse(b.createdAt) : 0;
+  if (dateA !== dateB) return dateB - dateA;
+  return safeString(b.id).localeCompare(safeString(a.id));
+}
+
+function buildResolutionPayload(snapshot, movementsByBalanceKey, duplicateGroups) {
+  const negativeBalanceDetails = snapshot.negativeBalances.map((balance) => {
+    const key = [safeString(balance.itemId), safeString(balance.locationId)].join("|");
+    const relatedMovements = (movementsByBalanceKey.get(key) || [])
+      .slice()
+      .sort(sortMovementsNewestFirst)
+      .slice(0, DETAIL_LIMIT);
+
+    return {
+      ...balance,
+      shortageQuantity: Number(Math.abs(numberValue(balance.onHand)).toFixed(6)),
+      relatedMovementCount: movementsByBalanceKey.get(key)?.length || 0,
+      relatedMovements,
+      suggestedAction: "Прегледай последните OUT/SALE движения за този артикул и обект. Корекцията трябва да е чрез обратен запис, не чрез изтриване."
+    };
+  });
+
+  const duplicateMovementDetails = duplicateGroups
+    .filter((group) => group.movements.length > 1)
+    .map((group) => ({
+      signature: group.signature,
+      count: group.movements.length,
+      documentId: group.movements[0]?.documentId ?? null,
+      lineId: group.movements[0]?.lineId ?? null,
+      itemId: group.movements[0]?.itemId ?? null,
+      locationId: group.movements[0]?.locationId ?? null,
+      signedQuantity: group.movements[0]?.signedQuantity ?? 0,
+      movements: group.movements.slice().sort(sortMovementsNewestFirst).slice(0, DETAIL_LIMIT),
+      suggestedAction: "Провери дали документният ред е публикуван повече от веднъж. Ако е реален дублаж, добави обратен запис или блокирай повторното осчетоводяване."
+    }));
+
+  return {
+    ok: negativeBalanceDetails.length === 0 && duplicateMovementDetails.length === 0,
+    negativeBalanceDetails,
+    duplicateMovementDetails,
+    resolutionSummary: {
+      negativeIssueCount: negativeBalanceDetails.length,
+      duplicateIssueCount: duplicateMovementDetails.length,
+      blockingIssueCount: negativeBalanceDetails.length + duplicateMovementDetails.length
+    },
+    resolutionPlan: [
+      "1. Отвори отрицателните наличности и виж последните движения за същия артикул/обект.",
+      "2. Ако има дублаж, провери documentId + lineId подписа преди ново публикуване.",
+      "3. Не трий складов журнал. Корекцията се прави с обратен запис.",
+      "4. След корекция пусни audit отново и продължи само при чист резултат."
+    ]
+  };
+}
+
 export async function resolveStockMovementContract(prismaArg = null) {
   const prisma = prismaArg || await getPrismaClient();
   const delegateName = findDelegateName(prisma, MODEL_CANDIDATES);
@@ -229,14 +307,15 @@ export async function buildStockSnapshot(options = {}) {
   if (!contract.ok) {
     return {
       ok: false,
-      step: "4.7",
+      step: "4.7.4",
       healthLabel: STEP_4_7_STOCK_HEALTH_LABEL,
       errors: contract.errors,
       contract: { delegateName: contract.delegateName, fieldMap: contract.fieldMap },
       summary: { movementCount: 0, balanceCount: 0, negativeBalanceCount: 0, duplicateMovementCount: 0 },
       balances: [],
       negativeBalances: [],
-      duplicateMovements: []
+      duplicateMovements: [],
+      movementDetails: []
     };
   }
 
@@ -244,11 +323,20 @@ export async function buildStockSnapshot(options = {}) {
   const rows = await contract.prisma[contract.delegateName].findMany({ take: limit });
   const balancesByKey = new Map();
   const seenSignatures = new Map();
-  const duplicates = [];
+  const duplicateRows = [];
+  const movementsByBalanceKey = new Map();
+  const duplicateGroupsBySignature = new Map();
+  const movementDetails = [];
 
   for (const row of rows) {
     const key = balanceKey(row, contract.fieldMap);
-    const signed = signedQuantity(row, contract.fieldMap);
+    const movement = normalizeMovement(row, contract.fieldMap);
+    movementDetails.push(movement);
+
+    const related = movementsByBalanceKey.get(key) || [];
+    related.push(movement);
+    movementsByBalanceKey.set(key, related);
+
     const current = balancesByKey.get(key) || {
       itemId: contract.fieldMap.itemId ? row[contract.fieldMap.itemId] : null,
       locationId: contract.fieldMap.locationId ? row[contract.fieldMap.locationId] : null,
@@ -256,35 +344,42 @@ export async function buildStockSnapshot(options = {}) {
       movementCount: 0
     };
 
-    current.onHand += signed;
+    current.onHand += movement.signedQuantity;
     current.movementCount += 1;
     balancesByKey.set(key, current);
 
-    const signature = movementSignature(row, contract.fieldMap);
-    const existing = seenSignatures.get(signature);
-    if (existing) duplicates.push({ signature, firstId: existing.id || null, duplicateId: row.id || null });
-    else seenSignatures.set(signature, row);
+    const existing = seenSignatures.get(movement.signature);
+    if (existing) duplicateRows.push({ signature: movement.signature, firstId: existing.id || null, duplicateId: movement.id || null });
+    else seenSignatures.set(movement.signature, movement);
+
+    const duplicateGroup = duplicateGroupsBySignature.get(movement.signature) || { signature: movement.signature, movements: [] };
+    duplicateGroup.movements.push(movement);
+    duplicateGroupsBySignature.set(movement.signature, duplicateGroup);
   }
 
   const balances = Array.from(balancesByKey.values())
     .map((item) => ({ ...item, onHand: Number(item.onHand.toFixed(6)) }))
     .sort(sortBalances);
   const negativeBalances = balances.filter((item) => item.onHand < -EPSILON);
-  const ok = negativeBalances.length === 0 && duplicates.length === 0;
+  const duplicateGroups = Array.from(duplicateGroupsBySignature.values()).filter((group) => group.movements.length > 1);
+  const resolution = buildResolutionPayload({ negativeBalances }, movementsByBalanceKey, duplicateGroups);
+  const ok = negativeBalances.length === 0 && duplicateRows.length === 0;
 
   return {
     ok,
-    step: "4.7",
+    step: "4.7.4",
     healthLabel: STEP_4_7_STOCK_HEALTH_LABEL,
     errors: ok ? [] : [
       ...(negativeBalances.length ? [`Negative stock balances detected: ${negativeBalances.length}`] : []),
-      ...(duplicates.length ? [`Potential duplicate stock movement signatures detected: ${duplicates.length}`] : [])
+      ...(duplicateRows.length ? [`Potential duplicate stock movement signatures detected: ${duplicateRows.length}`] : [])
     ],
     contract: { delegateName: contract.delegateName, modelName: contract.modelName, fields: contract.fields, fieldMap: contract.fieldMap },
-    summary: { movementCount: rows.length, balanceCount: balances.length, negativeBalanceCount: negativeBalances.length, duplicateMovementCount: duplicates.length, limit },
+    summary: { movementCount: rows.length, balanceCount: balances.length, negativeBalanceCount: negativeBalances.length, duplicateMovementCount: duplicateRows.length, limit },
     balances,
     negativeBalances,
-    duplicateMovements: duplicates
+    duplicateMovements: duplicateRows,
+    movementDetails: movementDetails.slice(0, DETAIL_LIMIT),
+    ...resolution
   };
 }
 
@@ -338,13 +433,30 @@ export async function getStockEngineAudit(options = {}) {
   };
 }
 
+export async function getStockAuditResolution(options = {}) {
+  const audit = await getStockEngineAudit(options);
+  return {
+    ok: audit.ok,
+    step: "4.7.4",
+    healthLabel: audit.healthLabel,
+    summary: audit.summary,
+    negativeBalanceDetails: audit.negativeBalanceDetails || [],
+    duplicateMovementDetails: audit.duplicateMovementDetails || [],
+    resolutionSummary: audit.resolutionSummary || { negativeIssueCount: 0, duplicateIssueCount: 0, blockingIssueCount: 0 },
+    resolutionPlan: audit.resolutionPlan || [],
+    contract: audit.contract,
+    errors: audit.errors || []
+  };
+}
+
 export const stockEngineHardeningService = {
-  step: "4.7",
+  step: "4.7.4",
   healthLabel: STEP_4_7_STOCK_HEALTH_LABEL,
   resolveStockMovementContract,
   buildStockSnapshot,
   assertStockAvailability,
-  getStockEngineAudit
+  getStockEngineAudit,
+  getStockAuditResolution
 };
 
 export default stockEngineHardeningService;

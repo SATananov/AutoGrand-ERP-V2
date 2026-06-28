@@ -7624,3 +7624,23 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 @media (max-width: 860px) { .ag47-hero { align-items: flex-start; flex-direction: column; } .ag47-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); } }
 @media (max-width: 520px) { .ag47-grid { grid-template-columns: 1fr; } }
 /* AutoGrand ERP V2 Step 4.7 Stock Engine Hardening END */
+
+/* AutoGrand ERP V2 Step 4.7.4 Stock Audit Resolution View START */
+.ag474-section-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+.ag474-section-head h2 { margin: 0; }
+.ag474-api-link { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 8px 14px; border-radius: 999px; background: #a86d16; color: #fff; font-weight: 800; text-decoration: none; box-shadow: 0 8px 18px rgba(90, 53, 8, 0.14); }
+.ag474-counter { display: inline-flex; min-width: 38px; min-height: 38px; align-items: center; justify-content: center; border-radius: 999px; background: #17361d; color: #fff; font-size: 18px; }
+.ag474-plan { margin: 0; padding-left: 22px; color: #344632; }
+.ag474-plan li { margin: 7px 0; }
+.ag474-table-wrap { overflow: auto; border: 1px solid rgba(60, 95, 57, 0.16); border-radius: 14px; background: rgba(255, 255, 255, 0.66); }
+.ag474-table { width: 100%; border-collapse: collapse; min-width: 880px; }
+.ag474-table th, .ag474-table td { padding: 10px 12px; border-bottom: 1px solid rgba(60, 95, 57, 0.13); text-align: left; vertical-align: top; color: #283c2a; }
+.ag474-table th { position: sticky; top: 0; background: #edf5e5; color: #274f2b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.ag474-table tbody tr:hover td { background: rgba(233, 244, 221, 0.52); }
+.ag474-danger { color: #9b2b18 !important; font-weight: 900; }
+.ag474-detail-row td { background: rgba(246, 250, 239, 0.78); }
+.ag474-movement-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.ag474-movement-list span { display: inline-flex; border: 1px solid rgba(60, 95, 57, 0.18); border-radius: 999px; padding: 5px 9px; background: #f7fbf1; color: #3a5139; font-size: 12px; }
+.ag474-empty { margin: 0; color: #496247; font-weight: 700; }
+@media (max-width: 760px) { .ag474-section-head { align-items: flex-start; flex-direction: column; } .ag474-api-link { width: 100%; } }
+/* AutoGrand ERP V2 Step 4.7.4 Stock Audit Resolution View END */

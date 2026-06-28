@@ -1,5 +1,20 @@
 import fs from 'fs';
 import path from 'path';
+// Step 4.7.4.1 repair: Step 4.6 checks need printEngineData to be defined.
+// Keep this self-contained so the check script remains stable in Node ESM.
+const __agStep4741Fs = await import('node:fs');
+const __agStep4741Path = await import('node:path');
+const __agStep4741ReadText = (relativePath) => {
+  const fullPath = __agStep4741Path.join(process.cwd(), ...relativePath.split('/'));
+  return __agStep4741Fs.existsSync(fullPath) ? __agStep4741Fs.readFileSync(fullPath, 'utf8') : '';
+};
+const printEngineData = [
+  __agStep4741ReadText('src/data/autogrand-print-engine-foundation.js'),
+  __agStep4741ReadText('src/data/autogrand-print-engine-data.js'),
+  __agStep4741ReadText('src/services/print-engine-service.js'),
+  __agStep4741ReadText('public/js/ag-print-engine.js'),
+  __agStep4741ReadText('views/pages/print-engine.hbs')
+].join('\n');
 
 const required = [
   'src/server.js',
