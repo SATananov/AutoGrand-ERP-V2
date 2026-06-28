@@ -36,12 +36,14 @@
     </article>
 
     <article class="stock-panel">
-      <div class="panel-caption"><strong>Роли</strong><span>ERP поведение</span></div>
+      <div class="panel-caption"><strong>Роли</strong><span>ERP поведение по обект</span></div>
       <div class="location-role-list">
         <span class="role-pill {{#if location.location.canHoldStock}}enabled{{/if}}">Държи наличност: {{location.location.canHoldStockText}}</span>
         <span class="role-pill {{#if location.location.canSell}}enabled{{/if}}">Продажби: {{location.location.canSellText}}</span>
         <span class="role-pill {{#if location.location.canReceivePurchases}}enabled{{/if}}">Доставки: {{location.location.canReceivePurchasesText}}</span>
-        <span class="role-pill {{#if location.location.canTransfer}}enabled{{/if}}">Трансфер: {{location.location.canTransferText}}</span>
+        <span class="role-pill {{#if location.location.canRequestTransfer}}enabled{{/if}}">Заявява трансфер: {{location.location.canRequestTransferText}}</span>
+        <span class="role-pill {{#if location.location.canDispatchTransfer}}enabled{{/if}}">Изпраща трансфер: {{location.location.canDispatchTransferText}}</span>
+        <span class="role-pill {{#if location.location.canReceiveTransfer}}enabled{{/if}}">Приема трансфер: {{location.location.canReceiveTransferText}}</span>
       </div>
     </article>
   </section>

@@ -1,4 +1,5 @@
 import prisma from '../db/prisma.js';
+import { DEFAULT_LOCATION_CODE, locationTransferCapabilities } from '../data/autogrand-foundation.js';
 
 export function locationTypeText(type = '') {
   const map = {
@@ -18,6 +19,10 @@ function yesNo(value) {
   return value ? 'Да' : 'Не';
 }
 
+function enabledDisabled(value) {
+  return value ? 'Разрешено' : 'Не';
+}
+
 function contactLine(location) {
   const parts = [];
   if (location.city) parts.push(location.city);
@@ -27,6 +32,7 @@ function contactLine(location) {
 
 function locationRow(location) {
   const warehouse = location.warehouses?.[0] || null;
+  const transfer = locationTransferCapabilities(location);
   return {
     id: location.id,
     code: location.code,
@@ -43,12 +49,18 @@ function locationRow(location) {
     canSell: location.canSell,
     canReceivePurchases: location.canReceivePurchases,
     canTransfer: location.canTransfer,
+    canRequestTransfer: transfer.canRequestTransfer,
+    canDispatchTransfer: transfer.canDispatchTransfer,
+    canReceiveTransfer: transfer.canReceiveTransfer,
     canHoldStockText: yesNo(location.canHoldStock),
     canSellText: yesNo(location.canSell),
     canReceivePurchasesText: yesNo(location.canReceivePurchases),
     canTransferText: yesNo(location.canTransfer),
+    canRequestTransferText: enabledDisabled(transfer.canRequestTransfer),
+    canDispatchTransferText: enabledDisabled(transfer.canDispatchTransfer),
+    canReceiveTransferText: enabledDisabled(transfer.canReceiveTransfer),
     isDefault: location.isDefault,
-    isCurrent: location.isCurrent,
+    isCurrent: location.isCurrent || location.code === DEFAULT_LOCATION_CODE,
     isActive: location.isActive,
     statusText: location.isActive ? 'Активен' : 'Спрян',
     warehouseId: warehouse?.id || null,
@@ -89,16 +101,18 @@ export async function getCompanyLocationsData() {
   const rows = locationsRaw.map(locationRow);
   const stockLocations = rows.filter((row) => row.canHoldStock);
   const salesLocations = rows.filter((row) => row.canSell);
-  const currentLocation = rows.find((row) => row.isCurrent) || rows.find((row) => row.isDefault) || null;
+  const currentLocation = rows.find((row) => row.code === DEFAULT_LOCATION_CODE) || rows.find((row) => row.isCurrent) || rows.find((row) => row.isDefault) || null;
+  const transferLocations = rows.filter((row) => row.canTransfer);
 
   return {
     rows,
     groups: groupLocations(rows),
     currentLocation,
     cards: [
-      { title: 'Всички обекти', value: rows.length, subtitle: 'офис, централен склад, регионални складове и магазини' },
+      { title: 'Всички обекти', value: rows.length, subtitle: '17 реални AutoGrand обекта от foundation базата' },
       { title: 'Складови обекти', value: stockLocations.length, subtitle: 'всички без централния офис' },
-      { title: 'Обекти с продажби', value: salesLocations.length, subtitle: 'регионални складове и търговски обекти' },
+      { title: 'Обекти с продажби', value: salesLocations.length, subtitle: 'всички без офис и централен склад' },
+      { title: 'Трансферни обекти', value: transferLocations.length, subtitle: 'всички без централния офис' },
       { title: 'Активен обект', value: currentLocation?.city || '—', subtitle: currentLocation?.name || 'не е избран' }
     ]
   };

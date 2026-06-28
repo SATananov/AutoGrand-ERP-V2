@@ -267,3 +267,19 @@ docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md
 ```
 
 Няма промяна в Prisma схемата и не е нужно `npm run db:generate`.
+
+## Step 4.1 — Company + Real AutoGrand Locations Foundation
+
+Добавена е реална foundation база за фирмата и обектите на AutoGrand:
+
+- `Автогранд ООД` като основна фирма;
+- 17 реални обекта от потвърдения списък;
+- отделни логически обекти за `AG-STZ-CENTRAL` и `AG-STZ-WH`;
+- default тестов обект `AG-KJ-SHOP` / Кърджали;
+- централизирани правила в `src/data/autogrand-foundation.js`.
+
+За да презаредиш локалната SQLite демо база след patch-а:
+
+```powershell
+npm run db:seed
+```

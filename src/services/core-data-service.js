@@ -140,6 +140,7 @@ export const screenDefinitions = {
       { key: 'city', label: 'Град' },
       { key: 'canHoldStockText', label: 'Наличност' },
       { key: 'canSellText', label: 'Продажби' },
+      { key: 'canTransferText', label: 'Трансфери' },
       { key: 'statusText', label: 'Статус' }
     ]
   },
@@ -647,6 +648,9 @@ export async function getScreenData(screenId) {
         canSellText: row.canSell ? 'Да' : 'Не',
         canReceivePurchasesText: row.canReceivePurchases ? 'Да' : 'Не',
         canTransferText: row.canTransfer ? 'Да' : 'Не',
+        canRequestTransferText: row.canTransfer ? 'Разрешено' : 'Не',
+        canDispatchTransferText: row.canTransfer ? 'Разрешено' : 'Не',
+        canReceiveTransferText: row.canTransfer ? 'Разрешено' : 'Не',
         statusText: row.isActive ? 'Активен' : 'Спрян',
         rowOpenUrl: `/locations/${row.id}`
       }));

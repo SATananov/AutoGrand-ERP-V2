@@ -85,8 +85,8 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.3.7',
-    companyName: 'КЪРДЖАЛИ - Автогранд ООД',
+    appVersion: 'v0.4.1',
+    companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
     statusDate: todayText(),
@@ -882,7 +882,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '4-0-master-blueprint-moneta-reference-audit'
+    step: '4-1-company-real-locations-foundation'
   });
 });
 

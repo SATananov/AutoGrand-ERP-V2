@@ -1,4 +1,5 @@
 import prisma from '../src/db/prisma.js';
+import { AUTOGRAND_COMPANY, AUTOGRAND_LOCATIONS } from '../src/data/autogrand-foundation.js';
 
 async function reset() {
   await prisma.serviceOrderLine.deleteMany();
@@ -29,12 +30,7 @@ async function main() {
   await reset();
 
   const company = await prisma.company.create({
-    data: {
-      code: 'AG-KJ',
-      name: 'КЪРДЖАЛИ - Автогранд ООД',
-      city: 'Кърджали',
-      address: 'AutoGrand ERP V2 локална база'
-    }
+    data: AUTOGRAND_COMPANY
   });
 
   await prisma.user.create({
@@ -64,25 +60,7 @@ async function main() {
     })
   ]);
 
-  const locationSeed = [
-    { code: 'AG-SOF-OFFICE', name: 'Централен офис', type: 'OFFICE', city: 'София', address: 'бул. Черни връх 157', phone: '+359 2 962 2995', email: 'office@autogrand.bg', canHoldStock: false, canSell: false, canReceivePurchases: false, canTransfer: false, sortOrder: 10 },
-    { code: 'AG-STZ-CENTRAL', name: 'Централен склад', type: 'CENTRAL_WAREHOUSE', city: 'Стара Загора', address: 'ул. Новозагорско шосе 35001, срещу РАЗСАДНИК РАЗЦВЕТ', phone: '0882 442 069', email: 'stz_sklad@autogrand.bg', canHoldStock: true, canSell: false, canReceivePurchases: true, canTransfer: true, sortOrder: 20 },
-    { code: 'AG-SOF-ROJEN', name: 'Регионален склад София Рожен', type: 'REGIONAL_WAREHOUSE', city: 'София', address: 'бул. Рожен 22, НПЗ Военна рампа', phone: '02 936 04 04; 02 488 62 99; 02 426 71 44; 0884 00 03 60; 0878 40 13 62; 0878 40 13 61', email: 'sofia_rojen@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 30 },
-    { code: 'AG-BLG-WH', name: 'Регионален склад Благоевград', type: 'REGIONAL_WAREHOUSE', city: 'Благоевград', address: 'бул. Васил Левски 38', phone: '073 88 23 01; 0884 61 74 47', email: 'blagoevgrad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 40 },
-    { code: 'AG-PDV-WH', name: 'Регионален склад Пловдив', type: 'REGIONAL_WAREHOUSE', city: 'Пловдив', address: 'бул. Асеновградско шосе 2', phone: '0887 90 21 17; 0882 82 90 16', email: 'plovdiv@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 50 },
-    { code: 'AG-PDV-NORTH', name: 'Регионален склад Пловдив Север', type: 'REGIONAL_WAREHOUSE', city: 'Пловдив', address: 'ул. Васил Левски 177', phone: '0882 126 212; 0882 660 051', email: 'plovdiv_sever@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 60 },
-    { code: 'AG-STZ-WH', name: 'Регионален склад Стара Загора', type: 'REGIONAL_WAREHOUSE', city: 'Стара Загора', address: 'ул. Новозагорско шосе 35001, срещу РАЗСАДНИК РАЗЦВЕТ', phone: '042 64 64 60; 0888 56 27 89', email: 'st.zagora@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 70 },
-    { code: 'AG-HSK-WH', name: 'Регионален склад Хасково', type: 'REGIONAL_WAREHOUSE', city: 'Хасково', address: 'бул. Илинден 6', phone: '038 66 41 28; 0882 75 81 00; 0888 26 91 98', email: 'haskovo_sklad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 80 },
-    { code: 'AG-BGS-WH', name: 'Регионален склад Бургас', type: 'REGIONAL_WAREHOUSE', city: 'Бургас', address: 'ул. Индустриална 51', phone: '056 84 02 44; 0882 424 908; 0884 422 131; 0879 140 091; 0879 140 092', email: 'burgas@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 90 },
-    { code: 'AG-YAM-SHOP', name: 'Търговски обект Ямбол', type: 'SHOP', city: 'Ямбол', address: 'ул. Ормана 68', phone: '0887 79 20 33', email: 'yambol@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 110 },
-    { code: 'AG-HRM-SHOP', name: 'Търговски обект Харманли', type: 'SHOP', city: 'Харманли', address: 'Главен път E80 Паркинг КВЕЛЕ', phone: '0888 26 91 99', email: 'harmanli@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 120 },
-    { code: 'AG-SLV-SHOP', name: 'Търговски обект Сливен', type: 'SHOP', city: 'Сливен', address: 'бул. Цар Симеон 43', phone: '044 62 31 39; 0885 33 58 71', email: 'sliven@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 130 },
-    { code: 'AG-SAN-SHOP', name: 'Търговски обект Сандански', type: 'SHOP', city: 'Сандански', address: 'ул. Стефан Стамболов 49', phone: '0892 21 26 83; 0878 28 26 17; 0887 58 59 98', email: 'sandanski@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 140 },
-    { code: 'AG-PET-SHOP', name: 'Търговски обект Петрич', type: 'SHOP', city: 'Петрич', address: 'ул. Места 18 Б', phone: '0884 45 03 23; 0889 49 98 30', email: 'petrich@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 150 },
-    { code: 'AG-KJ-SHOP', name: 'Търговски обект Кърджали', type: 'SHOP', city: 'Кърджали', address: 'бул. България 99', phone: '0887 79 20 28', email: 'kardjali@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, isDefault: true, isCurrent: true, sortOrder: 160 },
-    { code: 'AG-KZK-SHOP', name: 'Търговски обект Казанлък', type: 'SHOP', city: 'Казанлък', address: 'бул. Александър Батенберг 12', phone: '0889 28 66 08', email: 'kazanlak@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 170 },
-    { code: 'AG-DGR-SHOP', name: 'Търговски обект Димитровград', type: 'SHOP', city: 'Димитровград', address: 'бул. Стефан Стамболов 65', phone: '0391 6 38 08; 0887 20 75 95', email: 'dimitrovgrad@autogrand.bg', canHoldStock: true, canSell: true, canReceivePurchases: true, canTransfer: true, sortOrder: 180 }
-  ];
+  const locationSeed = AUTOGRAND_LOCATIONS;
 
   const locations = [];
   for (const location of locationSeed) {

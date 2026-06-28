@@ -32,7 +32,10 @@ const required = [
   'docs/blueprints/MONETA_REFERENCE_AUDIT_BG.md',
   'docs/blueprints/CORE_FOUNDATION_DATA_PLAN_BG.md',
   'docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md',
-  'docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md'
+  'docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md',
+  'src/data/autogrand-foundation.js',
+  'docs/steps/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_BG.md',
+  'docs/checkpoints/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -64,6 +67,9 @@ const monetaAudit = fs.readFileSync(path.resolve('docs/blueprints/MONETA_REFEREN
 const foundationPlan = fs.readFileSync(path.resolve('docs/blueprints/CORE_FOUNDATION_DATA_PLAN_BG.md'), 'utf8');
 const implementationSequence = fs.readFileSync(path.resolve('docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md'), 'utf8');
 const step40Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md'), 'utf8');
+const autograndFoundation = fs.readFileSync(path.resolve('src/data/autogrand-foundation.js'), 'utf8');
+const step41Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_BG.md'), 'utf8');
+const step41Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_CLEAN_EXPORT_BG.md'), 'utf8');
 
 const adjustmentCard = fs.readFileSync(path.resolve('views/pages/stock-adjustment-card.hbs'), 'utf8');
 const priceListWorkbench = fs.readFileSync(path.resolve('views/pages/price-list-workbench.hbs'), 'utf8');
@@ -80,7 +86,13 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '4-0-master-blueprint-moneta-reference-audit'"), 'Step 4.0 health label'],
+  [server.includes("step: '4-1-company-real-locations-foundation'"), 'Step 4.1 health label'],
+  [autograndFoundation.includes('AUTOGRAND_COMPANY') && autograndFoundation.includes('Автогранд ООД') && autograndFoundation.includes('DEFAULT_LOCATION_CODE') && autograndFoundation.includes('AG-KJ-SHOP'), 'Step 4.1 AutoGrand company and default location foundation'],
+  [autograndFoundation.includes('AG-STZ-CENTRAL') && autograndFoundation.includes('AG-STZ-WH') && autograndFoundation.includes('Централен склад') && autograndFoundation.includes('Регионален склад Стара Загора'), 'Step 4.1 Stara Zagora separate central/regional objects'],
+  [autograndFoundation.includes("canSell: false") && autograndFoundation.includes("canTransfer: false") && autograndFoundation.includes("canTransfer: true"), 'Step 4.1 location role rules'],
+  [seedText.includes('AUTOGRAND_LOCATIONS') && seedText.includes('AUTOGRAND_COMPANY'), 'Step 4.1 seed uses centralized foundation data'],
+  [companyLocations.includes('canRequestTransferText') && companyLocations.includes('canDispatchTransferText') && companyLocations.includes('canReceiveTransferText'), 'Step 4.1 transfer capability labels'],
+  [step41Doc.includes('Фирма → Обект → Потребител → Парола') && step41Checkpoint.includes('0.4.1'), 'Step 4.1 docs and checkpoint'],
   [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
   [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
   [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
@@ -108,7 +120,7 @@ const checks = [
   [server.includes("/stock/transfer/new"), 'stock transfer route'],
   [server.includes("/stock/transfer/:documentId"), 'stock transfer card route'],
   [appJs.includes('rowOpenUrl'), 'generic row open url'],
-  [seedText.includes("type: 'REGIONAL_WAREHOUSE'") && seedText.includes("canSell: true"), 'regional warehouses can sell'],
+  [autograndFoundation.includes("type: 'REGIONAL_WAREHOUSE'") && autograndFoundation.includes("canSell: true"), 'regional warehouses can sell'],
   [seedText.includes('stockTransferDocument.create'), 'stock transfer document seed'],
   [seedText.includes('stockAdjustmentDocument.create'), 'stock adjustment document seed'],
   [server.includes("app.get('/price-list'") && server.includes("/api/items/:itemId/image"), 'price list workbench routes'],
@@ -138,4 +150,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.0 AutoGrand ERP Master Blueprint + Moneta Reference Audit patch check passed.');
+console.log('OK: Step 4.1 Company + Real AutoGrand Locations Foundation patch check passed.');
