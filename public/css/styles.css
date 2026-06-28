@@ -560,7 +560,18 @@ textarea {
     font-size: 16px;
   }
 
-  .titlebar-user strong {
+  .titlebar-context {
+    min-width: 150px;
+    max-width: 190px;
+  }
+
+  .titlebar-context strong,
+  .titlebar-context .titlebar-role,
+  .titlebar-context .titlebar-location-name {
+    max-width: 190px;
+  }
+
+  .titlebar-context .titlebar-location-name {
     display: none;
   }
 
@@ -2824,8 +2835,14 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   color: #273d29;
 }
 
+
 .statusbar-user .statusbar-text {
-  font-weight: 700;
+  max-width: 280px;
+  overflow: hidden;
+  color: #283d2a;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 
 .statusbar-date .statusbar-text {
@@ -6341,3 +6358,321 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
     min-height: 56px;
   }
 }
+
+/* Step 4.3 — Login Context like Moneta */
+.ag-login-body {
+  min-height: 100vh;
+  margin: 0;
+  color: #dff3e8;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(33, 150, 83, 0.28), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgba(10, 78, 48, 0.55), transparent 38%),
+    linear-gradient(135deg, #061b13 0%, #0c2a1f 48%, #082017 100%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.ag-login-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(360px, 480px);
+  gap: 34px;
+  align-items: center;
+  width: min(1160px, calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+.ag-login-brand-panel,
+.ag-login-card {
+  border: 1px solid rgba(150, 220, 180, 0.2);
+  border-radius: 24px;
+  background: rgba(6, 31, 21, 0.78);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+}
+
+.ag-login-brand-panel {
+  padding: 42px;
+}
+
+.ag-login-logo-wrap {
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 18px 40px rgba(0,0,0,0.24);
+}
+
+.ag-login-logo {
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+}
+
+.ag-login-kicker {
+  margin: 28px 0 10px;
+  color: #a3d9bb;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ag-login-brand-panel h1 {
+  margin: 0;
+  max-width: 620px;
+  color: #f3fff8;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.03;
+}
+
+.ag-login-lead {
+  max-width: 680px;
+  margin: 18px 0 0;
+  color: rgba(222, 248, 234, 0.82);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.ag-login-context-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.ag-login-context-cards span {
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: #103622;
+  background: #b9f2d1;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.ag-login-version {
+  margin: 36px 0 0;
+  color: rgba(218, 240, 226, 0.6);
+  font-size: 13px;
+}
+
+.ag-login-card {
+  padding: 28px;
+}
+
+.ag-login-card-head h2 {
+  margin: 0 0 8px;
+  color: #f5fff9;
+  font-size: 27px;
+}
+
+.ag-login-card-head p {
+  margin: 0 0 20px;
+  color: rgba(228, 247, 236, 0.72);
+  line-height: 1.42;
+}
+
+.ag-login-error {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 150, 120, 0.45);
+  border-radius: 14px;
+  color: #ffe8df;
+  background: rgba(120, 33, 16, 0.54);
+  font-weight: 700;
+}
+
+.ag-login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.ag-login-field {
+  display: grid;
+  gap: 7px;
+}
+
+.ag-login-field span,
+.ag-login-connection span {
+  color: #aedcc1;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ag-login-field select,
+.ag-login-field input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 42px;
+  border: 1px solid rgba(174, 220, 193, 0.28);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: #f2fff7;
+  background: rgba(4, 19, 13, 0.74);
+  outline: none;
+}
+
+.ag-login-field select:focus,
+.ag-login-field input:focus {
+  border-color: #9df0bd;
+  box-shadow: 0 0 0 3px rgba(55, 180, 99, 0.2);
+}
+
+.ag-login-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ag-login-connection {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(174, 220, 193, 0.28);
+  border-radius: 12px;
+  background: rgba(8, 39, 25, 0.5);
+}
+
+.ag-login-connection strong {
+  color: #f2fff7;
+  font-size: 14px;
+}
+
+.ag-login-connection small {
+  color: rgba(228, 247, 236, 0.62);
+}
+
+.ag-login-hint {
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: #dff6e8;
+  background: rgba(185, 242, 209, 0.1);
+  border: 1px solid rgba(185, 242, 209, 0.16);
+  font-size: 13px;
+}
+
+.ag-login-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.ag-login-submit {
+  min-width: 160px;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 22px;
+  color: #062015;
+  background: linear-gradient(180deg, #bdf5d4, #77d99b);
+  box-shadow: 0 14px 28px rgba(80, 210, 125, 0.22);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.titlebar-context {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+  margin-right: 4px;
+  line-height: 1.05;
+}
+
+.titlebar-context strong {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titlebar-context span,
+.titlebar-context em {
+  max-width: 220px;
+  overflow: hidden;
+  color: rgba(234, 250, 240, 0.74);
+  font-size: 11px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+@media (max-width: 860px) {
+  .ag-login-shell {
+    grid-template-columns: 1fr;
+    width: min(620px, calc(100vw - 28px));
+  }
+
+  .ag-login-brand-panel {
+    padding: 28px;
+  }
+
+  .ag-login-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Step 4.3.1 — Login Context Role Visibility Polish */
+.titlebar-context {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  min-width: 210px;
+  max-width: 300px;
+  margin-right: 6px;
+  line-height: 1.08;
+  text-align: right;
+}
+
+.titlebar-context strong {
+  max-width: 300px;
+  overflow: hidden;
+  color: #334334;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.titlebar-context .titlebar-role {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 300px;
+  overflow: hidden;
+  color: #24482a;
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titlebar-context .titlebar-role::before {
+  content: "Роля: ";
+  color: #6b7d68;
+  font-weight: 800;
+}
+
+.titlebar-context .titlebar-location-name {
+  max-width: 300px;
+  overflow: hidden;
+  color: #6c7668;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erp-statusbar .statusbar-user { min-width: 240px; }

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}}</title>
+    <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
+    <link rel="stylesheet" href="/public/css/styles.css?v=4.3-login-context" />
+  </head>
+  <body class="ag-login-body">
+    <main class="ag-login-shell" aria-label="AutoGrand ERP вход">
+      <section class="ag-login-brand-panel">
+        <div class="ag-login-logo-wrap">
+          <img class="ag-login-logo" src="/public/assets/brand/autogrand-road-icon.png" alt="AutoGrand" />
+        </div>
+        <p class="ag-login-kicker">AutoGrand ERP</p>
+        <h1>Работен вход по фирма, обект и потребител</h1>
+        <p class="ag-login-lead">
+          Избери текущия обект преди вход. Всички продажби, трансфери, наличности,
+          печатни форми и права ще работят спрямо този контекст.
+        </p>
+        <div class="ag-login-context-cards">
+          <span>Фирма</span>
+          <span>Обект</span>
+          <span>Потребител</span>
+          <span>Права</span>
+        </div>
+        <p class="ag-login-version">{{appVersion}} · работна версия</p>
+      </section>
+
+      <section class="ag-login-card">
+        <div class="ag-login-card-head">
+          <h2>Вход в системата</h2>
+          <p>Стил като ERP входа в Moneta, но изчистен за AutoGrand.</p>
+        </div>
+
+        {{#if errorMessage}}
+          <div class="ag-login-error" role="alert">{{errorMessage}}</div>
+        {{/if}}
+
+        <form class="ag-login-form" method="post" action="/login" data-ag-login-form>
+          <input type="hidden" name="returnTo" value="{{returnTo}}" />
+
+          <label class="ag-login-field">
+            <span>Фирма</span>
+            <select name="companyId" data-ag-login-company required>
+              {{#each login.companies}}
+                <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+              {{/each}}
+            </select>
+          </label>
+
+          <label class="ag-login-field">
+            <span>Обект</span>
+            <select name="locationId" data-ag-login-location required>
+              {{#each login.locations}}
+                <option value="{{id}}" data-code="{{code}}" {{#if selected}}selected{{/if}}>{{name}}{{#if city}} · {{city}}{{/if}}</option>
+              {{/each}}
+            </select>
+          </label>
+
+          <label class="ag-login-field">
+            <span>Потребител</span>
+            <select name="username" data-ag-login-user required>
+              {{#each login.users}}
+                <option
+                  value="{{username}}"
+                  data-location-ids="{{locationIds}}"
+                  data-default-location-id="{{defaultLocationId}}"
+                  data-role-name="{{roleName}}"
+                  {{#if selected}}selected{{/if}}
+                >{{fullLabel}}</option>
+              {{/each}}
+            </select>
+          </label>
+
+          <label class="ag-login-field">
+            <span>Парола</span>
+            <input name="password" type="password" autocomplete="current-password" placeholder="Работна парола" required autofocus />
+          </label>
+
+          <div class="ag-login-row">
+            <label class="ag-login-field ag-login-language">
+              <span>Език</span>
+              <select name="language" data-ag-login-language>
+                <option value="bg" {{#if login.languageBgSelected}}selected{{/if}}>Български</option>
+                <option value="en" {{#if login.languageEnSelected}}selected{{/if}}>English</option>
+              </select>
+            </label>
+
+            <div class="ag-login-connection">
+              <span>Връзка</span>
+              <strong>Local SQLite</strong>
+              <small>настройва се по-късно</small>
+            </div>
+          </div>
+
+          <div class="ag-login-hint">
+            В работната версия временната парола за всички seed потребители е <strong>{{login.devPasswordHint}}</strong>.
+          </div>
+
+          <div class="ag-login-actions">
+            <button class="ag-login-submit" type="submit">Вход</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const form = document.querySelector('[data-ag-login-form]');
+        if (!form) return;
+
+        const locationSelect = form.querySelector('[data-ag-login-location]');
+        const userSelect = form.querySelector('[data-ag-login-user]');
+        const allUserOptions = Array.from(userSelect.options).map((option) => ({
+          value: option.value,
+          text: option.textContent,
+          locationIds: String(option.dataset.locationIds || '').split(',').map((id) => id.trim()).filter(Boolean),
+          defaultLocationId: option.dataset.defaultLocationId || '',
+          roleName: option.dataset.roleName || '',
+          selected: option.selected
+        }));
+
+        function renderUsersForLocation() {
+          const selectedLocationId = String(locationSelect.value || '');
+          const previous = userSelect.value;
+          userSelect.innerHTML = '';
+
+          const available = allUserOptions.filter((user) => user.locationIds.includes(selectedLocationId));
+          const list = available.length ? available : allUserOptions;
+
+          for (const user of list) {
+            const option = document.createElement('option');
+            option.value = user.value;
+            option.textContent = user.text;
+            option.dataset.locationIds = user.locationIds.join(',');
+            option.dataset.defaultLocationId = user.defaultLocationId;
+            option.dataset.roleName = user.roleName;
+            userSelect.appendChild(option);
+          }
+
+          const preferred = list.find((user) => user.value === previous)
+            || list.find((user) => user.selected)
+            || list.find((user) => user.defaultLocationId === selectedLocationId)
+            || list[0];
+
+          if (preferred) userSelect.value = preferred.value;
+        }
+
+        locationSelect.addEventListener('change', renderUsersForLocation);
+        renderUsersForLocation();
+      }());
+    </script>
+  </body>
+</html>

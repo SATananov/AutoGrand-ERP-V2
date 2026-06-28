@@ -8,6 +8,15 @@ import { fileURLToPath } from 'url';
 import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
 import { getDashboardData, getScreenData } from './services/core-data-service.js';
+import {
+  authenticateLogin,
+  clearLoginCookies,
+  contextToViewData,
+  getLoginOptions,
+  getRequestLoginContext,
+  isPublicLoginPath,
+  setLoginCookies
+} from './services/login-context-service.js';
 import { getPriceListWorkbenchData, safeItemImageBaseName } from './services/price-list-workbench-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
@@ -85,7 +94,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.3',
+    appVersion: 'v0.4.5',
     companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -104,8 +113,10 @@ function isWorkspacePartialRequest(req) {
 }
 
 function renderPage(req, res, view, data = {}, options = {}) {
+  const contextViewData = contextToViewData(req.agContext);
   const renderOptions = {
     ...data,
+    ...contextViewData,
     ...(isWorkspacePartialRequest(req) ? { layout: false } : options)
   };
 
@@ -258,6 +269,62 @@ app.set('views', path.join(rootDir, 'views/pages'));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
 app.use(express.json({ limit: '30mb' }));
 app.use('/public', express.static(path.join(rootDir, 'public')));
+
+app.use(async (req, res, next) => {
+  try {
+    req.agContext = await getRequestLoginContext(req);
+
+    if (!req.agContext && !isPublicLoginPath(req)) {
+      const returnTo = encodeURIComponent(req.originalUrl || '/');
+      return res.redirect(`/login?returnTo=${returnTo}`);
+    }
+
+    return next();
+  } catch (error) {
+    console.error('AutoGrand login context failed:', error);
+    if (!isPublicLoginPath(req)) {
+      return res.redirect('/login');
+    }
+    return next();
+  }
+});
+
+app.get('/login', async (req, res) => {
+  const options = await getLoginOptions(req, req.query || {});
+  res.render('login', {
+    layout: false,
+    title: 'Вход — AutoGrand ERP',
+    login: options,
+    errorMessage: req.query?.error || '',
+    returnTo: req.query?.returnTo || '/',
+    appVersion: 'v0.4.5'
+  });
+});
+
+app.post('/login', async (req, res) => {
+  const result = await authenticateLogin(req.body || {});
+  const returnTo = String(req.body?.returnTo || '/').startsWith('/') ? String(req.body?.returnTo || '/') : '/';
+
+  if (!result.ok) {
+    const query = new URLSearchParams({
+      error: result.message || 'Входът не е успешен.',
+      companyId: req.body?.companyId || '',
+      locationId: req.body?.locationId || '',
+      username: req.body?.username || '',
+      language: req.body?.language || 'bg',
+      returnTo
+    });
+    return res.redirect(`/login?${query.toString()}`);
+  }
+
+  setLoginCookies(res, result.context);
+  return res.redirect(returnTo || '/');
+});
+
+app.post('/logout', (req, res) => {
+  clearLoginCookies(res);
+  res.redirect('/login');
+});
 
 app.get('/', async (req, res) => {
   const dashboard = await getDashboardData();
@@ -882,7 +949,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '4-2-1-real-kardzhali-users-seed'
+    step: '4-3-1-login-context-role-visibility-polish'
   });
 });
 

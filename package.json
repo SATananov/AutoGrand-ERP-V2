@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.3",
+  "version": "0.4.5",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.2.1 — Real AutoGrand Kardzhali Users Seed.",
+  "description": "AutoGrand ERP V2 Step 4.3.1 — Login Context Role Visibility Polish.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

@@ -404,7 +404,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 4.2.1 real Kardzhali users seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 4.3 login context seed completed.');
 }
 
 main()

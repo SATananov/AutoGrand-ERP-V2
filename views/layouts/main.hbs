@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" sizes="256x256" href="/public/favicon-256.png" />
     <link rel="shortcut icon" href="/public/favicon.ico" />
     <link rel="manifest" href="/public/manifest.webmanifest" />
-    <link rel="stylesheet" href="/public/css/styles.css?v=3.5.5-transfer-purpose-print" />
+    <link rel="stylesheet" href="/public/css/styles.css?v=4.3.1-role-visibility" />
   </head>
   <body>
     <div class="erp-desktop-shell">
@@ -25,7 +25,11 @@
         </div>
 
         <div class="titlebar-user">
-          <strong>{{userName}}</strong>
+          <div class="titlebar-context" title="{{sessionLabel}}">
+            <strong>{{userName}}</strong>
+            <span class="titlebar-role">{{currentRoleName}}</span>
+            <em class="titlebar-location-name">{{currentLocationName}}</em>
+          </div>
           <span class="top-icon">💬</span>
           <span class="top-icon">▶</span>
           <span class="top-icon badge">🌐<em>2</em></span>
@@ -33,7 +37,9 @@
           <span class="top-icon">⚙</span>
           <span class="top-icon">🖌</span>
           <span class="top-icon">👤</span>
-          <button class="logout-button">Изход</button>
+          <form class="logout-form" method="post" action="/logout">
+            <button class="logout-button" type="submit">Изход</button>
+          </form>
         </div>
       </header>
 
@@ -82,11 +88,11 @@
         </div>
         <div class="statusbar-cell statusbar-location">
           <span class="statusbar-icon" aria-hidden="true">📍</span>
-          <span class="statusbar-text">КЪРДЖАЛИ</span>
+          <span class="statusbar-text">{{currentLocationName}}</span>
         </div>
         <div class="statusbar-cell statusbar-user">
           <span class="statusbar-icon" aria-hidden="true">👤</span>
-          <span class="statusbar-text">{{userName}}</span>
+          <span class="statusbar-text">{{userRoleLabel}}</span>
         </div>
         <div class="statusbar-cell statusbar-app">
           <span class="statusbar-icon" aria-hidden="true">🧩</span>
@@ -103,7 +109,7 @@
       </footer>
     </div>
 
-    <script src="/public/js/app.js?v=3.5.5-transfer-purpose-print"></script>
-    <script src="/public/js/erp-v2-workspace-manager.js?v=3.5.5-transfer-purpose-print"></script>
+    <script src="/public/js/app.js?v=4.3.1-role-visibility"></script>
+    <script src="/public/js/erp-v2-workspace-manager.js?v=4.3.1-role-visibility"></script>
   </body>
 </html>
