@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.3.1 — Login Context Role Visibility Polish.",
+  "description": "AutoGrand ERP V2 Step 4.2.4 — Runtime Permission Guards / Menu, Route & Action Guard.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

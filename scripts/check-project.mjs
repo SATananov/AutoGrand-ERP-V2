@@ -42,11 +42,15 @@ const required = [
   'docs/steps/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_BG.md',
   'docs/checkpoints/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_CLEAN_EXPORT_BG.md',
   'src/services/login-context-service.js',
+  'src/services/permission-service.js',
   'views/pages/login.hbs',
+  'views/pages/forbidden.hbs',
   'docs/steps/STEP_4_3_LOGIN_CONTEXT_LIKE_MONETA_BG.md',
   'docs/checkpoints/STEP_4_3_LOGIN_CONTEXT_LIKE_MONETA_CLEAN_EXPORT_BG.md',
   'docs/steps/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_BG.md',
-  'docs/checkpoints/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_CLEAN_EXPORT_BG.md'
+  'docs/checkpoints/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_CLEAN_EXPORT_BG.md',
+  'docs/steps/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_BG.md',
+  'docs/checkpoints/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -87,12 +91,17 @@ const step42Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_2
 const step421Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_BG.md'), 'utf8');
 const step421Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_CLEAN_EXPORT_BG.md'), 'utf8');
 const loginContextService = fs.readFileSync(path.resolve('src/services/login-context-service.js'), 'utf8');
+const permissionService = fs.readFileSync(path.resolve('src/services/permission-service.js'), 'utf8');
 const loginView = fs.readFileSync(path.resolve('views/pages/login.hbs'), 'utf8');
+const forbiddenView = fs.readFileSync(path.resolve('views/pages/forbidden.hbs'), 'utf8');
 const mainLayout = fs.readFileSync(path.resolve('views/layouts/main.hbs'), 'utf8');
 const step43Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_3_LOGIN_CONTEXT_LIKE_MONETA_BG.md'), 'utf8');
 const step43Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_3_LOGIN_CONTEXT_LIKE_MONETA_CLEAN_EXPORT_BG.md'), 'utf8');
 const step431Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_BG.md'), 'utf8');
 const step431Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_CLEAN_EXPORT_BG.md'), 'utf8');
+const step424Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_BG.md'), 'utf8');
+const step424Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_CLEAN_EXPORT_BG.md'), 'utf8');
+const packageJson = fs.readFileSync(path.resolve('package.json'), 'utf8');
 
 const adjustmentCard = fs.readFileSync(path.resolve('views/pages/stock-adjustment-card.hbs'), 'utf8');
 const priceListWorkbench = fs.readFileSync(path.resolve('views/pages/price-list-workbench.hbs'), 'utf8');
@@ -109,7 +118,7 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '4-3-1-login-context-role-visibility-polish'"), 'Step 4.3.1 health label'],
+  [server.includes('STEP_4_2_4_PERMISSION_HEALTH_LABEL') && permissionService.includes('4-2-4-runtime-permission-guards-menu-route-action-guard'), 'Step 4.2.4 health label'],
   [autograndFoundation.includes('AUTOGRAND_COMPANY') && autograndFoundation.includes('Автогранд ООД') && autograndFoundation.includes('DEFAULT_LOCATION_CODE') && autograndFoundation.includes('AG-KJ-SHOP'), 'Step 4.1 AutoGrand company and default location foundation'],
   [autograndFoundation.includes('AG-STZ-CENTRAL') && autograndFoundation.includes('AG-STZ-WH') && autograndFoundation.includes('Централен склад') && autograndFoundation.includes('Регионален склад Стара Загора'), 'Step 4.1 Stara Zagora separate central/regional objects'],
   [autograndFoundation.includes("canSell: false") && autograndFoundation.includes("canTransfer: false") && autograndFoundation.includes("canTransfer: true"), 'Step 4.1 location role rules'],
@@ -119,7 +128,7 @@ const checks = [
   [autograndIdentity.includes('AUTOGRAND_ROLE_TEMPLATES') && autograndIdentity.includes('MONETA_RIGHT_ACTIONS') && autograndIdentity.includes('AUTOGRAND_PERMISSIONS') && autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS'), 'Step 4.2 identity foundation data'],
   [seedText.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && seedText.includes('AUTOGRAND_ROLE_TEMPLATES') && seedText.includes('seedIdentityFoundation') && seedText.includes('userLocationAccess.create'), 'Step 4.2 seed identity foundation'],
   [step42Doc.includes('Employee') && step42Doc.includes('RolePermission') && step42Doc.includes('UserLocationAccess') && step42Checkpoint.includes('0.4.2'), 'Step 4.2 docs and checkpoint'],
-  [server.includes("appVersion: 'v0.4.5'") && seedText.includes('Step 4.3 login context seed completed'), 'Step 4.3.1 version and seed message'],
+  [server.includes("appVersion: 'v0.4.6'") && packageJson.includes('0.4.6'), 'Step 4.2.4 version label'],
   [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
   [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
   [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
@@ -163,7 +172,7 @@ const checks = [
   [stockTransferCenter.includes('data-transfer-center-command="print"') && appJs.includes('initTransferPrintSlip'), 'Step 3.5 transfer print buttons'],
   [appJs.includes('handleRibbonPrintCommand') && appJs.includes('activeDocumentPrintUrl') && appJs.includes('openTransferPrintDialog'), 'Step 3.5.5 ribbon print sync'],
   [seedText.includes('prisma.employee.deleteMany') && seedText.includes('prisma.rolePermission.deleteMany'), 'Step 4.2 reset order'],
-  [server.includes("step: '4-3-1-login-context-role-visibility-polish'") && autograndIdentity.includes('ReadRight') && autograndIdentity.includes('FinishRight') && autograndIdentity.includes('PrintRight'), 'Step 4.2 Moneta rights mapping'],
+  [server.includes('STEP_4_2_4_PERMISSION_HEALTH_LABEL') && autograndIdentity.includes('ReadRight') && autograndIdentity.includes('FinishRight') && autograndIdentity.includes('PrintRight'), 'Step 4.2 Moneta rights mapping'],
   [autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && autograndIdentity.includes('stefan.admin') && autograndIdentity.includes('stefan.manager') && autograndIdentity.includes('angel.angelov') && autograndIdentity.includes('CASHIER') && autograndIdentity.includes('SALES_REP'), 'Step 4.2.1 real Kardzhali users and roles'],
   [seedText.includes('employeesByCode') && seedText.includes('employeeDisplayName') && step421Doc.includes('АНГЕЛ АНГЕЛОВ') && step421Checkpoint.includes('0.4.3'), 'Step 4.2.1 docs and shared employee profile support'],
   [server.includes("app.get('/login'") && server.includes("app.post('/login'") && server.includes("app.post('/logout'"), 'Step 4.3 login routes'],
@@ -172,7 +181,15 @@ const checks = [
   [loginView.includes('Фирма') && loginView.includes('Обект') && loginView.includes('Потребител') && loginView.includes('Връзка') && loginView.includes('data-ag-login-location'), 'Step 4.3 login UI'],
   [mainLayout.includes('titlebar-context') && mainLayout.includes('currentRoleName') && mainLayout.includes('currentLocationName') && mainLayout.includes('userRoleLabel') && mainLayout.includes('/logout'), 'Step 4.3 shell session context'],
   [step43Doc.includes('Фирма') && step43Doc.includes('Обект') && step43Doc.includes('1234') && step43Checkpoint.includes('0.4.4'), 'Step 4.3 docs and checkpoint'],
-  [loginContextService.includes('userRoleLabel') && mainLayout.includes('titlebar-role') && mainLayout.includes('{{userRoleLabel}}') && step431Doc.includes('СТЕФАН ТАНАНОВ · Администратор') && step431Checkpoint.includes('0.4.5'), 'Step 4.3.1 role visibility polish']
+  [loginContextService.includes('userRoleLabel') && mainLayout.includes('titlebar-role') && mainLayout.includes('{{userRoleLabel}}') && step431Doc.includes('СТЕФАН ТАНАНОВ · Администратор') && step431Checkpoint.includes('0.4.5'), 'Step 4.3.1 role visibility polish'],
+  [permissionService.includes('ROLE_PERMISSION_GRANTS') && permissionService.includes('MANAGER') && permissionService.includes('SALES_REP') && permissionService.includes('CASHIER') && permissionService.includes('WAREHOUSE'), 'Step 4.2.4 role permission grants'],
+  [permissionService.includes('ROUTE_RULES') && permissionService.includes('/document/sales/new/:docType') && permissionService.includes('/stock/transfer/new') && permissionService.includes('/reference'), 'Step 4.2.4 route guard rules'],
+  [permissionService.includes('authorizeRequest') && server.includes('authorizeRequest(req.agContext') && server.includes('renderForbidden'), 'Step 4.2.4 request guard middleware'],
+  [permissionService.includes('filterNavigationGroups') && permissionService.includes('filterRibbonGroups') && server.includes('filterNavigationGroups(data.navigationGroups') && server.includes('filterRibbonGroups(data.ribbonGroups'), 'Step 4.2.4 menu and ribbon filtering'],
+  [permissionService.includes('location_restricted') && permissionService.includes('canSell') && permissionService.includes('canRequestTransfer') && permissionService.includes('canDispatchTransfer') && permissionService.includes('canReceiveTransfer'), 'Step 4.2.4 location-aware action guard'],
+  [forbiddenView.includes('Достъпът е ограничен') && forbiddenView.includes('{{forbidden.requiredPermission}}') && forbiddenView.includes('/login'), 'Step 4.2.4 forbidden access page'],
+  [mainLayout.includes('activePermissionScopeLabel') && permissionService.includes('permissionContextToViewData'), 'Step 4.2.4 shell permission scope visibility'],
+  [step424Doc.includes('Menu, Route & Action Guard') && step424Doc.includes('Moneta-like') && step424Checkpoint.includes('0.4.6'), 'Step 4.2.4 docs and checkpoint']
 ];
 
 for (const [passed, label] of checks) {
@@ -188,4 +205,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.3.1 Login Context Role Visibility Polish patch check passed.');
+console.log('OK: Step 4.2.4 Runtime Permission Guards / Menu, Route & Action Guard patch check passed.');

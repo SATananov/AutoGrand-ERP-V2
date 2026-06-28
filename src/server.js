@@ -7,6 +7,14 @@ import { engine } from 'express-handlebars';
 import { fileURLToPath } from 'url';
 import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
+import {
+  STEP_4_2_4_PERMISSION_HEALTH_LABEL,
+  authorizeRequest,
+  filterNavigationGroups,
+  filterRibbonGroups,
+  forbiddenViewData,
+  permissionContextToViewData
+} from './services/permission-service.js';
 import { getDashboardData, getScreenData } from './services/core-data-service.js';
 import {
   authenticateLogin,
@@ -94,7 +102,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.5',
+    appVersion: 'v0.4.6',
     companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -114,13 +122,32 @@ function isWorkspacePartialRequest(req) {
 
 function renderPage(req, res, view, data = {}, options = {}) {
   const contextViewData = contextToViewData(req.agContext);
+  const permissionViewData = permissionContextToViewData(req.agContext);
+  const navigationGroups = filterNavigationGroups(data.navigationGroups || [], req.agContext);
+  const ribbonGroups = filterRibbonGroups(data.ribbonGroups || [], req.agContext);
+
   const renderOptions = {
     ...data,
     ...contextViewData,
+    ...permissionViewData,
+    navigationGroups,
+    ribbonGroups,
     ...(isWorkspacePartialRequest(req) ? { layout: false } : options)
   };
 
   res.render(view, renderOptions);
+}
+
+function renderForbidden(req, res, decision = {}) {
+  res.status(403);
+  return renderPage(req, res, 'forbidden', {
+    ...baseViewData({
+      title: 'Достъпът е ограничен — AutoGrand ERP V2',
+      currentScreen: 'forbidden',
+      statusText: 'Достъпът е ограничен за активната роля'
+    }),
+    forbidden: forbiddenViewData(req.agContext, decision, req)
+  });
 }
 
 function redirectSalesWithAction(res, documentId, code) {
@@ -289,6 +316,24 @@ app.use(async (req, res, next) => {
   }
 });
 
+app.use((req, res, next) => {
+  if (isPublicLoginPath(req)) return next();
+
+  const decision = authorizeRequest(req.agContext, {
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl
+  });
+
+  req.agPermissionDecision = decision;
+
+  if (!decision.allowed) {
+    return renderForbidden(req, res, decision);
+  }
+
+  return next();
+});
+
 app.get('/login', async (req, res) => {
   const options = await getLoginOptions(req, req.query || {});
   res.render('login', {
@@ -297,7 +342,7 @@ app.get('/login', async (req, res) => {
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.5'
+    appVersion: 'v0.4.6'
   });
 });
 
@@ -949,7 +994,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '4-3-1-login-context-role-visibility-polish'
+    step: STEP_4_2_4_PERMISSION_HEALTH_LABEL
   });
 });
 

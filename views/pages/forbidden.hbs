@@ -1,0 +1,45 @@
+<section class="ag-forbidden-page" aria-label="Ограничен достъп">
+  <div class="ag-forbidden-card">
+    <div class="ag-forbidden-icon" aria-hidden="true">🔒</div>
+    <div class="ag-forbidden-content">
+      <p class="ag-section-kicker">AutoGrand ERP · Права за достъп</p>
+      <h1>Достъпът е ограничен за активната роля</h1>
+      <p class="ag-forbidden-lead">
+        Този екран или операция се пази от Moneta-like permission guard. Ако достъпът е нужен,
+        активният профил трябва да има съответното право за модул, форма или действие.
+      </p>
+
+      <dl class="ag-forbidden-details">
+        <div>
+          <dt>Активен потребител</dt>
+          <dd>{{forbidden.userLabel}}</dd>
+        </div>
+        <div>
+          <dt>Активен обект</dt>
+          <dd>{{forbidden.locationLabel}}</dd>
+        </div>
+        <div>
+          <dt>Заявка</dt>
+          <dd>{{forbidden.requestMethod}} {{forbidden.requestPath}}</dd>
+        </div>
+        <div>
+          <dt>Модул / действие</dt>
+          <dd>{{forbidden.moduleLabel}}</dd>
+        </div>
+        <div>
+          <dt>Нужно право</dt>
+          <dd><code>{{forbidden.requiredPermission}}</code></dd>
+        </div>
+        <div>
+          <dt>Обхват</dt>
+          <dd>{{forbidden.permissionScopeLabel}}</dd>
+        </div>
+      </dl>
+
+      <div class="ag-forbidden-actions">
+        <a class="ag-primary-link" href="/">Към началото</a>
+        <a class="ag-secondary-link" href="/login">Смяна на профил</a>
+      </div>
+    </div>
+  </div>
+</section>
