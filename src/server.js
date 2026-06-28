@@ -48,7 +48,8 @@ import {
 } from './services/print-engine-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
-import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
+import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
+import stockHardeningRoutes from "./routes/stock-hardening-routes.js";
 import {
   getSalesNewDocumentFormData,
   createSalesDocumentFromForm,
@@ -575,6 +576,9 @@ app.post('/api/stock/transfer-requests/:documentId/not-found', async (req, res) 
   }
 });
 
+// AutoGrand ERP V2 Step 4.7.2 Stock Hardening route mount
+app.use(stockHardeningRoutes);
+
 app.get('/screen/:screenId', async (req, res) => {
   const screen = await getScreenData(req.params.screenId);
 
@@ -1096,7 +1100,6 @@ app.use((req, res) => {
     })
   });
 });
-
 app.listen(PORT, () => {
   console.log(`AutoGrand ERP V2 is running at http://localhost:${PORT}`);
 });

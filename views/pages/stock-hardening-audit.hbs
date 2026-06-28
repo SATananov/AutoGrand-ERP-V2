@@ -1,0 +1,54 @@
+{{!-- AutoGrand ERP V2 — Step 4.7.3 Stock Engine Hardening audit page --}}
+<section class="ag47-stock-hardening-page" data-ag-step="4.7.3">
+  <header class="ag47-hero">
+    <div>
+      <p class="ag47-eyebrow">Step 4.7 · Stock Engine Hardening</p>
+      <h1>Складов контрол</h1>
+      <p class="ag47-lead">
+        Проверка на складовия журнал по Moneta логика: наличности по обект, отрицателни количества,
+        дублирани движения и еднократен ефект от документните редове.
+      </p>
+    </div>
+    <div class="ag47-health {{#if step47Audit.ok}}is-ok{{else}}is-warning{{/if}}">
+      {{#if step47Audit.ok}}OK{{else}}Провери{{/if}}
+    </div>
+  </header>
+
+  {{#if step47Audit.errors.length}}
+  <section class="ag47-panel ag47-warning-panel">
+    <h2>Диагностика</h2>
+    <p>
+      Складовият audit вече се зарежда безопасно. Ако има предупреждения, те показват реални
+      складови несъответствия в журнала, а не грешка на страницата.
+    </p>
+    <ul class="ag47-error-list">
+      {{#each step47Audit.errors}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/if}}
+
+  <div class="ag47-grid">
+    <article class="ag47-card"><span>Движения</span><strong>{{step47Audit.summary.movementCount}}</strong></article>
+    <article class="ag47-card"><span>Наличности</span><strong>{{step47Audit.summary.balanceCount}}</strong></article>
+    <article class="ag47-card"><span>Отрицателни</span><strong>{{step47Audit.summary.negativeBalanceCount}}</strong></article>
+    <article class="ag47-card"><span>Дубликати</span><strong>{{step47Audit.summary.duplicateMovementCount}}</strong></article>
+  </div>
+
+  <section class="ag47-panel">
+    <h2>Moneta правила</h2>
+    <ul>
+      <li>Само осчетоводен/публикуван документ влияе на склада.</li>
+      <li>Продажба, експедиция или изписване не минават при недостатъчна наличност.</li>
+      <li>Един документен ред има един складов ефект; повторно публикуване не удвоява движението.</li>
+      <li>Наличността винаги е по обект/локация; няма смесване между филиали.</li>
+      <li>Корекцията става с обратен запис, не с тихо изтриване на складов журнал.</li>
+    </ul>
+  </section>
+
+  <section class="ag47-panel">
+    <h2>Audit JSON</h2>
+    <pre class="ag47-json">{{step47AuditJson}}</pre>
+  </section>
+</section>

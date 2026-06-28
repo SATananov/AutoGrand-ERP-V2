@@ -7599,3 +7599,28 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   color: #0f6841;
   font-weight: 800;
 }
+
+/* AutoGrand ERP V2 Step 4.7 Stock Engine Hardening START */
+.ag47-stock-hardening-page { display: grid; gap: 14px; min-height: calc(100vh - 220px); padding: 16px; color: #17361d; }
+.ag47-hero, .ag47-panel, .ag47-card { border: 1px solid rgba(60, 95, 57, 0.22); background: linear-gradient(180deg, rgba(255, 255, 247, 0.96), rgba(242, 248, 233, 0.96)); box-shadow: 0 10px 28px rgba(12, 30, 16, 0.08); }
+.ag47-hero { display: flex; justify-content: space-between; align-items: center; gap: 18px; border-radius: 16px; padding: 18px 20px; }
+.ag47-eyebrow { margin: 0 0 4px; color: #3f6f37; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.ag47-hero h1 { margin: 0; color: #18371e; font-size: 28px; }
+.ag47-lead { max-width: 880px; margin: 8px 0 0; color: #40543e; line-height: 1.45; }
+.ag47-health { min-width: 104px; border-radius: 999px; padding: 10px 16px; text-align: center; font-weight: 900; color: #fff; background: #7a5a13; }
+.ag47-health.is-ok { background: #2f6d36; }
+.ag47-health.is-warning { background: #a86d16; }
+.ag47-grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; }
+.ag47-card { border-radius: 14px; padding: 14px 16px; }
+.ag47-card span { display: block; color: #5c725a; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.ag47-card strong { display: block; margin-top: 5px; color: #17361d; font-size: 26px; }
+.ag47-panel { border-radius: 16px; padding: 16px 18px; }
+.ag47-panel h2 { margin: 0 0 10px; color: #17361d; }
+.ag47-panel p, .ag47-panel li { color: #344632; }
+.ag47-panel li { margin: 6px 0; }
+.ag47-warning-panel { border-color: rgba(168, 109, 22, 0.45); background: linear-gradient(180deg, rgba(255, 248, 231, 0.98), rgba(246, 237, 214, 0.98)); }
+.ag47-error-list { margin: 10px 0 0; padding-left: 20px; }
+.ag47-json { max-height: 420px; overflow: auto; border-radius: 12px; padding: 12px; color: #172f1d; background: #edf5e5; font-size: 12px; line-height: 1.35; white-space: pre-wrap; }
+@media (max-width: 860px) { .ag47-hero { align-items: flex-start; flex-direction: column; } .ag47-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); } }
+@media (max-width: 520px) { .ag47-grid { grid-template-columns: 1fr; } }
+/* AutoGrand ERP V2 Step 4.7 Stock Engine Hardening END */
