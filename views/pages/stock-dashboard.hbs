@@ -30,14 +30,20 @@
     {{/each}}
   </section>
 
-  <section class="stock-transfer-alert-grid">
-    {{#each stock.transferRequestCards}}
-      <a class="stock-transfer-alert-card tone-{{tone}}" href="/stock/transfers" data-transfer-tab-link="{{tab}}">
-        <span>{{title}}</span>
-        <strong>{{value}}</strong>
-        <small>{{subtitle}}</small>
-      </a>
-    {{/each}}
+  <section class="stock-transfer-alerts-shell">
+    <div class="panel-caption">
+      <strong>Трансфери и заявки</strong>
+      <span>Бърза ориентация по текущ обект — натисни карта, за да отвориш правилния таб.</span>
+    </div>
+    <div class="stock-transfer-alert-grid">
+      {{#each stock.transferRequestCards}}
+        <a class="stock-transfer-alert-card tone-{{tone}}" href="/stock/transfers?tab={{tab}}" data-transfer-tab-link="{{tab}}">
+          <span>{{title}}</span>
+          <strong>{{value}}</strong>
+          <small>{{subtitle}}</small>
+        </a>
+      {{/each}}
+    </div>
   </section>
 
   <section class="stock-layout-grid">

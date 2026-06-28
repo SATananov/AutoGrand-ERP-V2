@@ -859,7 +859,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '3-0-transfer-request-basket-shelf-confirmation'
+    step: '3-4-transfer-center-polish-status-counters'
   });
 });
 

@@ -18,6 +18,7 @@ const required = [
   'views/pages/stock-adjustment-card.hbs',
   'views/pages/stock-transfer-new.hbs',
   'views/pages/stock-transfer-card.hbs',
+  'views/pages/stock-transfer-center.hbs',
   'views/pages/stock-item-card.hbs',
   'views/pages/stock-warehouse-card.hbs',
   'views/pages/company-locations.hbs',
@@ -47,6 +48,7 @@ const purchaseCard = fs.readFileSync(path.resolve('src/services/purchase-documen
 const browse = fs.readFileSync(path.resolve('views/pages/screen-browse.hbs'), 'utf8');
 const stockActions = fs.readFileSync(path.resolve('src/services/stock-actions-service.js'), 'utf8');
 const stockDashboard = fs.readFileSync(path.resolve('views/pages/stock-dashboard.hbs'), 'utf8');
+const stockTransferCenter = fs.readFileSync(path.resolve('views/pages/stock-transfer-center.hbs'), 'utf8');
 const companyLocations = fs.readFileSync(path.resolve('src/services/company-locations-service.js'), 'utf8');
 const appJs = fs.readFileSync(path.resolve('public/js/app.js'), 'utf8');
 const seedText = fs.readFileSync(path.resolve('scripts/seed-prisma.js'), 'utf8');
@@ -66,7 +68,7 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '3-0-transfer-request-basket-shelf-confirmation'"), 'Step 3.0 health label'],
+  [server.includes("step: '3-4-transfer-center-polish-status-counters'"), 'Step 3.4 health label'],
   [browse.includes('screen.hasDocumentCard'), 'generic document browse flag'],
   [browse.includes('screen.hasStockActions'), 'stock browse action strip'],
   [stockActions.includes('createStockTransferFromForm'), 'createStockTransferFromForm'],
@@ -98,6 +100,8 @@ const checks = [
   [priceListWorkbench.includes('Видими колони') && priceListWorkbench.includes('Снимка') && priceListWorkbench.includes('Трансфер') && (priceListWorkbench.includes('Заявки към текущ обект') || priceListWorkbench.includes('Заявки към моя обект')), 'price list availability panel UI'],
   [priceListWorkbench.includes('Текуща заявка за трансфер') && priceListWorkbench.includes('Липса') && priceListWorkbench.includes('Добави'), 'transfer request basket UI'],
   [server.includes('/api/stock/transfer-requests') && stockActions.includes('createTransferRequestsFromBasket') && stockActions.includes('markStockTransferNotFoundOnShelf'), 'transfer request basket API'],
+  [server.includes("app.get('/stock/transfers'") && stockActions.includes('getStockTransferRequestsCenterData') && stockTransferCenter.includes('Пътува към текущ обект') && stockTransferCenter.includes('Бързи действия'), 'transfer center polish status counters'],
+  [stockActions.includes('stock_transfer_in_transit') && stockActions.includes('workflowCards') && stockActions.includes('priorityRows'), 'Step 3.4 transfer center service polish'],
   [appJs.includes('requestBasket') && appJs.includes('submitRequestBasket') && appJs.includes('markTransferMissing'), 'transfer request basket frontend behavior'],
   [appJs.includes('initPriceWorkbench') && appJs.includes('ag_v2_price_list_columns') && appJs.includes('data-price-detail-tab'), 'price list frontend behavior']
 ];
@@ -115,4 +119,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 3.0 Transfer Request Basket / Shelf Confirmation patch check passed.');
+console.log('OK: Step 3.4 Transfer Center Polish + Status Counters patch check passed.');

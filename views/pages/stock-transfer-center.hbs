@@ -3,7 +3,7 @@
     <div>
       <div class="screen-kicker">СКЛАД / ТРАНСФЕРИ</div>
       <h1>Трансфери и заявки</h1>
-      <p>Работен център по текущ обект: заявки, изпращане, приемане, липси на рафт и история.</p>
+      <p>Работен център по текущ обект: заявки, проверка на рафт, В път, приемане, връщане и история.</p>
     </div>
 
     <div class="transfer-center-actions">
@@ -22,7 +22,17 @@
 
   <section class="transfer-current-location">
     <strong>Текущ обект: {{transferCenter.currentWarehouse.name}}</strong>
-    <span>Червено = действие от текущ обект · Синьо = пътува/чакаме · Жълто = чака приемане · Меко червено = проблем</span>
+    <span>Зелено = готово · Жълто = чака приемане · Синьо = В път / чакаме · Меко червено = проблем · Червено = действие от текущия обект</span>
+  </section>
+
+  <section class="transfer-status-flow" aria-label="Статусен поток на трансферите">
+    {{#each transferCenter.workflowCards}}
+      <button type="button" class="transfer-flow-step tone-{{tone}}" data-transfer-center-tab="{{tab}}">
+        <span>{{title}}</span>
+        <strong>{{value}}</strong>
+        <small>{{text}}</small>
+      </button>
+    {{/each}}
   </section>
 
   <section class="transfer-center-cards">
@@ -35,12 +45,36 @@
     {{/each}}
   </section>
 
+  <section class="transfer-priority-panel">
+    <div class="transfer-panel-title compact-title">
+      <strong>Бързи действия</strong>
+      <span>Най-важното за текущия обект — първо червеното и жълтото.</span>
+    </div>
+    {{#if transferCenter.priorityRows}}
+      <div class="transfer-priority-list">
+        {{#each transferCenter.priorityRows}}
+          <article class="transfer-priority-card tone-{{tone}}">
+            <div>
+              <strong>{{number}}</strong>
+              <span>{{priorityText}}</span>
+              <small>{{routeText}} · {{quantityText}} бр.</small>
+            </div>
+            <div class="transfer-priority-note">{{noteText}}</div>
+            <button type="button" data-transfer-center-tab="{{tab}}">Виж</button>
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="transfer-empty-state compact">Няма спешни действия за текущия обект.</div>
+    {{/if}}
+  </section>
+
   <nav class="transfer-center-tabs" aria-label="Табове за трансферни заявки">
     <button type="button" class="active" data-transfer-center-tab="incoming">Заявки към текущ обект <span>{{transferCenter.counters.incoming}}</span></button>
     <button type="button" data-transfer-center-tab="outgoing">Заявки от текущ обект <span>{{transferCenter.counters.outgoing}}</span></button>
-    <button type="button" data-transfer-center-tab="expected">Очаквани към текущ обект <span>{{transferCenter.counters.expected}}</span></button>
+    <button type="button" data-transfer-center-tab="expected">Пътува към текущ обект <span>{{transferCenter.counters.expected}}</span></button>
     <button type="button" data-transfer-center-tab="sent">Пътува от текущ обект <span>{{transferCenter.counters.sent}}</span></button>
-    <button type="button" data-transfer-center-tab="received">Получени <span>{{transferCenter.counters.received}}</span></button>
+    <button type="button" data-transfer-center-tab="received">Получени в текущ обект <span>{{transferCenter.counters.received}}</span></button>
     <button type="button" data-transfer-center-tab="missing">Липса на рафт <span>{{transferCenter.counters.missing}}</span></button>
     <button type="button" data-transfer-center-tab="history">История <span>{{transferCenter.counters.all}}</span></button>
   </nav>
@@ -78,7 +112,7 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td class="transfer-note-cell">
-                  <span>{{note}}</span>
+                  {{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}
                   <input type="text" data-transfer-action-note placeholder="Коментар при изпращане..." />
                 </td>
                 <td class="transfer-row-actions">
@@ -112,6 +146,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
+              <th>Коментар</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -123,6 +158,7 @@
                 <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
+                <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
                 <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
               </tr>
             {{/each}}
@@ -136,8 +172,8 @@
 
   <section class="transfer-center-panel" data-transfer-center-panel="expected">
     <div class="transfer-panel-title">
-      <strong>Очаквани към текущ обект</strong>
-      <span>Това са изпратени трансфери към текущия обект. Приеми ги само след реална проверка.</span>
+      <strong>Пътува към текущ обект</strong>
+      <span>Стоката е във В път. Приемай само след реална проверка на пристигналото.</span>
     </div>
 
     {{#if transferCenter.expectedRows}}
@@ -163,7 +199,7 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td class="transfer-note-cell">
-                  <span>{{note}}</span>
+                  {{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}
                   <input type="text" data-transfer-action-note placeholder="Коментар при приемане/връщане..." />
                 </td>
                 <td class="transfer-row-actions receive-actions">
@@ -178,7 +214,7 @@
         </table>
       </div>
     {{else}}
-      <div class="transfer-empty-state">Няма трансфери, които чакат приемане в {{transferCenter.currentWarehouse.name}}.</div>
+      <div class="transfer-empty-state">Няма трансфери във В път към {{transferCenter.currentWarehouse.name}}.</div>
     {{/if}}
   </section>
 
@@ -198,6 +234,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
+              <th>Коментар</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -209,6 +246,7 @@
                 <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
+                <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
                 <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
               </tr>
             {{/each}}
@@ -216,7 +254,7 @@
         </table>
       </div>
     {{else}}
-      <div class="transfer-empty-state">Няма изпратени трансфери от текущия обект.</div>
+      <div class="transfer-empty-state">Няма трансфери във В път от текущия обект.</div>
     {{/if}}
   </section>
 
@@ -236,6 +274,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
+              <th>Коментар</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -247,6 +286,7 @@
                 <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
+                <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
                 <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
               </tr>
             {{/each}}
@@ -274,6 +314,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
+              <th>Коментар</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -285,6 +326,7 @@
                 <td>{{#each items}}<div class="transfer-item-line"><strong>{{itemCode}}</strong> · {{itemName}} · {{quantityText}}</div>{{/each}}</td>
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
+                <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
                 <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
               </tr>
             {{/each}}
@@ -312,6 +354,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
+              <th>Коментар</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -323,6 +366,7 @@
                 <td>{{itemsText}}{{#if hasMoreItems}}...{{/if}}</td>
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
+                <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
                 <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
               </tr>
             {{/each}}

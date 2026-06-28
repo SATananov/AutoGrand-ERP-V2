@@ -354,7 +354,8 @@ export async function getStockDashboardData(action = '') {
     ],
     warehouseCards,
     lowStockItems: itemCards,
-    transferRequestCards: transferCenter.cards.slice(0, 3),
+    transferRequestCards: transferCenter.cards,
+    transferRequestSummary: transferCenter.summary,
     movements,
     balancesCount: balances.length
   };
@@ -1140,7 +1141,7 @@ function transferCenterStatus(document, currentWarehouseId) {
   if (document.status === 'SENT' && fromCurrent) {
     return {
       tone: 'in-transit',
-      statusText: 'Пътува към друг обект',
+      statusText: 'Пътува от текущ обект',
       helperText: 'Стоката е извадена от текущия обект и е във В път до приемане от получателя.',
       canSend: false,
       canMarkMissing: false,
@@ -1293,7 +1294,29 @@ function centerCard(title, value, subtitle, tone, tab) {
     value: String(value),
     subtitle,
     tone,
-    tab
+    tab,
+    url: `/stock/transfers?tab=${encodeURIComponent(tab)}`
+  };
+}
+
+function workflowCard(title, value, text, tone, tab) {
+  return {
+    title,
+    value: String(value),
+    text,
+    tone,
+    tab,
+    url: `/stock/transfers?tab=${encodeURIComponent(tab)}`
+  };
+}
+
+function priorityRow(row, priorityText, tab) {
+  return {
+    ...row,
+    priorityText,
+    tab,
+    tabUrl: `/stock/transfers?tab=${encodeURIComponent(tab)}`,
+    noteText: row.note || 'Без коментар към трансфера.'
   };
 }
 
@@ -1322,6 +1345,13 @@ export async function getStockTransferRequestsCenterData(action = '') {
   const receivedRows = rows.filter((row) => row.group === 'received' && Number(row.toWarehouseId) === Number(currentWarehouseId));
   const missingRows = rows.filter((row) => row.group === 'missing' && (Number(row.fromWarehouseId) === Number(currentWarehouseId) || Number(row.toWarehouseId) === Number(currentWarehouseId)));
   const historyRows = rows.filter((row) => !['incoming', 'outgoing', 'expected'].includes(row.group));
+  const priorityRows = [
+    ...incomingRows.slice(0, 3).map((row) => priorityRow(row, 'Действие: провери рафт и изпрати', 'incoming')),
+    ...expectedRows.slice(0, 3).map((row) => priorityRow(row, 'Действие: приеми или върни', 'expected')),
+    ...missingRows.slice(0, 2).map((row) => priorityRow(row, 'Проблем: липса на рафт', 'missing'))
+  ].slice(0, 6);
+  const inTransitCount = expectedRows.length + sentRows.length;
+  const activeCount = incomingRows.length + outgoingRows.length + expectedRows.length + sentRows.length;
 
   return {
     action,
@@ -1333,14 +1363,30 @@ export async function getStockTransferRequestsCenterData(action = '') {
       typeText: locationTypeText(currentWarehouse.location?.type),
       city: currentWarehouse.city || currentWarehouse.location?.city || ''
     } : null,
+    summary: {
+      activeCount,
+      actionCount: incomingRows.length + expectedRows.length,
+      inTransitCount,
+      problemCount: missingRows.length,
+      receivedCount: receivedRows.length
+    },
+    workflowCards: [
+      workflowCard('1. Заявка', incomingRows.length + outgoingRows.length, 'искана стока между обекти', 'blue', outgoingRows.length ? 'outgoing' : 'incoming'),
+      workflowCard('2. Проверка на рафт', incomingRows.length, 'чака действие от текущия обект', 'red', 'incoming'),
+      workflowCard('3. В път', inTransitCount, 'стоката е в трансферен склад', 'blue', expectedRows.length ? 'expected' : 'sent'),
+      workflowCard('4. Приемане', expectedRows.length, 'приеми, печат или върни', 'yellow', 'expected'),
+      workflowCard('5. Получено', receivedRows.length, 'приключени входящи трансфери', 'green', 'received'),
+      workflowCard('Проблем', missingRows.length, 'липса на рафт / отказ', 'red-soft', 'missing')
+    ],
     cards: [
       centerCard('Заявки към текущ обект', incomingRows.length, 'чака проверка и изпращане', 'red', 'incoming'),
       centerCard('Заявки от текущ обект', outgoingRows.length, 'чакаме друг обект', 'blue', 'outgoing'),
-      centerCard('Очаквани към текущ обект', expectedRows.length, 'пътува / чака приемане', 'yellow', 'expected'),
+      centerCard('Пътува към текущ обект', expectedRows.length, 'в път / чака приемане', 'yellow', 'expected'),
       centerCard('Пътува от текущ обект', sentRows.length, 'в трансферен склад / В път', 'blue', 'sent'),
       centerCard('Получени в текущ обект', receivedRows.length, 'приети в текущия обект', 'green', 'received'),
       centerCard('Липса на рафт', missingRows.length, 'свободно по система, но не е намерено', 'red-soft', 'missing')
     ],
+    priorityRows,
     incomingRows,
     outgoingRows,
     expectedRows,
@@ -1356,6 +1402,8 @@ export async function getStockTransferRequestsCenterData(action = '') {
       missing: missingRows.length,
       sent: sentRows.length,
       received: receivedRows.length,
+      active: activeCount,
+      inTransit: inTransitCount,
       all: rows.length
     }
   };
@@ -2005,6 +2053,7 @@ export function stockActionMessage(action = '') {
     stock_transfer_line_deleted: 'Редът е изтрит.',
     stock_transfer_posted: 'Складовият трансфер е публикуван и движенията са записани.',
     stock_transfer_sent_waiting_receive: 'Трансферът е изпратен и чака приемане от получаващия обект.',
+    stock_transfer_in_transit: 'Трансферът е изпратен. Стоката е в статус Пътува и се води във В път.',
     stock_transfer_received: 'Трансферът е приет в текущия обект.',
     stock_transfer_received_print_placeholder: 'Трансферът е приет. Печатът е подготвен като placeholder.',
     stock_transfer_returned_to_sender: 'Трансферът е върнат към обекта изпращач.',

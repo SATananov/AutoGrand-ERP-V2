@@ -1089,6 +1089,31 @@
       if (center.dataset.agTransferCenterReady === 'true') return;
       center.dataset.agTransferCenterReady = 'true';
 
+      function transferTabTitle(tabName) {
+        const map = {
+          incoming: 'Заявки към текущ обект',
+          outgoing: 'Заявки от текущ обект',
+          expected: 'Пътува към текущ обект',
+          sent: 'Пътува от текущ обект',
+          received: 'Получени в текущ обект',
+          missing: 'Липса на рафт',
+          history: 'История'
+        };
+        return map[tabName] || 'Трансфери и заявки';
+      }
+
+      function showTransferToast(message, tone = 'info') {
+        if (!message) return;
+        let toast = center.querySelector('[data-transfer-center-toast]');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.dataset.transferCenterToast = 'true';
+          center.insertBefore(toast, center.querySelector('.transfer-center-tabs') || center.firstChild);
+        }
+        toast.className = `ag-transfer-toast tone-${tone}`;
+        toast.textContent = message;
+      }
+
       function activateTab(tabName) {
         const target = tabName || 'incoming';
         center.querySelectorAll('[data-transfer-center-tab]').forEach((button) => {
@@ -1097,7 +1122,11 @@
         center.querySelectorAll('[data-transfer-center-panel]').forEach((panel) => {
           panel.classList.toggle('active', panel.dataset.transferCenterPanel === target);
         });
-        setStatusText(`Трансфери и заявки: ${target}`);
+        const title = transferTabTitle(target);
+        setStatusText(`Трансфери и заявки: ${title}`);
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', target);
+        window.history.replaceState({}, '', url.toString());
       }
 
       function openTransfer(button) {
@@ -1119,6 +1148,7 @@
         const transferId = button?.dataset.transferId || '';
         if (!transferId) return null;
         button.disabled = true;
+        button.classList.add('is-busy');
         const options = { method: 'POST' };
         if (body) {
           options.headers = { 'Content-Type': 'application/json' };
@@ -1128,6 +1158,8 @@
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.ok) {
           button.disabled = false;
+          button.classList.remove('is-busy');
+          showTransferToast(errorText, 'error');
           setStatusText(errorText);
           return null;
         }
@@ -1142,8 +1174,9 @@
           'Изпращане: не успя. Провери свободното количество и редовете на трансфера.'
         );
         if (!result) return;
+        showTransferToast('Трансферът е изпратен. Статус: Пътува. Стоката е във В път до приемане.', 'info');
         setStatusText('Изпращане: трансферът е в статус Пътува и стои във В път до приемане.');
-        window.setTimeout(() => window.location.reload(), 700);
+        window.setTimeout(() => window.location.reload(), 1100);
       }
 
       async function markMissing(button) {
@@ -1156,8 +1189,9 @@
           'Липса на рафт: маркирането не успя.'
         );
         if (!result) return;
+        showTransferToast('Маркирано е като ЛИПСА НА РАФТ. Заявителят ще го види като проблем.', 'error');
         setStatusText('Липса на рафт: заявката е маркирана като проблем за заявителя.');
-        window.setTimeout(() => window.location.reload(), 700);
+        window.setTimeout(() => window.location.reload(), 1100);
       }
 
       async function receiveTransfer(button, withPrint = false) {
@@ -1168,8 +1202,9 @@
           'Приемане: трансферът не може да бъде приет.'
         );
         if (!result) return;
+        showTransferToast(withPrint ? 'Трансферът е приет. Печатният документ ще бъде добавен в следваща стъпка.' : 'Трансферът е приет в текущия обект.', 'success');
         setStatusText(withPrint ? 'Приемане: трансферът е приет. Печатът е placeholder.' : 'Приемане: трансферът е приет в текущия обект.');
-        window.setTimeout(() => window.location.reload(), 700);
+        window.setTimeout(() => window.location.reload(), 1200);
       }
 
       async function returnTransfer(button) {
@@ -1182,8 +1217,9 @@
           'Връщане: трансферът не може да бъде върнат към изпращача.'
         );
         if (!result) return;
+        showTransferToast('Трансферът е върнат към обекта изпращач.', 'error');
         setStatusText('Връщане: трансферът е върнат към обекта изпращач.');
-        window.setTimeout(() => window.location.reload(), 700);
+        window.setTimeout(() => window.location.reload(), 1100);
       }
 
       center.addEventListener('click', (event) => {
