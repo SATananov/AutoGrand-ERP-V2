@@ -245,3 +245,25 @@ Step 2.7 превръща складовия трансфер от директ�
 - Коментарът е незадължителен и служи за клиент, сервиз или причина за изпращане.
 - Печатният документ показва този текст отделно под редовете, не като колона в компактната таблица.
 - Горният ribbon бутон „Печат“ вече отваря избора на печатна форма за активния трансферен документ.
+
+
+## Step 4.0 — AutoGrand ERP Master Blueprint + Moneta Reference Audit
+
+Този checkpoint спира хаотичното надграждане и заключва голямата посока за AutoGrand ERP:
+
+- системата остава със собствен AutoGrand стил и собствена логика;
+- Moneta reference архивите се използват само за структура, процеси и идеи, не като код;
+- следващият фокус е стабилна foundation база: артикули, обекти, потребители, роли, цени, доставчици, клиенти, принтери и номератори;
+- преди нови големи модули трябва да се подредят общите двигатели: Document Engine, Grid Engine, Print Engine, Permission Engine и Stock Engine.
+
+Добавени са blueprint документи:
+
+```text
+docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md
+docs/blueprints/MONETA_REFERENCE_AUDIT_BG.md
+docs/blueprints/CORE_FOUNDATION_DATA_PLAN_BG.md
+docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md
+docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md
+```
+
+Няма промяна в Prisma схемата и не е нужно `npm run db:generate`.

@@ -882,7 +882,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '3-5-5-transfer-purpose-comment-ribbon-print-sync'
+    step: '4-0-master-blueprint-moneta-reference-audit'
   });
 });
 

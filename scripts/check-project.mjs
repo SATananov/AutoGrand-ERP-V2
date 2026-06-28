@@ -27,7 +27,12 @@ const required = [
   'views/pages/price-list-workbench.hbs',
   'views/pages/screen-browse.hbs',
   'public/js/app.js',
-  'public/css/styles.css'
+  'public/css/styles.css',
+  'docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md',
+  'docs/blueprints/MONETA_REFERENCE_AUDIT_BG.md',
+  'docs/blueprints/CORE_FOUNDATION_DATA_PLAN_BG.md',
+  'docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md',
+  'docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md'
 ];
 
 let ok = true;
@@ -54,6 +59,11 @@ const stockTransferPrint = fs.readFileSync(path.resolve('views/pages/stock-trans
 const companyLocations = fs.readFileSync(path.resolve('src/services/company-locations-service.js'), 'utf8');
 const appJs = fs.readFileSync(path.resolve('public/js/app.js'), 'utf8');
 const seedText = fs.readFileSync(path.resolve('scripts/seed-prisma.js'), 'utf8');
+const masterBlueprint = fs.readFileSync(path.resolve('docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md'), 'utf8');
+const monetaAudit = fs.readFileSync(path.resolve('docs/blueprints/MONETA_REFERENCE_AUDIT_BG.md'), 'utf8');
+const foundationPlan = fs.readFileSync(path.resolve('docs/blueprints/CORE_FOUNDATION_DATA_PLAN_BG.md'), 'utf8');
+const implementationSequence = fs.readFileSync(path.resolve('docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md'), 'utf8');
+const step40Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md'), 'utf8');
 
 const adjustmentCard = fs.readFileSync(path.resolve('views/pages/stock-adjustment-card.hbs'), 'utf8');
 const priceListWorkbench = fs.readFileSync(path.resolve('views/pages/price-list-workbench.hbs'), 'utf8');
@@ -70,7 +80,11 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '3-5-5-transfer-purpose-comment-ribbon-print-sync'"), 'Step 3.5.5 health label'],
+  [server.includes("step: '4-0-master-blueprint-moneta-reference-audit'"), 'Step 4.0 health label'],
+  [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
+  [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
+  [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
+  [implementationSequence.includes('Step 4.1') && implementationSequence.includes('Step 4.8') && step40Checkpoint.includes('Архитектурен checkpoint') || step40Checkpoint.includes('архитектурен checkpoint'), 'Step 4.0 implementation sequence and checkpoint'],
   [browse.includes('screen.hasDocumentCard'), 'generic document browse flag'],
   [browse.includes('screen.hasStockActions'), 'stock browse action strip'],
   [stockActions.includes('createStockTransferFromForm'), 'createStockTransferFromForm'],
@@ -124,4 +138,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 3.5.5 Transfer Purpose Comment + Ribbon Print Sync patch check passed.');
+console.log('OK: Step 4.0 AutoGrand ERP Master Blueprint + Moneta Reference Audit patch check passed.');

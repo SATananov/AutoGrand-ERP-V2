@@ -1,29 +1,42 @@
-# Roadmap — AutoGrand ERP Moneta Reference Rebuild
+# Roadmap — AutoGrand ERP V2
 
-## Step 0 — Foundation
+## Стабилен checkpoint
 
-Създаден чист Node.js / Express / Handlebars shell и първа карта от Client reference ZIP.
+`fed2af4 Add Step 3.5 transfer print workflow and purpose comments` е стабилният функционален checkpoint преди Step 4.0.
 
-## Step 0.1 — ZipMasterR23 Reference Analyzer
+## Step 4.0 — Master Blueprint + Moneta Reference Audit
 
-Добавен втори reference ZIP, обединена модулна карта, private log extract-и и подобрен Python analyzer.
+Целта е да се спре хаотичното надграждане и да се заключи голямата ERP карта:
 
-## Step 1 — Core Data Foundation
+- AutoGrand Core;
+- Номенклатури;
+- Склад;
+- Продажби;
+- Доставки;
+- CRM;
+- Сервиз;
+- Финанси;
+- Устройства и печат.
 
-Предстои:
+Reference архивите от Moneta се използват само за архитектурна ориентация. AutoGrand ERP остава собствена система.
 
-- SQLite база
-- клиенти
-- артикули
-- складове
-- ценови листи
-- първи CRUD екрани
+## Следваща последователност
 
-## Step 2 — Sales / Inventory Documents
+```text
+Step 4.1 — Core Master Data Foundation
+Step 4.2 — Users, Employees, Roles and Permissions
+Step 4.3 — Items, Units, VAT, Prices and Suppliers Foundation
+Step 4.4 — Demo Dataset / Working Test Base
+Step 4.5 — Global Grid Column Preferences
+Step 4.6 — Global Document Pattern Cleanup
+Step 4.7 — Global Print Forms Engine
+Step 4.8 — Stock Engine Hardening
+Step 5.0 — Sales Module Completion
+Step 6.0 — Purchases Module Completion
+Step 7.0 — Service / Vehicles Foundation
+Step 8.0 — Finance / Payments / Reports
+```
 
-Предстои:
+## Правило за следващите стъпки
 
-- документ продажба
-- складово движение
-- клиентски цени
-- справки
+Преди да се прави нов голям модул, трябва да се проверява дали липсва foundation таблица, право, статус, печатна форма или grid настройка.
