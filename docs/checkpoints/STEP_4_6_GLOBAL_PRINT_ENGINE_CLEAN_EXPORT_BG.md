@@ -1,41 +1,37 @@
-# Checkpoint — Step 4.6 Global Print Engine
+# Checkpoint — Step 4.6 Global Print Engine Clean Export
+
+## Проект
+
+AutoGrand ERP V2
+
+## Step
+
+Step 4.6 — Global Print Engine
 
 ## Статус
 
-Step 4.6 добавя Moneta-aligned Global Print Engine foundation.
-
-## Версия
-
-`0.4.10`
-
-## Health label
-
-`4-6-global-print-engine`
-
-## Prisma
-
-Няма Prisma schema промяна.
-Няма `dev.db` промяна.
-
-## Основни файлове
-
-- `src/data/autogrand-print-engine-foundation.js`
-- `src/services/print-engine-service.js`
-- `public/js/ag-print-engine.js`
-- `views/pages/print-engine.hbs`
-- `docs/steps/STEP_4_6_GLOBAL_PRINT_ENGINE_BG.md`
-- `docs/checkpoints/STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG.md`
+Завършено и използвано като база за Step 4.7 Stock Engine Hardening.
 
 ## Проверки
 
-`npm run check` трябва да потвърди:
+Този checkpoint описва очакваната чиста структура след Step 4.6:
 
-- Step 4.6 print engine foundation data
-- Step 4.6 Moneta print engine concepts
-- Step 4.6 print engine service
-- Step 4.6 print engine diagnostics
-- Step 4.6 print engine routes and health label
-- Step 4.6 print engine permissions
-- Step 4.6 print engine UI
-- Step 4.6 browser print engine runtime
-- Step 4.6 docs and checkpoint
+- Print engine foundation data е налична.
+- Print engine service е наличен.
+- Print engine route/view е наличен.
+- Browser print runtime е наличен.
+- `scripts/check-project.mjs` съдържа проверки за Step 4.6.
+- Няма `.env`, временни helper файлове или nested ZIP артефакти в clean export.
+
+## Moneta alignment
+
+Step 4.6 следва Moneta-подобния принцип за глобален печат:
+
+- печатните форми са отделени от документната логика;
+- print runtime е общ за модулите;
+- каналите и профилите са инфраструктура, не hardcoded поведение;
+- печатът е read-only операция спрямо документа.
+
+## Следваща зависимост
+
+Step 4.7 — Stock Engine Hardening стъпва върху вече завършения глобален shell/action модел от Step 4.6.

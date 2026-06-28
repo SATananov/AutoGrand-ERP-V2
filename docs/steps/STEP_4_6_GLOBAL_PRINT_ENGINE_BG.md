@@ -2,53 +2,35 @@
 
 ## Цел
 
-Тази стъпка добавя общ AutoGrand print engine foundation, съобразен с Moneta.
-Фокусът е върху печатни форми, preview, export, етикети, barcode/QR, printer profiles и hooks към документния engine.
-
-## Moneta reference concepts
-
-Step 4.6 е ориентиран по следите в Moneta ZIP:
-
-- `TfBase.PrintSelect`
-- `TfBase.Print`
-- `TfBase.AfterPrintDocument`
-- `TfBase.PrintTXT`
-- `TfBase.PrintLabel`
-- `TfBase.GetPrintDocumentType`
-- `TfBase.GetPrintDocument`
-- `TfBase.PrintPostedDocument`
-- `TfBase.CanPrintPostedDoc`
-- `TfBase.SelectPrintFormGeneral`
-- `TfBase.SelectWebReport`
-- `uBrSelectPrintForm`
-- `uPrintPreview`
-- `uPrintSetup`
-- `frxExportPDF`
-- `frxExportXLSX`
-- `frxBarcode2D`
-- `frxQRCode`
-
-## Добавено
-
-- `src/data/autogrand-print-engine-foundation.js`
-- `src/services/print-engine-service.js`
-- `public/js/ag-print-engine.js`
-- `views/pages/print-engine.hbs`
-- routes:
-  - `/print-engine`
-  - `/api/print-engine/diagnostics`
-- permission:
-  - `print_engine.view`
+Step 4.6 добавя глобален печатен слой за AutoGrand ERP V2, съобразен с Moneta-подобната ERP логика: печатът е обща инфраструктура, а не отделна импровизация във всеки модул.
 
 ## Обхват
 
-Без Prisma schema промяна.
-Това е foundation слой, който подготвя бъдещото реално връзване към продажби, доставки, трансфери, корекции, етикети и справки.
+- Централизирана основа за печатни форми.
+- Регистрация на документни форми и печатни канали.
+- Поддръжка на секции за шаблони.
+- Подготовка за профили на устройства и работни места.
+- Диагностика на print engine състоянието.
+- Browser print runtime за клиентската среда.
 
-## Версия
+## Moneta логика
 
-`0.4.10`
+В Moneta-подобна ERP среда печатът трябва да бъде глобален слой:
 
-## Health label
+1. Документът предоставя данните.
+2. Print engine избира форма, канал, секции и профил.
+3. Печатната визуализация не променя бизнес документа.
+4. Печатните настройки са отделени от CRUD логиката.
+5. Един и същи документ може да бъде отпечатан през различни канали и форми.
 
-`4-6-global-print-engine`
+## Очаквани основни компоненти
+
+- Foundation data за print engine.
+- Service слой за диагностика и достъп до print engine данните.
+- Route/view за глобална print engine страница.
+- Browser runtime за печат.
+- Проверки в `scripts/check-project.mjs`.
+
+## Статус
+
+Step 4.6 е завършен преди Step 4.7 и служи като основа за глобалните действия в ERP shell-а.
