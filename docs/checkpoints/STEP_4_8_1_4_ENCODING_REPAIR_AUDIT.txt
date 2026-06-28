@@ -1,0 +1,5 @@
+REPAIR: docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md
+BACKUP: docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md.step4814-encoding-backup
+SAMPLES BEFORE:
+  249: - българският интерфейс трябва да е чист, без смесване с английски и без `encoding replacement marker`.
+OK: explicit replacement markers neutralized in docs/blueprints/AUTOGRAND_ERP_MASTER_BLUEPRINT_BG.md

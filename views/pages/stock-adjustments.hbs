@@ -1,154 +1,277 @@
-{{!-- AutoGrand ERP V2 — Step 4.8 Stock Correction / Adjustment Document Foundation --}}
-<section class="ag48-stock-adjustments-page" data-ag-step="4.8">
-  <header class="ag48-hero">
+<section class="ag-stock-adjustments-page" data-ag-step="4.8.1">
+  <div class="ag-page-header ag-stock-adjustments-hero">
     <div>
-      <p class="ag48-eyebrow">Step 4.8 · Stock Correction / Adjustment Document Foundation</p>
+      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.1</div>
       <h1>Складови корекции</h1>
-      <p class="ag48-lead">
-        Moneta-подобна основа за корекционен складов документ. Целта е всяка корекция да мине през документ,
-        причина, редове и бъдещо еднократно осчетоводяване — без ръчно триене на складови движения.
+      <p>
+        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и реален обратен запис в складовите движения.
       </p>
     </div>
-    <div class="ag48-health {{#if step48Foundation.ok}}is-ok{{else}}is-warning{{/if}}">
-      {{#if step48Foundation.ok}}Foundation OK{{else}}Провери{{/if}}
-    </div>
-  </header>
-
-  {{#if step48Foundation.errors.length}}
-  <section class="ag48-panel ag48-warning-panel">
-    <h2>Диагностика</h2>
-    <ul>
-      {{#each step48Foundation.errors}}
-        <li>{{this}}</li>
-      {{/each}}
-    </ul>
-  </section>
-  {{/if}}
-
-  <div class="ag48-grid">
-    <article class="ag48-card"><span>Типове документи</span><strong>{{step48Foundation.documentTypes.length}}</strong></article>
-    <article class="ag48-card"><span>Причини</span><strong>{{step48Foundation.reasonCodes.length}}</strong></article>
-    <article class="ag48-card"><span>Отрицателни</span><strong>{{step48Foundation.resolutionSummary.negativeIssueCount}}</strong></article>
-    <article class="ag48-card"><span>Дубликати</span><strong>{{step48Foundation.resolutionSummary.duplicateIssueCount}}</strong></article>
+    <div class="ag-step-badge">Moneta-safe</div>
   </div>
 
-  <section class="ag48-panel">
-    <div class="ag48-section-head">
-      <div>
-        <p class="ag48-eyebrow">Correction workflow</p>
-        <h2>Как работи корекцията</h2>
-      </div>
-      <div class="ag48-actions">
-        <a class="ag48-button" href="/stock-hardening">Складов audit</a>
-        <a class="ag48-button is-secondary" href="/api/stock/adjustments/foundation" target="_blank" rel="noreferrer">Foundation API</a>
-      </div>
-    </div>
-    <ol class="ag48-flow">
-      <li>Операторът вижда audit проблем: отрицателна наличност или потенциален дублаж.</li>
-      <li>Системата предлага корекционен документ в статус <strong>DRAFT</strong>.</li>
-      <li>Редът има артикул, обект/локация, количество, причина и складов ефект.</li>
-      <li>Следваща стъпка ще добави реално записване и еднократно осчетоводяване.</li>
-    </ol>
-  </section>
+  <div class="ag-moneta-rules">
+    <strong>Правило:</strong>
+    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ и ново складово движение.
+  </div>
 
-  <section class="ag48-panel">
-    <div class="ag48-section-head">
-      <div>
-        <p class="ag48-eyebrow">Document types</p>
-        <h2>Типове корекционни документи</h2>
+  <div class="ag-stock-adjustments-grid">
+    <section class="ag-card ag-card-list">
+      <div class="ag-card-title-row">
+        <div>
+          <h2>Документи</h2>
+          <p>DRAFT документи могат да се редактират. POSTED документи са заключени.</p>
+        </div>
+        <button type="button" class="ag-btn ag-btn-secondary" id="agReloadAdjustmentsBtn">Обнови</button>
       </div>
-    </div>
-    <div class="ag48-type-grid">
-      {{#each step48Foundation.documentTypes}}
-        <article class="ag48-type-card">
-          <strong>{{label}}</strong>
-          <span>{{code}} · {{direction}}</span>
-          <p>{{purpose}}</p>
-        </article>
-      {{/each}}
-    </div>
-  </section>
+      <div id="agAdjustmentList" class="ag-adjustment-list"></div>
+    </section>
 
-  <section class="ag48-panel">
-    <div class="ag48-section-head">
-      <div>
-        <p class="ag48-eyebrow">Suggested drafts</p>
-        <h2>Предложени корекционни чернови от audit-а</h2>
+    <section class="ag-card ag-card-editor">
+      <h2>Нов документ</h2>
+      <form id="agCreateAdjustmentForm" class="ag-form-stack">
+        <label>
+          Основание
+          <input name="reason" type="text" value="Складова корекция" autocomplete="off" />
+        </label>
+        <label>
+          Бележка
+          <textarea name="note" rows="3" placeholder="Напр. корекция след ревизия, отрицателна наличност или двойно движение"></textarea>
+        </label>
+        <button type="submit" class="ag-btn ag-btn-primary">Създай DRAFT</button>
+      </form>
+
+      <div id="agAdjustmentDetails" class="ag-adjustment-details is-empty">
+        <div class="ag-empty-state">Избери или създай документ, за да добавиш редове.</div>
       </div>
-      <strong class="ag48-counter">{{step48Foundation.suggestedDrafts.length}}</strong>
-    </div>
+    </section>
+  </div>
+</section>
 
-    {{#if step48Foundation.suggestedDrafts.length}}
-      <div class="ag48-table-wrap">
-        <table class="ag48-table">
+<script>
+(function () {
+  const initialDocuments = {{{initialDocumentsJson}}};
+  let documents = Array.isArray(initialDocuments) ? initialDocuments : [];
+  let activeDocument = null;
+
+  const listEl = document.getElementById("agAdjustmentList");
+  const detailsEl = document.getElementById("agAdjustmentDetails");
+  const reloadBtn = document.getElementById("agReloadAdjustmentsBtn");
+  const createForm = document.getElementById("agCreateAdjustmentForm");
+
+  function formatNumber(value) {
+    const n = Number(value || 0);
+    return new Intl.NumberFormat("bg-BG", { maximumFractionDigits: 3 }).format(n);
+  }
+
+  function statusLabel(status) {
+    return status === "POSTED" ? "POSTED · заключен" : "DRAFT";
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  async function api(path, options) {
+    const response = await fetch(path, {
+      headers: { "Content-Type": "application/json" },
+      ...(options || {})
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.ok === false) {
+      throw new Error(payload.error || "Грешка при складова корекция.");
+    }
+    return payload;
+  }
+
+  function renderList() {
+    if (!documents.length) {
+      listEl.innerHTML = '<div class="ag-empty-state">Няма създадени документи.</div>';
+      return;
+    }
+
+    listEl.innerHTML = documents.map((doc) => {
+      const activeClass = activeDocument && activeDocument.id === doc.id ? " is-active" : "";
+      const postedClass = doc.status === "POSTED" ? " is-posted" : "";
+      return `
+        <button type="button" class="ag-adjustment-row${activeClass}${postedClass}" data-doc-id="${escapeHtml(doc.id)}">
+          <span class="ag-adjustment-number">${escapeHtml(doc.number)}</span>
+          <span class="ag-adjustment-status">${escapeHtml(statusLabel(doc.status))}</span>
+          <span class="ag-adjustment-meta">Редове: ${formatNumber(doc.lineCount)} · Разлика: ${formatNumber(doc.totalDelta)}</span>
+        </button>
+      `;
+    }).join("");
+  }
+
+  function renderDetails() {
+    if (!activeDocument) {
+      detailsEl.className = "ag-adjustment-details is-empty";
+      detailsEl.innerHTML = '<div class="ag-empty-state">Избери документ от списъка.</div>';
+      return;
+    }
+
+    const locked = activeDocument.status === "POSTED";
+    const lines = Array.isArray(activeDocument.lines) ? activeDocument.lines : [];
+    detailsEl.className = "ag-adjustment-details" + (locked ? " is-locked" : "");
+    detailsEl.innerHTML = `
+      <div class="ag-document-panel">
+        <div class="ag-card-title-row">
+          <div>
+            <h3>${escapeHtml(activeDocument.number)}</h3>
+            <p>${escapeHtml(statusLabel(activeDocument.status))}</p>
+          </div>
+          <button type="button" class="ag-btn ag-btn-danger" id="agPostAdjustmentBtn" ${locked ? "disabled" : ""}>POSTED / Осчетоводи</button>
+        </div>
+        <div class="ag-document-note">${escapeHtml(activeDocument.reason || "Складова корекция")}</div>
+      </div>
+
+      <form id="agLineForm" class="ag-line-form" ${locked ? "data-locked=\"true\"" : ""}>
+        <h3>Ред за корекция</h3>
+        <div class="ag-line-grid">
+          <label>Item ID<input name="itemId" required ${locked ? "disabled" : ""} /></label>
+          <label>Код<input name="itemCode" ${locked ? "disabled" : ""} /></label>
+          <label>Име<input name="itemName" value="Артикул" ${locked ? "disabled" : ""} /></label>
+          <label>Обект / склад<input name="warehouseId" ${locked ? "disabled" : ""} /></label>
+          <label>Текущо<input name="currentQuantity" type="number" step="0.001" value="0" ${locked ? "disabled" : ""} /></label>
+          <label>Преброено<input name="countedQuantity" type="number" step="0.001" value="0" ${locked ? "disabled" : ""} /></label>
+        </div>
+        <button type="submit" class="ag-btn ag-btn-secondary" ${locked ? "disabled" : ""}>Добави ред</button>
+      </form>
+
+      <div class="ag-lines-table-wrap">
+        <table class="ag-lines-table">
           <thead>
             <tr>
-              <th>Проблем</th>
-              <th>Приоритет</th>
-              <th>Документ</th>
-              <th>Причина</th>
-              <th>Редове</th>
-              <th>Ефект</th>
+              <th>Артикул</th>
+              <th>Склад</th>
+              <th>Текущо</th>
+              <th>Преброено</th>
+              <th>Разлика</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {{#each step48Foundation.suggestedDrafts}}
+            ${lines.length ? lines.map((line) => `
               <tr>
-                <td>{{issueLabel}}</td>
-                <td>{{priority}}</td>
-                <td>{{draft.documentTypeLabel}}<br><span>{{draft.number}}</span></td>
-                <td>{{draft.reasonLabel}}</td>
-                <td>{{draft.totals.lineCount}}</td>
-                <td>{{draft.totals.totalSignedQuantity}}</td>
+                <td><strong>${escapeHtml(line.itemName || line.itemId)}</strong><br><small>${escapeHtml(line.itemId)}</small></td>
+                <td>${escapeHtml(line.warehouseId || "-")}</td>
+                <td>${formatNumber(line.currentQuantity)}</td>
+                <td>${formatNumber(line.countedQuantity)}</td>
+                <td class="${Number(line.deltaQuantity) >= 0 ? "is-positive" : "is-negative"}">${formatNumber(line.deltaQuantity)}</td>
+                <td>${locked ? "🔒" : `<button type="button" class="ag-link-button" data-delete-line="${escapeHtml(line.id)}">Изтрий</button>`}</td>
               </tr>
-              {{#if draft.lines.length}}
-              <tr class="ag48-detail-row">
-                <td colspan="6">
-                  <div class="ag48-line-list">
-                    {{#each draft.lines}}
-                      <span>Ред {{lineNo}} · Артикул {{itemId}} · Обект {{locationId}} · Qty {{quantity}} · Ефект {{signedQuantity}} · {{reasonCode}}</span>
-                    {{/each}}
-                  </div>
-                </td>
-              </tr>
-              {{/if}}
-            {{/each}}
+            `).join("") : '<tr><td colspan="6" class="ag-empty-cell">Няма редове.</td></tr>'}
           </tbody>
         </table>
       </div>
-    {{else}}
-      <p class="ag48-empty">Няма audit проблеми, от които да се предложи корекционна чернова.</p>
-    {{/if}}
-  </section>
+    `;
+  }
 
-  <section class="ag48-panel">
-    <div class="ag48-section-head">
-      <div>
-        <p class="ag48-eyebrow">Storage compatibility</p>
-        <h2>Готовност за реално записване</h2>
-      </div>
-      <span class="ag48-badge {{#if step48Foundation.storage.canPersistAdjustmentDocuments}}is-ok{{else}}is-soft{{/if}}">
-        {{#if step48Foundation.storage.canPersistAdjustmentDocuments}}Prisma model found{{else}}Preview foundation{{/if}}
-      </span>
-    </div>
-    <p>{{step48Foundation.storage.note}}</p>
-    <p class="ag48-muted">
-      Това е умишлено безопасно: Step 4.8 подготвя документа и правилата, а следваща подстъпка може да добави таблица,
-      реален номер, записване и еднократно осчетоводяване.
-    </p>
-  </section>
+  async function loadDocuments() {
+    const payload = await api("/api/stock/adjustments/documents");
+    documents = payload.documents || [];
+    renderList();
+  }
 
-  <section class="ag48-panel">
-    <h2>Moneta правила</h2>
-    <ul>
-      {{#each step48Foundation.monetaRules}}
-        <li>{{this}}</li>
-      {{/each}}
-    </ul>
-  </section>
+  async function loadDocument(id) {
+    const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(id));
+    activeDocument = payload.document;
+    renderList();
+    renderDetails();
+  }
 
-  <section class="ag48-panel">
-    <h2>Foundation JSON</h2>
-    <pre class="ag48-json">{{step48FoundationJson}}</pre>
-  </section>
-</section>
+  listEl.addEventListener("click", (event) => {
+    const row = event.target.closest("[data-doc-id]");
+    if (!row) return;
+    loadDocument(row.dataset.docId).catch((error) => alert(error.message));
+  });
+
+  reloadBtn.addEventListener("click", () => {
+    loadDocuments().catch((error) => alert(error.message));
+  });
+
+  createForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(createForm);
+    try {
+      const payload = await api("/api/stock/adjustments/documents", {
+        method: "POST",
+        body: JSON.stringify({ reason: form.get("reason"), note: form.get("note") })
+      });
+      activeDocument = payload.document;
+      await loadDocuments();
+      renderDetails();
+      createForm.reset();
+      createForm.elements.reason.value = "Складова корекция";
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+
+  detailsEl.addEventListener("submit", async (event) => {
+    if (event.target.id !== "agLineForm") return;
+    event.preventDefault();
+    if (!activeDocument) return;
+    const form = new FormData(event.target);
+    try {
+      const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/lines", {
+        method: "POST",
+        body: JSON.stringify({
+          itemId: form.get("itemId"),
+          itemCode: form.get("itemCode"),
+          itemName: form.get("itemName"),
+          warehouseId: form.get("warehouseId"),
+          currentQuantity: form.get("currentQuantity"),
+          countedQuantity: form.get("countedQuantity")
+        })
+      });
+      activeDocument = payload.document;
+      await loadDocuments();
+      renderDetails();
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+
+  detailsEl.addEventListener("click", async (event) => {
+    const deleteButton = event.target.closest("[data-delete-line]");
+    if (deleteButton && activeDocument) {
+      try {
+        const payload = await api(
+          "/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/lines/" + encodeURIComponent(deleteButton.dataset.deleteLine),
+          { method: "DELETE" }
+        );
+        activeDocument = payload.document;
+        await loadDocuments();
+        renderDetails();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
+    if (event.target.id === "agPostAdjustmentBtn" && activeDocument) {
+      if (!confirm("Да осчетоводя ли документа? След POSTED той ще бъде заключен.")) return;
+      try {
+        const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/post", {
+          method: "POST",
+          body: JSON.stringify({ postedBy: "AutoGrand" })
+        });
+        activeDocument = payload.document;
+        await loadDocuments();
+        renderDetails();
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+  });
+
+  renderList();
+  renderDetails();
+})();
+</script>

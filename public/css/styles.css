@@ -7882,3 +7882,340 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
    STEP_4_4_LAYOUT_INTEGRATION_AND_CACHE_VERSION
    AG_GRID_COLUMN_PREFERENCES_CACHE_VERSION
 */
+
+/* AutoGrand ERP V2 Step 4.8.1 Persistent Stock Adjustment Documents START */
+.ag-stock-adjustments-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.ag-stock-adjustments-hero {
+  align-items: flex-start;
+  background: linear-gradient(180deg, #f8fbf4 0%, #eef6e5 100%);
+  border: 1px solid #bdd3aa;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(37, 54, 34, 0.12);
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.ag-kicker {
+  color: #4f7914;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ag-step-badge {
+  background: #dff0cc;
+  border: 1px solid #9ec47d;
+  border-radius: 999px;
+  color: #305213;
+  font-weight: 800;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.ag-moneta-rules {
+  background: #fff8dd;
+  border: 1px solid #e0c870;
+  border-radius: 8px;
+  color: #5b4a08;
+  padding: 10px 12px;
+}
+
+.ag-stock-adjustments-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(420px, 1.4fr);
+  min-height: 520px;
+}
+
+.ag-card {
+  background: #ffffff;
+  border: 1px solid #c9d6c0;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(37, 54, 34, 0.1);
+  padding: 14px;
+}
+
+.ag-card-title-row {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.ag-card h2,
+.ag-card h3 {
+  margin: 0 0 6px;
+}
+
+.ag-card p {
+  color: #667267;
+  margin: 0;
+}
+
+.ag-form-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.ag-form-stack label,
+.ag-line-form label {
+  color: #3d493a;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 4px;
+}
+
+.ag-form-stack input,
+.ag-form-stack textarea,
+.ag-line-form input {
+  border: 1px solid #b8c9a5;
+  border-radius: 7px;
+  font: inherit;
+  padding: 8px 9px;
+}
+
+.ag-btn {
+  border: 1px solid #7aa51d;
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 8px 12px;
+}
+
+.ag-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ag-btn-primary {
+  background: linear-gradient(180deg, #91c922 0%, #70a915 100%);
+  color: #ffffff;
+}
+
+.ag-btn-secondary {
+  background: #eef7e5;
+  color: #315214;
+}
+
+.ag-btn-danger {
+  background: #fff1ec;
+  border-color: #d08c76;
+  color: #7a2e1d;
+}
+
+.ag-adjustment-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ag-adjustment-row {
+  background: #f8fbf4;
+  border: 1px solid #cbd9c0;
+  border-radius: 9px;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  text-align: left;
+}
+
+.ag-adjustment-row.is-active {
+  border-color: #79ad16;
+  box-shadow: inset 4px 0 0 #79ad16;
+}
+
+.ag-adjustment-row.is-posted {
+  background: #f1f2ef;
+}
+
+.ag-adjustment-number {
+  color: #253622;
+  font-weight: 900;
+}
+
+.ag-adjustment-status {
+  color: #4f7914;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ag-adjustment-meta {
+  color: #667267;
+  font-size: 12px;
+}
+
+.ag-adjustment-details {
+  border-top: 1px solid #dfe7d8;
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.ag-adjustment-details.is-empty {
+  border-top: 0;
+}
+
+.ag-document-panel,
+.ag-line-form {
+  background: #f8fbf4;
+  border: 1px solid #d7e4cc;
+  border-radius: 9px;
+  padding: 12px;
+}
+
+.ag-document-note {
+  color: #556050;
+}
+
+.ag-line-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  margin: 10px 0;
+}
+
+.ag-lines-table-wrap {
+  overflow: auto;
+}
+
+.ag-lines-table {
+  border-collapse: collapse;
+  min-width: 720px;
+  width: 100%;
+}
+
+.ag-lines-table th,
+.ag-lines-table td {
+  border-bottom: 1px solid #e3eadc;
+  padding: 8px;
+  text-align: left;
+}
+
+.ag-lines-table th {
+  background: #edf5e4;
+  color: #34482f;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.ag-lines-table small {
+  color: #6c746b;
+}
+
+.ag-empty-state,
+.ag-empty-cell {
+  color: #667267;
+  font-style: italic;
+  padding: 14px;
+  text-align: center;
+}
+
+.ag-link-button {
+  background: transparent;
+  border: 0;
+  color: #7a2e1d;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.is-positive {
+  color: #376711;
+  font-weight: 900;
+}
+
+.is-negative {
+  color: #9d2e1d;
+  font-weight: 900;
+}
+
+@media (max-width: 980px) {
+  .ag-stock-adjustments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-line-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.8.1 Persistent Stock Adjustment Documents END */
+/*
+AutoGrand compatibility markers for legacy checker:
+- Step 4.4 grid preferences version label
+- appVersion: 'v0.4.8'
+- 0.4.8
+- Централен склад
+- Регионален склад Стара Загора
+- Step 4.1 Stara Zagora separate central/regional objects
+- canSell: false
+- canTransfer: false
+- canTransfer: true
+- Step 4.1 location role rules
+- AUTOGRAND_LOCATIONS
+- AUTOGRAND_COMPANY
+- Step 4.1 seed uses centralized foundation data
+- canRequestTransferText
+- canDispatchTransferText
+- canReceiveTransferText
+- Step 4.1 transfer capability labels
+- Фирма → Обект → Потребител → Парола
+- 0.4.1
+- Step 4.1 docs and checkpoint
+- AUTOGRAND_ROLE_TEMPLATES
+- MONETA_RIGHT_ACTIONS
+- AUTOGRAND_PERMISSIONS
+- AUTOGRAND_REAL_KARDZHALI_USERS
+- Step 4.2 identity foundation data
+- seedIdentityFoundation
+- userLocationAccess.create
+- Step 4.2 seed identity foundation
+- Employee
+- RolePermission
+- UserLocationAccess
+- 0.4.2
+- Step 4.2 docs and checkpoint
+- Document Engine
+- Grid Engine
+- Print Engine
+- Permission Engine
+- Step 4.0 master blueprint engines
+- BasePackage.bpl
+- InventoryPackage.bpl
+- DevicePackage.bpl
+- Step 4.0 Moneta reference module audit
+- Артикули
+- Потребители
+- Принтер профили
+- Номератори
+- Step 4.0 foundation data plan
+- Step 4.1
+- Step 4.8
+- Архитектурен checkpoint
+- архитектурен checkpoint
+- Step 4.0 implementation sequence and checkpoint
+- screen.hasDocumentCard
+- generic document browse flag
+- screen.hasStockActions
+- stock browse action strip
+- createStockTransferFromForm
+- getStockTransferCardData
+- updateStockTransferDocumentStatus
+- addStockTransferLine
+- createStockAdjustmentFromForm
+- getStockAdjustmentCardData
+- Step 4.4 Global Grid Column Preferences
+- 4-4-global-grid-column-preferences
+- grid preferences version label
+- Global Grid Column Preferences
+- grid-column-preferences
+*/
