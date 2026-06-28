@@ -31,6 +31,11 @@ import {
   getCatalogFoundationData,
   getCatalogFoundationDiagnostics
 } from './services/catalog-foundation-service.js';
+import {
+  STEP_4_4_GRID_PREFS_HEALTH_LABEL,
+  getGlobalGridColumnPreferencesData,
+  getGlobalGridColumnPreferenceDiagnostics
+} from './services/grid-column-preferences-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
 import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
@@ -107,7 +112,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.7',
+    appVersion: 'v0.4.8',
     companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -347,7 +352,7 @@ app.get('/login', async (req, res) => {
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.7'
+    appVersion: 'v0.4.8'
   });
 });
 
@@ -416,6 +421,23 @@ app.get('/catalog/foundation', async (req, res) => {
 
 app.get('/api/catalog/foundation/diagnostics', (req, res) => {
   res.json(getCatalogFoundationDiagnostics());
+});
+
+app.get('/grid/preferences', (req, res) => {
+  const gridPrefs = getGlobalGridColumnPreferencesData();
+
+  renderPage(req, res, 'grid-column-preferences', {
+    ...baseViewData({
+      title: 'Глобални настройки на колони — AutoGrand ERP V2',
+      currentScreen: 'grid-column-preferences',
+      statusText: 'Отворен екран: Глобални настройки на колони'
+    }),
+    gridPrefs
+  });
+});
+
+app.get('/api/grid/preferences/diagnostics', (req, res) => {
+  res.json(getGlobalGridColumnPreferenceDiagnostics());
 });
 
 app.post('/api/items/:itemId/image', async (req, res) => {
@@ -1016,7 +1038,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: STEP_4_3_CATALOG_HEALTH_LABEL
+    step: STEP_4_4_GRID_PREFS_HEALTH_LABEL
   });
 });
 

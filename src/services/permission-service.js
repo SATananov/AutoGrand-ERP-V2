@@ -42,6 +42,7 @@ const ROLE_PERMISSION_GRANTS = {
     'price_list.edit',
     'catalog.view',
     'catalog.edit',
+    'grid_preferences.view',
     'locations.view',
     'reports.view',
     'tools.snapshot'
@@ -55,6 +56,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.payment',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'stock.view',
     'stock.transfer.view',
     'stock.transfer.create',
@@ -70,6 +72,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.payment',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'stock.view',
     'stock.transfer.view',
     'stock.transfer.create',
@@ -83,6 +86,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.payment',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'reports.view',
     'tools.snapshot'
   ],
@@ -99,6 +103,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.adjustment.view',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'tools.snapshot'
   ],
 
@@ -114,6 +119,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.adjustment.view',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'tools.snapshot'
   ],
 
@@ -126,6 +132,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.view',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'tools.snapshot'
   ],
 
@@ -136,6 +143,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.view',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'reports.view',
     'tools.snapshot'
   ],
@@ -145,6 +153,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.view',
     'price_list.view',
     'catalog.view',
+    'grid_preferences.view',
     'stock.view',
     'tools.snapshot'
   ]
@@ -167,6 +176,7 @@ const MODULE_TERMS = {
   stock: ['stock', 'inventory', 'warehouse', 'transfer', 'adjustment'],
   price_list: ['price', 'item', 'article', 'nomenclature', 'product'],
   catalog: ['catalog', 'unit', 'vat', 'supplier', 'sku', 'barcode'],
+  grid_preferences: ['grid', 'column', 'columns', 'layout', 'visiblefields', 'loadgridview', 'savegridview'],
   locations: ['location', 'companylocation', 'object', 'warehouse'],
   reports: ['report', 'analysis', 'statement'],
   tools: ['tool', 'snapshot', 'print'],
@@ -178,6 +188,8 @@ const ROUTE_RULES = [
   route('GET', '/price-list', 'price_list.view', 'Артикули, цени и наличности'),
   route('GET', '/catalog/foundation', 'catalog.view', 'Номенклатурна основа'),
   route('GET', '/api/catalog/foundation/diagnostics', 'catalog.view', 'Диагностика на номенклатурна основа'),
+  route('GET', '/grid/preferences', 'grid_preferences.view', 'Глобални настройки на колони'),
+  route('GET', '/api/grid/preferences/diagnostics', 'grid_preferences.view', 'Диагностика на настройки на колони'),
   route('POST', '/api/items/:itemId/image', 'price_list.edit', 'Качване на снимка на артикул'),
   route('DELETE', '/api/items/:itemId/image', 'price_list.edit', 'Премахване на снимка на артикул'),
 
@@ -244,6 +256,7 @@ const SCREEN_RULES = [
   screenRule(['stock', 'warehouse', 'inventory', 'transfer', 'adjustment', 'movement', 'balance'], 'stock.view', 'Складови екрани'),
   screenRule(['price', 'item', 'article', 'nomenclature'], 'price_list.view', 'Артикули и ценови листи'),
   screenRule(['catalog', 'unit', 'vat', 'supplier', 'barcode'], 'catalog.view', 'Номенклатурна основа'),
+  screenRule(['grid', 'column', 'columns', 'layout', 'visiblefields'], 'grid_preferences.view', 'Настройки на колони'),
   screenRule(['location', 'company'], 'locations.view', 'Обекти и фирма'),
   screenRule(['report', 'analysis'], 'reports.view', 'Справки')
 ];
@@ -256,6 +269,7 @@ const COMMAND_RULES = [
   commandRule(['adjustment'], 'stock.adjustment.view', 'Складови корекции'),
   commandRule(['price', 'item', 'article'], 'price_list.view', 'Цени и артикули'),
   commandRule(['catalog', 'unit', 'vat', 'supplier'], 'catalog.view', 'Номенклатурна основа'),
+  commandRule(['grid', 'column', 'columns', 'layout', 'visiblefields'], 'grid_preferences.view', 'Настройки на колони'),
   commandRule(['location', 'company'], 'locations.view', 'Обекти'),
   commandRule(['reference', 'settings', 'admin'], 'system.reference', 'Системни функции'),
   commandRule(['print'], 'tools.snapshot', 'Печат / snapshot')
@@ -512,6 +526,7 @@ export function permissionContextToViewData(context) {
     canAccessStock: hasPermission(context, 'stock.view'),
     canAccessTransfers: hasPermission(context, 'stock.transfer.view'),
     canAccessPriceList: hasPermission(context, 'price_list.view'),
+    canAccessGridPreferences: hasPermission(context, 'grid_preferences.view'),
     canAccessLocations: hasPermission(context, 'locations.view'),
     canAccessSystemReference: hasPermission(context, 'system.reference')
   };

@@ -45,13 +45,13 @@
         <p>Measure_Id / PurchMeasure с десетичност и бъдещи преобразувания.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.measures" data-ag-grid-title="Мерни единици">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Име</th>
-              <th>Дес.</th>
-              <th>Moneta</th>
+              <th data-ag-column-key="code">Код</th>
+              <th data-ag-column-key="name">Име</th>
+              <th data-ag-column-key="decimalPlaces">Дес.</th>
+              <th data-ag-column-key="moneta">Moneta</th>
             </tr>
           </thead>
           <tbody>
@@ -74,12 +74,12 @@
         <p>VATProd_PostingGroup за артикули, услуги и нулеви режими.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.vatProductGroups" data-ag-grid-title="ДДС продуктови групи">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Име</th>
-              <th>Ставка</th>
+              <th data-ag-column-key="code">Код</th>
+              <th data-ag-column-key="name">Име</th>
+              <th data-ag-column-key="vatPercent">Ставка</th>
             </tr>
           </thead>
           <tbody>
@@ -101,12 +101,12 @@
         <p>TfEdPrices / TfBrPriceList + UnitPrice, UnitCost и цена с/без ДДС.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.priceLevels" data-ag-grid-title="Ценови нива">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Име</th>
-              <th>Поле</th>
+              <th data-ag-column-key="code">Код</th>
+              <th data-ag-column-key="name">Име</th>
+              <th data-ag-column-key="priceField">Поле</th>
             </tr>
           </thead>
           <tbody>
@@ -130,13 +130,13 @@
         <p>N_ItemCategory → N_ItemProductGroup: по-близко до Moneta от прост “item group”.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.productGroups" data-ag-grid-title="Категории и продуктови групи">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Група</th>
-              <th>Категория</th>
-              <th>Склад</th>
+              <th data-ag-column-key="code">Код</th>
+              <th data-ag-column-key="group">Група</th>
+              <th data-ag-column-key="category">Категория</th>
+              <th data-ag-column-key="stockControl">Склад</th>
             </tr>
           </thead>
           <tbody>
@@ -159,13 +159,13 @@
         <p>G_VATPostingSetup: бизнес група × продуктова група × ставка × дневник.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.vatPosting" data-ag-grid-title="ДДС posting setup">
           <thead>
             <tr>
-              <th>Setup</th>
-              <th>ДДС</th>
-              <th>Дневник</th>
-              <th>Цена</th>
+              <th data-ag-column-key="setup">Setup</th>
+              <th data-ag-column-key="vat">ДДС</th>
+              <th data-ag-column-key="ledger">Дневник</th>
+              <th data-ag-column-key="price">Цена</th>
             </tr>
           </thead>
           <tbody>
@@ -190,13 +190,13 @@
         <p>N_Contragent с роля SUPPLIER; доставчикът не е отделна изолирана таблица.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.contragents" data-ag-grid-title="Контрагенти доставчици">
           <thead>
             <tr>
-              <th>Код</th>
-              <th>Име</th>
-              <th>Роли</th>
-              <th>Срок</th>
+              <th data-ag-column-key="code">Код</th>
+              <th data-ag-column-key="name">Име</th>
+              <th data-ag-column-key="roles">Роли</th>
+              <th data-ag-column-key="leadTime">Срок</th>
             </tr>
           </thead>
           <tbody>
@@ -219,13 +219,13 @@
         <p>R_ItemUnitOfMeasure / QtyPerUnitOfMeasure за доставка и продажба.</p>
       </header>
       <div class="ag-catalog-table-wrap">
-        <table class="ag-catalog-table">
+        <table class="ag-catalog-table" data-ag-grid-key="catalog.foundation.unitConversions" data-ag-grid-title="Мерни преобразувания">
           <thead>
             <tr>
-              <th>Артикул</th>
-              <th>Ед.</th>
-              <th>Дост.</th>
-              <th>Коеф.</th>
+              <th data-ag-column-key="item">Артикул</th>
+              <th data-ag-column-key="measure">Ед.</th>
+              <th data-ag-column-key="purchaseMeasure">Дост.</th>
+              <th data-ag-column-key="ratio">Коеф.</th>
             </tr>
           </thead>
           <tbody>
@@ -249,18 +249,18 @@
       <p>N_Item редове с продуктова група, клас, шаблон, ДДС posting група, доставчик и cross reference кодове.</p>
     </header>
     <div class="ag-catalog-table-wrap">
-      <table class="ag-catalog-table ag-catalog-items-table">
+      <table class="ag-catalog-table ag-catalog-items-table" data-ag-grid-key="catalog.foundation.items" data-ag-grid-title="Foundation артикули">
         <thead>
           <tr>
-            <th>Код</th>
-            <th>Артикул</th>
-            <th>Група / клас</th>
-            <th>Ед.</th>
-            <th>ДДС</th>
-            <th>Контрагент</th>
-            <th>Код при доставчик</th>
-            <th>Вътр.</th>
-            <th>Прод.</th>
+            <th data-ag-column-key="code">Код</th>
+            <th data-ag-column-key="item">Артикул</th>
+            <th data-ag-column-key="groupClass">Група / клас</th>
+            <th data-ag-column-key="measure">Ед.</th>
+            <th data-ag-column-key="vat">ДДС</th>
+            <th data-ag-column-key="contragent">Контрагент</th>
+            <th data-ag-column-key="supplierCode">Код при доставчик</th>
+            <th data-ag-column-key="internalPrice">Вътр.</th>
+            <th data-ag-column-key="retailPrice">Прод.</th>
           </tr>
         </thead>
         <tbody>
