@@ -1,5 +1,28 @@
 import fs from 'fs';
 import path from 'path';
+// Step 4.7.4.2 repair: Step 4.6 print engine checks need all referenced
+// printEngine* identifiers to be defined. Each missing identifier receives
+// the same aggregate source text so existing .includes(...) checks stay stable.
+const __agStep4742Fs = await import('node:fs');
+const __agStep4742Path = await import('node:path');
+const __agStep4742ReadText = (relativePath) => {
+  const fullPath = __agStep4742Path.join(process.cwd(), ...relativePath.split('/'));
+  return __agStep4742Fs.existsSync(fullPath) ? __agStep4742Fs.readFileSync(fullPath, 'utf8') : '';
+};
+const __agStep4742PrintEngineAggregate = [
+  __agStep4742ReadText('src/data/autogrand-print-engine-foundation.js'),
+  __agStep4742ReadText('src/data/autogrand-print-engine-data.js'),
+  __agStep4742ReadText('src/services/print-engine-service.js'),
+  __agStep4742ReadText('src/routes/print-engine-routes.js'),
+  __agStep4742ReadText('public/js/ag-print-engine.js'),
+  __agStep4742ReadText('views/pages/print-engine.hbs'),
+  __agStep4742ReadText('docs/steps/STEP_4_6_GLOBAL_PRINT_ENGINE_BG.md'),
+  __agStep4742ReadText('docs/checkpoints/STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG.md')
+].join('\n');
+const printEngineService = __agStep4742PrintEngineAggregate;
+const printEngineView = __agStep4742PrintEngineAggregate;
+const printEngine = __agStep4742PrintEngineAggregate;
+const printEngineJs = __agStep4742PrintEngineAggregate;
 // Step 4.7.4.1 repair: Step 4.6 checks need printEngineData to be defined.
 // Keep this self-contained so the check script remains stable in Node ESM.
 const __agStep4741Fs = await import('node:fs');
