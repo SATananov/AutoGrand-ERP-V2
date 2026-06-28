@@ -1,26 +1,37 @@
-<section class="ag-stock-adjustments-page" data-ag-step="4.8.1">
+<section class="ag-stock-adjustments-page" data-ag-step="4.8.2">
   <div class="ag-page-header ag-stock-adjustments-hero">
     <div>
-      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.1</div>
+      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.2</div>
       <h1>Складови корекции</h1>
       <p>
-        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и реален обратен запис в складовите движения.
+        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и реално binding движение в складовия журнал.
       </p>
     </div>
-    <div class="ag-step-badge">Moneta-safe</div>
+    <div class="ag-step-badge">Movement binding</div>
   </div>
 
   <div class="ag-moneta-rules">
     <strong>Правило:</strong>
-    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ и ново складово движение.
+    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ и ново bound stock movement движение.
   </div>
+
+  <section class="ag-card ag-binding-card" id="agMovementBindingCard">
+    <div class="ag-card-title-row">
+      <div>
+        <h2>Stock movement binding</h2>
+        <p>POSTED корекцията използва реалния слой за складови движения. Ако binding липсва, POST се отказва безопасно.</p>
+      </div>
+      <button type="button" class="ag-btn ag-btn-secondary" id="agReloadBindingBtn">Провери binding</button>
+    </div>
+    <div id="agBindingStatus" class="ag-binding-status"></div>
+  </section>
 
   <div class="ag-stock-adjustments-grid">
     <section class="ag-card ag-card-list">
       <div class="ag-card-title-row">
         <div>
           <h2>Документи</h2>
-          <p>DRAFT документи могат да се редактират. POSTED документи са заключени.</p>
+          <p>DRAFT документи могат да се редактират. POSTED документи са заключени и имат movement trace.</p>
         </div>
         <button type="button" class="ag-btn ag-btn-secondary" id="agReloadAdjustmentsBtn">Обнови</button>
       </div>
@@ -51,12 +62,16 @@
 <script>
 (function () {
   const initialDocuments = {{{initialDocumentsJson}}};
+  const initialBinding = {{{initialBindingJson}}};
   let documents = Array.isArray(initialDocuments) ? initialDocuments : [];
+  let movementBinding = initialBinding || null;
   let activeDocument = null;
 
   const listEl = document.getElementById("agAdjustmentList");
   const detailsEl = document.getElementById("agAdjustmentDetails");
+  const bindingEl = document.getElementById("agBindingStatus");
   const reloadBtn = document.getElementById("agReloadAdjustmentsBtn");
+  const reloadBindingBtn = document.getElementById("agReloadBindingBtn");
   const createForm = document.getElementById("agCreateAdjustmentForm");
 
   function formatNumber(value) {
@@ -89,6 +104,22 @@
     return payload;
   }
 
+  function renderBinding() {
+    const active = movementBinding && movementBinding.active;
+    const candidates = movementBinding && Array.isArray(movementBinding.candidates) ? movementBinding.candidates : [];
+    const statusClass = active ? "is-bound" : "is-missing";
+    const statusText = active ? "BOUND" : "НЕ Е НАМЕРЕН BINDING";
+    const detail = active
+      ? `Таблица: ${escapeHtml(active.table)} · Профил: ${escapeHtml(active.profile)} · Score: ${formatNumber(active.score)}`
+      : "POST ще бъде спрян безопасно, докато не бъде открита реална таблица за складови движения.";
+
+    bindingEl.innerHTML = `
+      <div class="ag-binding-pill ${statusClass}">${statusText}</div>
+      <div class="ag-binding-detail">${detail}</div>
+      ${candidates.length ? `<div class="ag-binding-candidates">Кандидати: ${candidates.slice(0, 4).map((candidate) => escapeHtml(candidate.table)).join(" · ")}</div>` : ""}
+    `;
+  }
+
   function renderList() {
     if (!documents.length) {
       listEl.innerHTML = '<div class="ag-empty-state">Няма създадени документи.</div>';
@@ -98,11 +129,12 @@
     listEl.innerHTML = documents.map((doc) => {
       const activeClass = activeDocument && activeDocument.id === doc.id ? " is-active" : "";
       const postedClass = doc.status === "POSTED" ? " is-posted" : "";
+      const movementMeta = doc.status === "POSTED" ? ` · Движения: ${formatNumber(doc.postedMovementCount)}` : "";
       return `
         <button type="button" class="ag-adjustment-row${activeClass}${postedClass}" data-doc-id="${escapeHtml(doc.id)}">
           <span class="ag-adjustment-number">${escapeHtml(doc.number)}</span>
           <span class="ag-adjustment-status">${escapeHtml(statusLabel(doc.status))}</span>
-          <span class="ag-adjustment-meta">Редове: ${formatNumber(doc.lineCount)} · Разлика: ${formatNumber(doc.totalDelta)}</span>
+          <span class="ag-adjustment-meta">Редове: ${formatNumber(doc.lineCount)} · Разлика: ${formatNumber(doc.totalDelta)}${movementMeta}</span>
         </button>
       `;
     }).join("");
@@ -117,13 +149,14 @@
 
     const locked = activeDocument.status === "POSTED";
     const lines = Array.isArray(activeDocument.lines) ? activeDocument.lines : [];
+    const postingLog = Array.isArray(activeDocument.postingLog) ? activeDocument.postingLog : [];
     detailsEl.className = "ag-adjustment-details" + (locked ? " is-locked" : "");
     detailsEl.innerHTML = `
       <div class="ag-document-panel">
         <div class="ag-card-title-row">
           <div>
             <h3>${escapeHtml(activeDocument.number)}</h3>
-            <p>${escapeHtml(statusLabel(activeDocument.status))}</p>
+            <p>${escapeHtml(statusLabel(activeDocument.status))}${activeDocument.movementBindingTable ? " · " + escapeHtml(activeDocument.movementBindingTable) : ""}</p>
           </div>
           <button type="button" class="ag-btn ag-btn-danger" id="agPostAdjustmentBtn" ${locked ? "disabled" : ""}>POSTED / Осчетоводи</button>
         </div>
@@ -152,6 +185,7 @@
               <th>Текущо</th>
               <th>Преброено</th>
               <th>Разлика</th>
+              <th>Movement</th>
               <th></th>
             </tr>
           </thead>
@@ -163,12 +197,25 @@
                 <td>${formatNumber(line.currentQuantity)}</td>
                 <td>${formatNumber(line.countedQuantity)}</td>
                 <td class="${Number(line.deltaQuantity) >= 0 ? "is-positive" : "is-negative"}">${formatNumber(line.deltaQuantity)}</td>
+                <td>${line.postedMovementId ? `<span class="ag-movement-chip">${escapeHtml(line.postedMovementTable || "movement")} · ${escapeHtml(line.postedMovementId)}</span>` : "-"}</td>
                 <td>${locked ? "🔒" : `<button type="button" class="ag-link-button" data-delete-line="${escapeHtml(line.id)}">Изтрий</button>`}</td>
               </tr>
-            `).join("") : '<tr><td colspan="6" class="ag-empty-cell">Няма редове.</td></tr>'}
+            `).join("") : '<tr><td colspan="7" class="ag-empty-cell">Няма редове.</td></tr>'}
           </tbody>
         </table>
       </div>
+
+      ${postingLog.length ? `
+        <div class="ag-posting-log">
+          <h3>Movement trace</h3>
+          ${postingLog.map((row) => `
+            <div class="ag-posting-log-row">
+              <strong>${escapeHtml(row.movement_table)}</strong>
+              <span>${escapeHtml(row.movement_id)} · ${escapeHtml(row.movement_direction || "") } · ${formatNumber(row.quantity_delta)}</span>
+            </div>
+          `).join("")}
+        </div>
+      ` : ""}
     `;
   }
 
@@ -176,6 +223,12 @@
     const payload = await api("/api/stock/adjustments/documents");
     documents = payload.documents || [];
     renderList();
+  }
+
+  async function loadBinding() {
+    const payload = await api("/api/stock/adjustments/movement-binding");
+    movementBinding = payload.movementBinding;
+    renderBinding();
   }
 
   async function loadDocument(id) {
@@ -193,6 +246,10 @@
 
   reloadBtn.addEventListener("click", () => {
     loadDocuments().catch((error) => alert(error.message));
+  });
+
+  reloadBindingBtn.addEventListener("click", () => {
+    loadBinding().catch((error) => alert(error.message));
   });
 
   createForm.addEventListener("submit", async (event) => {
@@ -256,7 +313,7 @@
     }
 
     if (event.target.id === "agPostAdjustmentBtn" && activeDocument) {
-      if (!confirm("Да осчетоводя ли документа? След POSTED той ще бъде заключен.")) return;
+      if (!confirm("Да осчетоводя ли документа? След POSTED той ще бъде заключен и ще създаде bound stock movement.")) return;
       try {
         const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/post", {
           method: "POST",
@@ -264,6 +321,7 @@
         });
         activeDocument = payload.document;
         await loadDocuments();
+        await loadBinding();
         renderDetails();
       } catch (error) {
         alert(error.message);
@@ -271,6 +329,7 @@
     }
   });
 
+  renderBinding();
   renderList();
   renderDetails();
 })();

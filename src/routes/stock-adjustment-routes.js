@@ -6,6 +6,7 @@ import {
   deleteStockAdjustmentLine,
   getStockAdjustmentDocument,
   getStockAdjustmentFoundationStatus,
+  getStockAdjustmentMovementBindingStatus,
   listStockAdjustmentDocuments,
   pingStockAdjustments,
   postStockAdjustmentDocument,
@@ -36,7 +37,8 @@ router.get("/stock-adjustments", async (req, res, next) => {
       pageTitle: "Складови корекции",
       currentPath: req.path,
       foundation,
-      initialDocumentsJson: JSON.stringify(documents)
+      initialDocumentsJson: JSON.stringify(documents),
+      initialBindingJson: JSON.stringify(foundation.movementBinding || null)
     });
   } catch (error) {
     next(error);
@@ -54,6 +56,14 @@ router.get("/api/stock/adjustments/ping", async (req, res) => {
 router.get("/api/stock/adjustments/foundation", async (req, res) => {
   try {
     sendOk(res, { foundation: await getStockAdjustmentFoundationStatus() });
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get("/api/stock/adjustments/movement-binding", async (req, res) => {
+  try {
+    sendOk(res, { movementBinding: await getStockAdjustmentMovementBindingStatus({ limit: req.query.limit }) });
   } catch (error) {
     sendError(res, error);
   }

@@ -1185,3 +1185,7 @@ AutoGrand compatibility markers for legacy checker:
 - Global Grid Column Preferences
 - grid-column-preferences
 */
+
+// AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Posting Integration / Movement Binding
+
+// 4-8-2-real-stock-adjustment-movement-binding

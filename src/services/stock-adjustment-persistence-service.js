@@ -1,4 +1,11 @@
 import { PrismaClient } from "@prisma/client";
+import {
+  detectRealStockMovementBinding,
+  getStockAdjustmentMovementBindingStatus,
+  insertBoundStockAdjustmentMovement,
+  listStockMovementBindingCandidates,
+  STOCK_ADJUSTMENT_SOURCE_TYPE
+} from "./stock-adjustment-movement-binding-service.js";
 
 const prisma = globalThis.__autoGrandStockAdjustmentPrisma || new PrismaClient();
 if (!globalThis.__autoGrandStockAdjustmentPrisma) {
@@ -10,6 +17,7 @@ const LINE_TABLE = "ag_stock_adjustment_lines";
 const POSTING_LOG_TABLE = "ag_stock_adjustment_posting_log";
 const POSTED = "POSTED";
 const DRAFT = "DRAFT";
+const STEP = "4.8.2";
 
 function nowIso() {
   return new Date().toISOString();
@@ -27,15 +35,12 @@ function asNumber(value, fallback = 0) {
 
 function cleanText(value, fallback = "") {
   if (value === null || value === undefined) return fallback;
-  return String(value).trim();
+  const text = String(value).trim();
+  return text || fallback;
 }
 
 function quoteIdent(name) {
   return `"${String(name).replaceAll('"', '""')}"`;
-}
-
-function rowValue(row, name) {
-  return row[name] ?? row[name.toLowerCase()] ?? row[name.toUpperCase()];
 }
 
 function normalizeDoc(row) {
@@ -57,7 +62,9 @@ function normalizeDoc(row) {
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null,
     lineCount: Number(row.line_count || row.lineCount || 0),
-    totalDelta: Number(row.total_delta || row.totalDelta || 0)
+    totalDelta: Number(row.total_delta || row.totalDelta || 0),
+    postedMovementCount: Number(row.posted_movement_count || row.postedMovementCount || 0),
+    movementBindingTable: row.movement_binding_table || row.movementBindingTable || null
   };
 }
 
@@ -75,10 +82,26 @@ function normalizeLine(row) {
     deltaQuantity: Number(row.delta_quantity || 0),
     reason: row.reason || "",
     note: row.note || "",
-    postedMovementId: row.posted_movement_id || null,
+    postedMovementId: row.posted_movement_id || row.movement_id || null,
+    postedMovementTable: row.movement_table || null,
+    postedQuantityDelta: row.posted_quantity_delta === undefined || row.posted_quantity_delta === null ? null : Number(row.posted_quantity_delta),
+    movementDirection: row.movement_direction || null,
+    bindingProfile: row.binding_profile || null,
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null
   };
+}
+
+async function tableInfo(db, table) {
+  return db.$queryRawUnsafe(`PRAGMA table_info(${quoteIdent(table)})`);
+}
+
+async function ensureColumn(db, table, name, definition) {
+  const columns = await tableInfo(db, table);
+  const exists = columns.some((column) => String(column.name).toLowerCase() === String(name).toLowerCase());
+  if (!exists) {
+    await db.$executeRawUnsafe(`ALTER TABLE ${quoteIdent(table)} ADD COLUMN ${quoteIdent(name)} ${definition}`);
+  }
 }
 
 export async function ensureStockAdjustmentPersistence(db = prisma) {
@@ -139,20 +162,33 @@ export async function ensureStockAdjustmentPersistence(db = prisma) {
     )
   `);
 
+  await ensureColumn(db, POSTING_LOG_TABLE, "movement_direction", "TEXT");
+  await ensureColumn(db, POSTING_LOG_TABLE, "binding_profile", "TEXT");
+  await ensureColumn(db, POSTING_LOG_TABLE, "binding_score", "REAL");
+  await ensureColumn(db, POSTING_LOG_TABLE, "source_type", "TEXT");
+  await ensureColumn(db, POSTING_LOG_TABLE, "posted_by", "TEXT");
+
   return {
     ok: true,
+    step: STEP,
     documentTable: DOCUMENT_TABLE,
     lineTable: LINE_TABLE,
-    postingLogTable: POSTING_LOG_TABLE
+    postingLogTable: POSTING_LOG_TABLE,
+    movementBinding: "real-stock-movement-table-only"
   };
 }
 
 async function readDocumentRow(id, db = prisma) {
   await ensureStockAdjustmentPersistence(db);
   const rows = await db.$queryRawUnsafe(
-    `SELECT d.*, COUNT(l.id) AS line_count, COALESCE(SUM(l.delta_quantity), 0) AS total_delta
+    `SELECT d.*,
+            COUNT(l.id) AS line_count,
+            COALESCE(SUM(l.delta_quantity), 0) AS total_delta,
+            COUNT(pl.id) AS posted_movement_count,
+            MAX(pl.movement_table) AS movement_binding_table
      FROM ${quoteIdent(DOCUMENT_TABLE)} d
      LEFT JOIN ${quoteIdent(LINE_TABLE)} l ON l.document_id = d.id
+     LEFT JOIN ${quoteIdent(POSTING_LOG_TABLE)} pl ON pl.document_id = d.id AND pl.line_id = l.id
      WHERE d.id = ?
      GROUP BY d.id`,
     id
@@ -182,9 +218,14 @@ export async function listStockAdjustmentDocuments(options = {}) {
   const where = status ? "WHERE d.status = ?" : "";
   const params = status ? [status, limit] : [limit];
   const rows = await prisma.$queryRawUnsafe(
-    `SELECT d.*, COUNT(l.id) AS line_count, COALESCE(SUM(l.delta_quantity), 0) AS total_delta
+    `SELECT d.*,
+            COUNT(l.id) AS line_count,
+            COALESCE(SUM(l.delta_quantity), 0) AS total_delta,
+            COUNT(pl.id) AS posted_movement_count,
+            MAX(pl.movement_table) AS movement_binding_table
      FROM ${quoteIdent(DOCUMENT_TABLE)} d
      LEFT JOIN ${quoteIdent(LINE_TABLE)} l ON l.document_id = d.id
+     LEFT JOIN ${quoteIdent(POSTING_LOG_TABLE)} pl ON pl.document_id = d.id AND pl.line_id = l.id
      ${where}
      GROUP BY d.id
      ORDER BY d.created_at DESC
@@ -194,17 +235,32 @@ export async function listStockAdjustmentDocuments(options = {}) {
   return rows.map(normalizeDoc);
 }
 
+async function getPostingLogRows(documentId, db = prisma) {
+  await ensureStockAdjustmentPersistence(db);
+  return db.$queryRawUnsafe(
+    `SELECT * FROM ${quoteIdent(POSTING_LOG_TABLE)} WHERE document_id = ? ORDER BY created_at ASC`,
+    documentId
+  );
+}
+
 export async function getStockAdjustmentDocument(id) {
   await ensureStockAdjustmentPersistence();
   const docRow = await readDocumentRow(id);
   if (!docRow) return null;
   const lineRows = await prisma.$queryRawUnsafe(
-    `SELECT * FROM ${quoteIdent(LINE_TABLE)} WHERE document_id = ? ORDER BY created_at ASC`,
+    `SELECT l.*, pl.movement_table, pl.quantity_delta AS posted_quantity_delta,
+            pl.movement_direction, pl.binding_profile, pl.movement_id
+     FROM ${quoteIdent(LINE_TABLE)} l
+     LEFT JOIN ${quoteIdent(POSTING_LOG_TABLE)} pl ON pl.document_id = l.document_id AND pl.line_id = l.id
+     WHERE l.document_id = ?
+     ORDER BY l.created_at ASC`,
     id
   );
+  const postingLog = await getPostingLogRows(id);
   return {
     ...normalizeDoc(docRow),
-    lines: lineRows.map(normalizeLine)
+    lines: lineRows.map(normalizeLine),
+    postingLog
   };
 }
 
@@ -315,149 +371,20 @@ export async function deleteStockAdjustmentLine(documentId, lineId) {
   return getStockAdjustmentDocument(documentId);
 }
 
-async function listTables(db) {
-  return db.$queryRawUnsafe("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name");
-}
-
-async function tableInfo(db, table) {
-  return db.$queryRawUnsafe(`PRAGMA table_info(${quoteIdent(table)})`);
-}
-
-function columnByNames(columns, names) {
-  const lower = new Map(columns.map((c) => [String(c.name).toLowerCase(), c.name]));
-  for (const name of names) {
-    const found = lower.get(String(name).toLowerCase());
-    if (found) return found;
-  }
-  return null;
-}
-
-function stockMovementTableScore(table, columns) {
-  const names = new Set(columns.map((c) => String(c.name).toLowerCase()));
-  let score = 0;
-  const tableLower = table.toLowerCase();
-  if (tableLower.includes("stock")) score += 5;
-  if (tableLower.includes("movement") || tableLower.includes("journal")) score += 5;
-  if (names.has("quantity") || names.has("qty") || names.has("delta_quantity") || names.has("deltaquantity")) score += 5;
-  if (names.has("itemid") || names.has("item_id") || names.has("productid") || names.has("product_id")) score += 4;
-  if (names.has("warehouseid") || names.has("warehouse_id") || names.has("locationid") || names.has("location_id")) score += 2;
-  if (names.has("direction") || names.has("type") || names.has("movementtype") || names.has("movement_type")) score += 3;
-  if (tableLower.startsWith("ag_stock_adjustment")) score -= 100;
-  return score;
-}
-
+// Compatibility wrappers kept for the Step 4.8.1 smoke markers.
 async function detectStockMovementTarget(db) {
-  const tables = await listTables(db);
-  let best = null;
-  for (const row of tables) {
-    const table = row.name;
-    const columns = await tableInfo(db, table);
-    const score = stockMovementTableScore(table, columns);
-    if (!best || score > best.score) best = { table, columns, score };
-  }
-  if (!best || best.score < 10) return null;
-  return best;
+  return detectRealStockMovementBinding(db);
 }
 
-function defaultRequiredValue(column, line, doc, quantityDelta, movementId) {
-  const name = String(column.name).toLowerCase();
-  const type = String(column.type || "").toUpperCase();
-  if (name === "id" || name.endsWith("_id")) return movementId;
-  if (name.includes("number") || name.includes("reference")) return doc.number;
-  if (name.includes("date") || name.includes("time") || name.includes("created") || name.includes("updated")) return nowIso();
-  if (name.includes("status")) return POSTED;
-  if (name.includes("direction")) return quantityDelta >= 0 ? "IN" : "OUT";
-  if (name.includes("type") || name.includes("kind")) return "ADJUSTMENT";
-  if (name.includes("reason") || name.includes("note") || name.includes("comment") || name.includes("description")) return `Складова корекция ${doc.number}`;
-  if (name.includes("item")) return line.item_id;
-  if (name.includes("warehouse") || name.includes("location") || name.includes("object")) return line.warehouse_id || null;
-  if (type.includes("INT") || type.includes("REAL") || type.includes("NUM") || type.includes("DEC") || type.includes("FLOAT") || type.includes("DOUBLE")) return 0;
-  return "STOCK_ADJUSTMENT";
-}
-
-async function insertStockMovement(db, doc, line) {
-  const target = await detectStockMovementTarget(db);
-  if (!target) {
-    const err = new Error("Не е намерена съществуваща таблица за складови движения. Осчетоводяването е спряно, за да не се симулира журнал.");
-    err.statusCode = 500;
-    throw err;
-  }
-
-  const columns = target.columns;
-  const movementId = newId("SMV");
-  const quantityDelta = asNumber(line.delta_quantity, 0);
-  const quantityAbs = Math.abs(quantityDelta);
-  const valuesByColumn = new Map();
-
-  const idColumn = columnByNames(columns, ["id"]);
-  if (idColumn) valuesByColumn.set(idColumn, movementId);
-
-  const quantityColumn = columnByNames(columns, ["delta_quantity", "deltaQuantity", "quantityDelta", "qtyDelta", "quantity", "qty", "amount"]);
-  if (quantityColumn) {
-    const lower = String(quantityColumn).toLowerCase();
-    valuesByColumn.set(quantityColumn, lower.includes("delta") ? quantityDelta : quantityAbs);
-  }
-
-  const signedQuantityColumn = columnByNames(columns, ["signedQuantity", "signed_quantity"]);
-  if (signedQuantityColumn) valuesByColumn.set(signedQuantityColumn, quantityDelta);
-
-  const directionColumn = columnByNames(columns, ["direction", "side", "io"]);
-  if (directionColumn) valuesByColumn.set(directionColumn, quantityDelta >= 0 ? "IN" : "OUT");
-
-  const typeColumn = columnByNames(columns, ["type", "movementType", "movement_type", "kind"]);
-  if (typeColumn) valuesByColumn.set(typeColumn, "ADJUSTMENT");
-
-  const itemColumn = columnByNames(columns, ["itemId", "item_id", "productId", "product_id", "articleId", "article_id"]);
-  if (itemColumn) valuesByColumn.set(itemColumn, line.item_id);
-
-  const warehouseColumn = columnByNames(columns, ["warehouseId", "warehouse_id", "locationId", "location_id", "objectId", "object_id"]);
-  if (warehouseColumn) valuesByColumn.set(warehouseColumn, line.warehouse_id || null);
-
-  const sourceTypeColumn = columnByNames(columns, ["sourceType", "source_type", "documentType", "document_type", "originType", "origin_type"]);
-  if (sourceTypeColumn) valuesByColumn.set(sourceTypeColumn, "STOCK_ADJUSTMENT");
-
-  const sourceIdColumn = columnByNames(columns, ["sourceId", "source_id", "documentId", "document_id", "originId", "origin_id"]);
-  if (sourceIdColumn) valuesByColumn.set(sourceIdColumn, doc.id);
-
-  const sourceLineColumn = columnByNames(columns, ["sourceLineId", "source_line_id", "documentLineId", "document_line_id"]);
-  if (sourceLineColumn) valuesByColumn.set(sourceLineColumn, line.id);
-
-  const numberColumn = columnByNames(columns, ["documentNumber", "document_number", "sourceNumber", "source_number", "reference", "referenceNo", "reference_no"]);
-  if (numberColumn) valuesByColumn.set(numberColumn, doc.number);
-
-  const reasonColumn = columnByNames(columns, ["reason", "note", "comment", "description"]);
-  if (reasonColumn) valuesByColumn.set(reasonColumn, `Складова корекция ${doc.number}`);
-
-  const createdColumn = columnByNames(columns, ["createdAt", "created_at", "postedAt", "posted_at", "movementDate", "movement_date", "date"]);
-  if (createdColumn) valuesByColumn.set(createdColumn, nowIso());
-
-  for (const column of columns) {
-    const columnName = String(column.name);
-    const hasDefault = column.dflt_value !== null && column.dflt_value !== undefined;
-    const required = Number(column.notnull) === 1 && !hasDefault && Number(column.pk) !== 1;
-    if (required && !valuesByColumn.has(columnName)) {
-      valuesByColumn.set(columnName, defaultRequiredValue(column, line, doc, quantityDelta, movementId));
-    }
-  }
-
-  const insertColumns = Array.from(valuesByColumn.keys());
-  const insertValues = insertColumns.map((name) => valuesByColumn.get(name));
-  if (insertColumns.length === 0) {
-    const err = new Error(`Таблицата ${target.table} не приема безопасен insert за складово движение.`);
-    err.statusCode = 500;
-    throw err;
-  }
-
-  const placeholders = insertColumns.map(() => "?").join(", ");
-  const sql = `INSERT INTO ${quoteIdent(target.table)} (${insertColumns.map(quoteIdent).join(", ")}) VALUES (${placeholders})`;
-  await db.$executeRawUnsafe(sql, ...insertValues);
-
-  return {
-    movementId,
-    table: target.table,
-    quantityDelta,
-    score: target.score
-  };
+async function insertStockMovement(db, doc, line, options = {}) {
+  return insertBoundStockAdjustmentMovement(db, {
+    document: doc,
+    line,
+    postedBy: options.postedBy,
+    user: options.user,
+    reason: options.reason,
+    binding: options.binding
+  });
 }
 
 export async function postStockAdjustmentDocument(documentId, options = {}) {
@@ -471,8 +398,22 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
       throw err;
     }
     if (docRow.status === POSTED) {
-      const existing = await getStockAdjustmentDocument(documentId);
-      return { ok: true, alreadyPosted: true, document: existing, movements: [] };
+      const existingLog = await getPostingLogRows(documentId, tx);
+      return {
+        ok: true,
+        alreadyPosted: true,
+        movementBinding: existingLog.length ? existingLog[0].movement_table : null,
+        movements: existingLog.map((row) => ({
+          reused: true,
+          movementId: row.movement_id,
+          movementTable: row.movement_table,
+          table: row.movement_table,
+          quantityDelta: Number(row.quantity_delta || 0),
+          direction: row.movement_direction,
+          bindingProfile: row.binding_profile,
+          sourceType: row.source_type || STOCK_ADJUSTMENT_SOURCE_TYPE
+        }))
+      };
     }
 
     const lines = await tx.$queryRawUnsafe(
@@ -486,7 +427,15 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
       throw err;
     }
 
+    const binding = await detectStockMovementTarget(tx);
+    if (!binding) {
+      const err = new Error("Не е намерена реална таблица за складови движения. Осчетоводяването е спряно, за да се защити журналът.");
+      err.statusCode = 500;
+      throw err;
+    }
+
     const doc = normalizeDoc(docRow);
+    const postedBy = cleanText(options.postedBy || options.user || "system");
     const movements = [];
     for (const line of nonZeroLines) {
       const existingLog = await tx.$queryRawUnsafe(
@@ -494,20 +443,41 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
         documentId,
         line.id
       );
-      if (existingLog.length > 0) continue;
+      if (existingLog.length > 0) {
+        const row = existingLog[0];
+        movements.push({
+          reused: true,
+          movementId: row.movement_id,
+          movementTable: row.movement_table,
+          table: row.movement_table,
+          quantityDelta: Number(row.quantity_delta || 0),
+          direction: row.movement_direction,
+          bindingProfile: row.binding_profile,
+          sourceType: row.source_type || STOCK_ADJUSTMENT_SOURCE_TYPE
+        });
+        continue;
+      }
 
-      const movement = await insertStockMovement(tx, doc, line);
+      const movement = await insertStockMovement(tx, doc, line, { postedBy, binding });
+      if (movement.skipped) continue;
+
       await tx.$executeRawUnsafe(
         `INSERT INTO ${quoteIdent(POSTING_LOG_TABLE)}
-         (id, document_id, line_id, movement_table, movement_id, quantity_delta, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         (id, document_id, line_id, movement_table, movement_id, quantity_delta, created_at,
+          movement_direction, binding_profile, binding_score, source_type, posted_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         newId("APL"),
         documentId,
         line.id,
-        movement.table,
+        movement.movementTable || movement.table,
         movement.movementId,
         movement.quantityDelta,
-        nowIso()
+        nowIso(),
+        movement.direction,
+        movement.bindingProfile,
+        movement.bindingScore,
+        movement.sourceType || STOCK_ADJUSTMENT_SOURCE_TYPE,
+        postedBy
       );
       await tx.$executeRawUnsafe(
         `UPDATE ${quoteIdent(LINE_TABLE)} SET posted_movement_id = ?, updated_at = ? WHERE id = ?`,
@@ -525,14 +495,21 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
        WHERE id = ?`,
       POSTED,
       postedAt,
-      cleanText(options.postedBy || options.user || "system"),
+      postedBy,
       postedAt,
-      "POSTED документ — заключен по Moneta логика",
+      "POSTED документ - заключен; реалният ефект е записан като ново складово движение",
       postedAt,
       documentId
     );
 
-    return { ok: true, alreadyPosted: false, movements };
+    return {
+      ok: true,
+      step: STEP,
+      alreadyPosted: false,
+      movementBinding: binding.table,
+      bindingProfile: binding.profile,
+      movements
+    };
   });
 
   return {
@@ -569,18 +546,25 @@ export async function createDraftFromIssue(issue = {}) {
 
 export async function getStockAdjustmentPersistenceHealth() {
   const persistence = await ensureStockAdjustmentPersistence();
-  const movementTarget = await detectStockMovementTarget(prisma);
+  const bindingStatus = await getStockAdjustmentMovementBindingStatus(prisma);
+  const movementTarget = bindingStatus.active;
   return {
     ok: true,
+    step: STEP,
     persistence,
-    movementTarget: movementTarget
-      ? {
-          table: movementTarget.table,
-          score: movementTarget.score,
-          columns: movementTarget.columns.map((column) => column.name)
-        }
-      : null,
+    movementTarget,
+    movementBinding: bindingStatus,
     canPost: Boolean(movementTarget),
-    rule: "Осчетоводяването спира, ако не бъде открита реална таблица за складови движения."
+    rule: "Осчетоводяването използва само реална таблица за складови движения. Ако binding липсва, POST се отказва безопасно."
   };
+}
+
+export async function getStockAdjustmentMovementBindingHealth() {
+  await ensureStockAdjustmentPersistence();
+  return getStockAdjustmentMovementBindingStatus(prisma);
+}
+
+export async function listStockAdjustmentMovementBindingCandidates(options = {}) {
+  await ensureStockAdjustmentPersistence();
+  return listStockMovementBindingCandidates(prisma, options);
 }

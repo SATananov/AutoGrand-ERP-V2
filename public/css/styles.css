@@ -8219,3 +8219,82 @@ AutoGrand compatibility markers for legacy checker:
 - Global Grid Column Preferences
 - grid-column-preferences
 */
+
+/* AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Movement Binding START */
+.ag-binding-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f6fbf0 100%);
+}
+
+.ag-binding-status {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ag-binding-pill {
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 11px;
+  text-transform: uppercase;
+}
+
+.ag-binding-pill.is-bound {
+  background: #dff0cc;
+  border: 1px solid #85b85a;
+  color: #305213;
+}
+
+.ag-binding-pill.is-missing {
+  background: #fff1ec;
+  border: 1px solid #d08c76;
+  color: #7a2e1d;
+}
+
+.ag-binding-detail,
+.ag-binding-candidates {
+  color: #556050;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ag-movement-chip {
+  background: #edf5e4;
+  border: 1px solid #c7dab7;
+  border-radius: 999px;
+  color: #315214;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  max-width: 260px;
+  overflow: hidden;
+  padding: 4px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ag-posting-log {
+  background: #f8fbf4;
+  border: 1px solid #d7e4cc;
+  border-radius: 9px;
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+}
+
+.ag-posting-log-row {
+  align-items: center;
+  border-bottom: 1px solid #e3eadc;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.ag-posting-log-row:last-child {
+  border-bottom: 0;
+}
+/* AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Movement Binding END */
+

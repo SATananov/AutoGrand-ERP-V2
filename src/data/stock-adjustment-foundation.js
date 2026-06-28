@@ -1,8 +1,8 @@
-// AutoGrand ERP V2 — Step 4.8.1 Persistent Stock Adjustment Documents + Posting Lock
+// AutoGrand ERP V2 — Step 4.8.2 Real Stock Adjustment Posting Integration / Movement Binding
 // Foundation metadata for the stock correction / adjustment document workflow.
 
-export const STOCK_ADJUSTMENT_STEP = "4.8.1";
-export const STOCK_ADJUSTMENT_VERSION = "0.4.13";
+export const STOCK_ADJUSTMENT_STEP = "4.8.2";
+export const STOCK_ADJUSTMENT_VERSION = "0.4.14";
 
 export const STOCK_ADJUSTMENT_DOCUMENT_STATES = Object.freeze({
   DRAFT: "DRAFT",
@@ -15,7 +15,8 @@ export const STOCK_ADJUSTMENT_MONETA_RULES = Object.freeze([
   "Корекцията се прави чрез отделен документ.",
   "Документът минава през DRAFT към POSTED.",
   "POSTED документ е заключен и не допуска промяна на редове.",
-  "Складовият ефект се записва като ново коригиращо движение."
+  "Складовият ефект се записва като ново коригиращо движение в реалния movement слой.",
+  "Повторен POST не създава второ движение за същия ред."
 ]);
 
 export const STOCK_ADJUSTMENT_CAPABILITIES = Object.freeze({
@@ -24,6 +25,8 @@ export const STOCK_ADJUSTMENT_CAPABILITIES = Object.freeze({
   rawJournalEdit: false,
   deleteOldMovements: false,
   createsCorrectionMovement: true,
+  realMovementBinding: true,
+  idempotentPosting: true,
   usesShadowTables: false,
   prismaSchemaChangeRequired: false
 });
@@ -33,8 +36,8 @@ export function getStockAdjustmentFoundation() {
     ok: true,
     step: STOCK_ADJUSTMENT_STEP,
     version: STOCK_ADJUSTMENT_VERSION,
-    title: "Persistent Stock Adjustment Documents + Posting Lock",
-    bgTitle: "Постоянни документи за складова корекция и заключване след осчетоводяване",
+    title: "Real Stock Adjustment Posting Integration / Movement Binding",
+    bgTitle: "Реално осчетоводяване на складови корекции чрез stock movement binding",
     route: "/stock-adjustments",
     api: {
       ping: "/api/stock/adjustments/ping",
@@ -42,6 +45,7 @@ export function getStockAdjustmentFoundation() {
       preview: "/api/stock/adjustments/preview",
       fromIssue: "/api/stock/adjustments/from-issue",
       documents: "/api/stock/adjustments/documents",
+      movementBinding: "/api/stock/adjustments/movement-binding",
       post: "/api/stock/adjustments/documents/:id/post"
     },
     states: STOCK_ADJUSTMENT_DOCUMENT_STATES,
@@ -51,7 +55,8 @@ export function getStockAdjustmentFoundation() {
       documentTable: "ag_stock_adjustment_documents",
       lineTable: "ag_stock_adjustment_lines",
       postingLogTable: "ag_stock_adjustment_posting_log",
-      mode: "runtime-safe-sqlite-ddl-via-prisma-raw-sql"
+      mode: "runtime-safe-sqlite-ddl-via-prisma-raw-sql",
+      movementBinding: "existing-stock-movement-table-only"
     }
   };
 }

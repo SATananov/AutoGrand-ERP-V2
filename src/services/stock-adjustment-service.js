@@ -5,8 +5,10 @@ import {
   deleteStockAdjustmentLine,
   ensureStockAdjustmentPersistence,
   getStockAdjustmentDocument,
+  getStockAdjustmentMovementBindingHealth,
   getStockAdjustmentPersistenceHealth,
   listStockAdjustmentDocuments,
+  listStockAdjustmentMovementBindingCandidates,
   postStockAdjustmentDocument,
   upsertStockAdjustmentLine
 } from "./stock-adjustment-persistence-service.js";
@@ -18,16 +20,17 @@ function asNumber(value, fallback = 0) {
 
 function cleanText(value, fallback = "") {
   if (value === null || value === undefined) return fallback;
-  return String(value).trim();
+  const text = String(value).trim();
+  return text || fallback;
 }
 
 export async function pingStockAdjustments() {
   const health = await getStockAdjustmentPersistenceHealth();
   return {
     ok: true,
-    step: "4.8.1",
-    version: "0.4.13",
-    message: "Stock adjustment persistent documents are available.",
+    step: "4.8.2",
+    version: "0.4.14",
+    message: "Stock adjustment posting is bound to the real stock movement layer.",
     health
   };
 }
@@ -35,10 +38,21 @@ export async function pingStockAdjustments() {
 export async function getStockAdjustmentFoundationStatus() {
   const persistence = await ensureStockAdjustmentPersistence();
   const health = await getStockAdjustmentPersistenceHealth();
+  const movementBinding = await getStockAdjustmentMovementBindingHealth();
   return {
     ...getStockAdjustmentFoundation(),
     persistence,
-    health
+    health,
+    movementBinding
+  };
+}
+
+export async function getStockAdjustmentMovementBindingStatus(options = {}) {
+  const health = await getStockAdjustmentMovementBindingHealth();
+  const candidates = await listStockAdjustmentMovementBindingCandidates({ limit: options.limit || 8 });
+  return {
+    ...health,
+    candidates
   };
 }
 
@@ -52,7 +66,7 @@ export function previewStockAdjustment(payload = {}) {
 
   return {
     ok: true,
-    step: "4.8.1",
+    step: "4.8.2",
     mode: "preview-only",
     itemId: cleanText(payload.itemId || payload.item_id),
     itemCode: cleanText(payload.itemCode || payload.item_code),
@@ -63,7 +77,8 @@ export function previewStockAdjustment(payload = {}) {
     deltaQuantity,
     direction: deltaQuantity >= 0 ? "IN" : "OUT",
     createsMovement: Math.abs(deltaQuantity) > 0.0000001,
-    monetaRule: "Preview не пипа склада. Реален ефект има само след DRAFT → POSTED."
+    postingIntegration: "POSTED document writes one bound stock movement per non-zero line.",
+    monetaRule: "Preview не пипа склада. Реален ефект има само след DRAFT към POSTED."
   };
 }
 
@@ -80,7 +95,7 @@ export function buildStockAdjustmentFromIssuePreview(issue = {}) {
 
   return {
     ok: true,
-    step: "4.8.1",
+    step: "4.8.2",
     mode: "issue-preview",
     issueKey: cleanText(issue.key || issue.issueKey || issue.id),
     issue,
