@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{title}}</title>
+    <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
+    <link rel="stylesheet" href="/public/css/styles.css?v=3.5.4-compact-picking" />
+  </head>
+  <body class="transfer-print-body">
+    <main
+      class="transfer-print-page"
+      data-transfer-print
+      data-print-url="{{transferPrint.printUrl}}"
+      data-card-url="{{transferPrint.cardUrl}}"
+      data-current-form="{{transferPrint.printFormId}}"
+      data-current-printer="{{transferPrint.printerProfile.id}}"
+      data-current-copies="{{transferPrint.copies}}"
+    >
+      <section class="transfer-print-toolbar" aria-label="Команди за печат">
+        <div>
+          <strong>{{transferPrint.number}}</strong>
+          <span>{{transferPrint.printForm.title}} · {{transferPrint.printerProfile.title}} · {{transferPrint.statusText}}</span>
+        </div>
+        <div class="transfer-print-toolbar-actions">
+          <button type="button" data-transfer-print-command="dialog">Избор на печатна форма</button>
+          <button type="button" data-transfer-print-command="print">Печат</button>
+          <a href="{{transferPrint.quickPrintLinks.compactUrl}}">Компактен</a>
+          <a href="{{transferPrint.quickPrintLinks.pricedUrl}}">С цени</a>
+          <a href="{{transferPrint.cardUrl}}">Карта</a>
+          <a href="{{transferPrint.centerUrl}}">Трансфери и заявки</a>
+        </div>
+      </section>
+
+      <section class="transfer-print-profile-bar" aria-label="Текущ печатен профил">
+        <span>Форма: <strong>{{transferPrint.printForm.title}}</strong></span>
+        <span>Принтер профил: <strong>{{transferPrint.printerProfile.title}}</strong></span>
+        <span>Копия: <strong>{{transferPrint.copies}}</strong></span>
+        <span>Хартия: <strong>{{transferPrint.printerProfile.paper}}</strong></span>
+      </section>
+
+      {{#if transferPrint.actionMessage}}
+        <section class="document-action-message success transfer-print-message">
+          <strong>Съобщение</strong>
+          <span>{{transferPrint.actionMessage}}</span>
+        </section>
+      {{/if}}
+
+      <article class="transfer-slip-sheet {{transferPrint.printModeClass}}">
+        {{#if transferPrint.isDetailed}}
+          <header class="transfer-slip-header">
+            <div class="transfer-slip-brand">
+              <img src="/public/img/autogrand-road-mark.png" alt="AutoGrand" />
+              <div>
+                <strong>AutoGrand ERP</strong>
+                <span>КЪРДЖАЛИ - Автогранд ООД</span>
+              </div>
+            </div>
+            <div class="transfer-slip-title">
+              <span>Склад / Трансфер</span>
+              <h1>{{transferPrint.title}}</h1>
+              <p>{{transferPrint.purposeText}}</p>
+              <em class="status-pill {{transferPrint.statusKind}}">{{transferPrint.statusText}}</em>
+            </div>
+          </header>
+
+          <section class="transfer-slip-meta">
+            <div>
+              <span>Документ №</span>
+              <strong>{{transferPrint.number}}</strong>
+            </div>
+            <div>
+              <span>Дата</span>
+              <strong>{{transferPrint.transferDateText}}</strong>
+            </div>
+            <div>
+              <span>Печат</span>
+              <strong>{{transferPrint.printedAtText}}</strong>
+            </div>
+            <div>
+              <span>Редове / Количество</span>
+              <strong>{{transferPrint.summary.linesText}} / {{transferPrint.summary.quantityText}}</strong>
+            </div>
+          </section>
+
+          <section class="transfer-slip-route">
+            <div>
+              <span>От обект</span>
+              <strong>{{transferPrint.fromWarehouse.name}}</strong>
+              <em>{{transferPrint.fromWarehouse.code}} · {{transferPrint.fromWarehouse.typeText}} · {{transferPrint.fromWarehouse.city}}</em>
+            </div>
+            <div class="transfer-slip-arrow">→</div>
+            <div>
+              <span>Към обект</span>
+              <strong>{{transferPrint.toWarehouse.name}}</strong>
+              <em>{{transferPrint.toWarehouse.code}} · {{transferPrint.toWarehouse.typeText}} · {{transferPrint.toWarehouse.city}}</em>
+            </div>
+          </section>
+
+          <section class="transfer-slip-status-note">
+            <strong>Статус</strong>
+            <span>{{transferPrint.statusNote}}</span>
+          </section>
+
+        {{else}}
+          <header class="transfer-slip-compact-header">
+            <div class="transfer-slip-compact-brand">
+              <img src="/public/img/autogrand-road-mark.png" alt="AutoGrand" />
+              <div>
+                <strong>AutoGrand ERP</strong>
+                <span>КЪРДЖАЛИ - Автогранд ООД</span>
+              </div>
+            </div>
+            <div class="transfer-slip-compact-title">
+              <h1>{{transferPrint.title}}</h1>
+              <span>{{transferPrint.number}} · {{transferPrint.transferDateText}} · {{transferPrint.statusText}}</span>
+            </div>
+          </header>
+
+          <section class="transfer-slip-compact-info">
+            <div><strong>От:</strong> {{transferPrint.fromWarehouse.name}} · {{transferPrint.fromWarehouse.code}}</div>
+            <div><strong>Към:</strong> {{transferPrint.toWarehouse.name}} · {{transferPrint.toWarehouse.code}}</div>
+            <div><strong>Форма:</strong> {{transferPrint.printForm.title}}</div>
+            <div><strong>Редове/к-во:</strong> {{transferPrint.summary.linesText}} / {{transferPrint.summary.quantityText}}</div>
+          </section>
+        {{/if}}
+
+        <section class="transfer-slip-lines {{transferPrint.printModeClass}}">
+          <h2>Артикули</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Код</th>
+                <th>Артикул</th>
+                <th>К-во</th>
+                <th>Мярка</th>
+                {{#if transferPrint.showPrices}}
+                  <th>Дост. цена</th>
+                  <th>Прод. с ДДС</th>
+                  <th>Стойност дост.</th>
+                  <th>Стойност прод.</th>
+                {{/if}}
+              </tr>
+            </thead>
+            <tbody>
+              {{#each transferPrint.lines}}
+                <tr>
+                  <td>{{index}}</td>
+                  <td><strong>{{itemCode}}</strong></td>
+                  <td>{{itemName}}</td>
+                  <td class="qty-cell {{quantityAlertClass}}">{{quantityText}}</td>
+                  <td>{{unit}}</td>
+                  {{#if ../transferPrint.showPrices}}
+                    <td class="money-cell">{{costPriceText}}</td>
+                    <td class="money-cell">{{salePriceVatText}}</td>
+                    <td class="money-cell">{{costTotalText}}</td>
+                    <td class="money-cell">{{saleTotalVatText}}</td>
+                  {{/if}}
+                </tr>
+              {{else}}
+                <tr>
+                  <td colspan="10">Няма редове в трансферния документ.</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+          {{#if transferPrint.showPrices}}
+            <div class="transfer-slip-totals compact-totals">
+              <div>
+                <span>Общо по доставна цена</span>
+                <strong>{{transferPrint.summary.totalCostText}}</strong>
+              </div>
+              <div>
+                <span>Общо по продажна цена с ДДС</span>
+                <strong>{{transferPrint.summary.totalSaleVatText}}</strong>
+              </div>
+            </div>
+            <p class="transfer-slip-internal-note">Доставните цени са вътрешна служебна информация.</p>
+          {{/if}}
+        </section>
+
+
+        {{#if transferPrint.note}}
+          <section class="transfer-slip-bottom-comment">
+            <strong>За кого / причина:</strong>
+            <span>{{transferPrint.note}}</span>
+          </section>
+        {{/if}}
+
+        {{#if transferPrint.isDetailed}}
+          {{#if transferPrint.movementRows}}
+            <section class="transfer-slip-movements">
+              <h2>Складови движения</h2>
+              <div class="transfer-slip-movement-grid">
+                {{#each transferPrint.movementRows}}
+                  <div>
+                    <strong>{{number}}</strong>
+                    <span>{{movementDateText}} · {{directionText}} · {{warehouseName}}</span>
+                    <em>{{itemCode}} · {{quantityText}} · {{reason}}</em>
+                  </div>
+                {{/each}}
+              </div>
+            </section>
+          {{/if}}
+        {{/if}}
+
+        <section class="transfer-slip-signatures {{transferPrint.printModeClass}}">
+          {{#each transferPrint.signatureBlocks}}
+            <div>
+              <strong>{{title}}</strong>
+              {{#if name}}
+                <b>{{name}}</b>
+              {{else}}
+                <b>&nbsp;</b>
+              {{/if}}
+              <span></span>
+              <em>{{subtitle}}</em>
+            </div>
+          {{/each}}
+        </section>
+
+        <footer class="transfer-slip-footer">
+          <span>{{transferPrint.copyNote}}</span>
+          <strong>{{transferPrint.number}}</strong>
+        </footer>
+      </article>
+
+      <section class="ag-print-form-dialog" data-transfer-print-dialog hidden aria-label="Избор на печатна форма">
+        <div class="ag-print-form-dialog-card">
+          <header>
+            <div>
+              <strong>Избор на печатна форма</strong>
+              <span>{{transferPrint.number}} · първо преглед, после печат</span>
+            </div>
+            <button type="button" data-transfer-print-dialog-close>×</button>
+          </header>
+
+          <div class="ag-print-form-dialog-layout">
+            <section>
+              <h3>Печатни форми</h3>
+              {{#each transferPrint.printForms}}
+                <label class="ag-print-option {{#if isSelected}}active{{/if}}">
+                  <input type="radio" name="transferPrintForm" value="{{id}}" {{#if isSelected}}checked{{/if}} />
+                  <span>
+                    <strong>{{title}}</strong>
+                    <em>{{subtitle}}</em>
+                  </span>
+                </label>
+              {{/each}}
+            </section>
+
+            <section>
+              <h3>Принтер профил</h3>
+              <select data-transfer-print-printer>
+                {{#each transferPrint.printerProfiles}}
+                  <option value="{{id}}" {{#if isSelected}}selected{{/if}}>{{title}} · {{paper}}</option>
+                {{/each}}
+              </select>
+              <label class="ag-print-inline-field">
+                <span>Копия</span>
+                <input type="number" min="1" max="9" value="{{transferPrint.formDialog.copiesText}}" data-transfer-print-copies />
+              </label>
+              <label class="ag-print-preview-check">
+                <input type="checkbox" data-transfer-print-preview {{#if transferPrint.previewBeforePrint}}checked{{/if}} />
+                <span>Преглед преди печат</span>
+              </label>
+              <p>Профилите са работни настройки. Реалният Windows принтер ще се избира от браузъра, докато не свържем директните пътища.</p>
+            </section>
+          </div>
+
+          <footer>
+            <button type="button" data-transfer-print-dialog-action="preview">Преглед</button>
+            <button type="button" class="strong" data-transfer-print-dialog-action="print">Печат</button>
+            <button type="button" data-transfer-print-dialog-close>Отказ</button>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <script src="/public/js/app.js?v=3.5.5-purpose-print"></script>
+  </body>
+</html>

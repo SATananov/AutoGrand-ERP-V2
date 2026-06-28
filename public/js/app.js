@@ -281,6 +281,75 @@
     }, 0);
   }
 
+
+  function activeWorkspaceScope() {
+    const frontWindow = document.querySelector('.ag-v2-window.is-front-window:not(.is-minimized) [data-ag-window-body]');
+    if (frontWindow) return frontWindow;
+    const activeHome = document.querySelector('.workspace-home-window.is-active');
+    return activeHome || document;
+  }
+
+  function activeTransferPrintScreen() {
+    if (document.body?.classList.contains('transfer-print-body')) {
+      return document.querySelector('[data-transfer-print]');
+    }
+    const scope = activeWorkspaceScope();
+    return scope?.querySelector('[data-transfer-print]') || null;
+  }
+
+  function activeDocumentPrintUrl() {
+    const scope = activeWorkspaceScope();
+    const explicit = scope?.querySelector('[data-document-print-url]');
+    if (explicit?.dataset.documentPrintUrl) return explicit.dataset.documentPrintUrl;
+
+    const transferPrintLink = scope?.querySelector('a[href*="/stock/transfer/"][href*="/print"]');
+    if (transferPrintLink) return transferPrintLink.getAttribute('href');
+
+    return '';
+  }
+
+  function openTransferPrintPreviewUrl(url, title) {
+    if (!url) return false;
+    const normalized = new URL(url, window.location.origin);
+    normalized.searchParams.set('preview', '1');
+    if (window.AutoGrandERPWorkspace?.openUrl) {
+      window.AutoGrandERPWorkspace.openUrl(`${normalized.pathname}${normalized.search}${normalized.hash}`, {
+        title: title || 'Преглед на печат',
+        kind: 'print-preview'
+      });
+    } else {
+      window.location.href = normalized.toString();
+    }
+    return true;
+  }
+
+  function handleRibbonPrintCommand(command) {
+    if (command !== 'print' && command !== 'preview') return false;
+
+    const printScreen = activeTransferPrintScreen();
+    if (printScreen) {
+      if (command === 'print') {
+        openTransferPrintDialog(printScreen);
+        setStatusText('Печат: избери печатна форма, принтер профил и преглед преди печат.');
+        return true;
+      }
+      previewTransferPrintForm(printScreen, selectedTransferPrintDialogOptions(printScreen));
+      setStatusText('Преглед: отворен е печатен преглед на активния трансфер.');
+      return true;
+    }
+
+    const printUrl = activeDocumentPrintUrl();
+    if (printUrl) {
+      openTransferPrintPreviewUrl(printUrl, command === 'print' ? 'Избор на печатна форма' : 'Преглед на печат');
+      setStatusText(command === 'print'
+        ? 'Печат: отворен е изборът на печатна форма за активния документ.'
+        : 'Преглед: отворен е печатен преглед за активния документ.');
+      return true;
+    }
+
+    return false;
+  }
+
   function initRibbon(root) {
     const scope = root || document;
     scope.querySelectorAll('.ribbon-button').forEach((button) => {
@@ -288,6 +357,8 @@
       button.addEventListener('click', () => {
         const command = button.dataset.ribbonCommand || '';
         const label = button.innerText.trim().replace(/\s+/g, ' ');
+
+        if (handleRibbonPrintCommand(command)) return;
 
         if (command === 'snapshot') {
           showSnapshotMenu(button);
@@ -734,7 +805,7 @@
           itemId: line.itemId,
           fromWarehouseId: line.fromWarehouseId,
           quantity: line.quantity,
-          note: [requestNoteInput?.value?.trim(), `Заявено от ценова листа: ${line.itemCode}`].filter(Boolean).join(' · ')
+          note: requestNoteInput?.value?.trim() || ''
         }));
 
         if (!lines.length) {
@@ -748,7 +819,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             toWarehouseId: basket?.dataset.toWarehouseId || '',
-            note: requestNoteInput?.value?.trim() || 'Заявка от ценова листа — чака проверка на рафт.',
+            note: requestNoteInput?.value?.trim() || '',
             lines
           })
         });
@@ -1202,8 +1273,18 @@
           'Приемане: трансферът не може да бъде приет.'
         );
         if (!result) return;
-        showTransferToast(withPrint ? 'Трансферът е приет. Печатният документ ще бъде добавен в следваща стъпка.' : 'Трансферът е приет в текущия обект.', 'success');
-        setStatusText(withPrint ? 'Приемане: трансферът е приет. Печатът е placeholder.' : 'Приемане: трансферът е приет в текущия обект.');
+        if (withPrint) {
+          const printUrl = result.printUrl ? `${result.printUrl}?action=${encodeURIComponent(result.code || 'stock_transfer_received_print')}` : `/stock/transfer/${encodeURIComponent(result.documentId || button?.dataset.transferId || '')}/print?action=${encodeURIComponent(result.code || 'stock_transfer_received_print')}`;
+          showTransferToast('Трансферът е приет. Отварям печатния документ.', 'success');
+          setStatusText('Приемане и печат: трансферът е приет, отваря се трансферен лист.');
+          window.setTimeout(() => {
+            if (window.AutoGrandERPWorkspace?.openUrl) window.AutoGrandERPWorkspace.openUrl(printUrl, { title: 'Печатен трансфер', kind: 'print-preview' });
+            else window.location.href = printUrl;
+          }, 600);
+          return;
+        }
+        showTransferToast('Трансферът е приет в текущия обект.', 'success');
+        setStatusText('Приемане: трансферът е приет в текущия обект.');
         window.setTimeout(() => window.location.reload(), 1200);
       }
 
@@ -1236,6 +1317,7 @@
 
         const command = commandButton.dataset.transferCenterCommand;
         if (command === 'open') return openTransfer(commandButton);
+        if (command === 'print') return openTransfer(commandButton);
         if (command === 'send') {
           sendTransfer(commandButton).catch((error) => {
             console.warn('AutoGrand transfer center send failed:', error);
@@ -1267,6 +1349,199 @@
 
       const requestedTab = new URLSearchParams(window.location.search).get('tab');
       activateTab(requestedTab || 'incoming');
+    });
+  }
+
+
+  function transferPrintUrlWithOptions(printScreen, options = {}) {
+    const printUrl = printScreen?.dataset.printUrl || window.location.pathname;
+    const url = new URL(printUrl, window.location.origin);
+    const current = new URL(window.location.href);
+
+    ['action', 'form', 'printer', 'copies'].forEach((key) => {
+      if (current.searchParams.has(key) && !url.searchParams.has(key)) {
+        url.searchParams.set(key, current.searchParams.get(key));
+      }
+    });
+
+    Object.entries(options).forEach(([key, value]) => {
+      if (value === undefined || value === null || String(value) === '') return;
+      url.searchParams.set(key, String(value));
+    });
+
+    return `${url.pathname}${url.search}`;
+  }
+
+  function selectedTransferPrintDialogOptions(printScreen) {
+    const dialog = printScreen?.querySelector('[data-transfer-print-dialog]');
+    const form = dialog?.querySelector('input[name="transferPrintForm"]:checked')?.value || printScreen?.dataset.currentForm || 'compact';
+    const printer = dialog?.querySelector('[data-transfer-print-printer]')?.value || printScreen?.dataset.currentPrinter || 'warehouse-a4';
+    const copiesField = dialog?.querySelector('[data-transfer-print-copies]');
+    const copies = Math.max(1, Math.min(9, Number.parseInt(copiesField?.value || printScreen?.dataset.currentCopies || '1', 10) || 1));
+    const preview = dialog?.querySelector('[data-transfer-print-preview]')?.checked !== false;
+    return { form, printer, copies, preview };
+  }
+
+  function saveTransferPrintPreferences(options) {
+    try {
+      window.localStorage?.setItem('autogrand.transferPrint.form', options.form || 'compact');
+      window.localStorage?.setItem('autogrand.transferPrint.printer', options.printer || 'warehouse-a4');
+      window.localStorage?.setItem('autogrand.transferPrint.copies', String(options.copies || 1));
+      window.localStorage?.setItem('autogrand.transferPrint.preview', options.preview ? '1' : '0');
+    } catch (error) {
+      console.warn('AutoGrand print preferences save skipped:', error);
+    }
+  }
+
+  function syncTransferPrintDialogState(dialog) {
+    if (!dialog) return;
+    dialog.querySelectorAll('.ag-print-option').forEach((option) => {
+      const input = option.querySelector('input[type="radio"]');
+      option.classList.toggle('active', Boolean(input?.checked));
+    });
+  }
+
+  function openTransferPrintDialog(printScreen) {
+    const dialog = printScreen?.querySelector('[data-transfer-print-dialog]');
+    if (!dialog) return;
+    dialog.hidden = false;
+    syncTransferPrintDialogState(dialog);
+    const firstChecked = dialog.querySelector('input[name="transferPrintForm"]:checked');
+    window.setTimeout(() => (firstChecked || dialog.querySelector('button'))?.focus(), 40);
+  }
+
+  function closeTransferPrintDialog(printScreen) {
+    const dialog = printScreen?.querySelector('[data-transfer-print-dialog]');
+    if (dialog) dialog.hidden = true;
+  }
+
+  function previewTransferPrintForm(printScreen, options = selectedTransferPrintDialogOptions(printScreen)) {
+    saveTransferPrintPreferences(options);
+    const url = transferPrintUrlWithOptions(printScreen, {
+      form: options.form,
+      printer: options.printer,
+      copies: options.copies,
+      preview: options.preview ? '1' : '0'
+    });
+
+    if (window.AutoGrandERPWorkspace?.openUrl && !document.body?.classList.contains('transfer-print-body')) {
+      window.AutoGrandERPWorkspace.openUrl(url, { title: 'Преглед на печат', kind: 'print-preview' });
+      return;
+    }
+
+    window.location.href = url;
+  }
+
+  function printTransferDocumentOnly(printScreen, options = null) {
+    const printUrl = options
+      ? transferPrintUrlWithOptions(printScreen, {
+          form: options.form,
+          printer: options.printer,
+          copies: options.copies,
+          preview: '0'
+        })
+      : (printScreen?.dataset.printUrl || '');
+    const isStandalonePrintPage = document.body?.classList.contains('transfer-print-body');
+
+    if (options) saveTransferPrintPreferences(options);
+
+    if (isStandalonePrintPage) {
+      if (options && new URL(window.location.href).searchParams.get('form') !== options.form) {
+        window.location.href = `${printUrl}${printUrl.includes('?') ? '&' : '?'}autoprint=1`;
+        return;
+      }
+      window.print();
+      return;
+    }
+
+    if (!printUrl) {
+      window.print();
+      return;
+    }
+
+    const iframe = document.createElement('iframe');
+    const separator = printUrl.includes('?') ? '&' : '?';
+    iframe.src = `${printUrl}${separator}printOnly=1`;
+    iframe.title = 'Печатен трансферен документ';
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none';
+
+    const cleanup = () => window.setTimeout(() => iframe.remove(), 1200);
+    iframe.addEventListener('load', () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (error) {
+        const fallbackUrl = `${printUrl}${separator}autoprint=1`;
+        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+      } finally {
+        cleanup();
+      }
+    }, { once: true });
+
+    document.body.appendChild(iframe);
+  }
+
+  function initTransferPrintSlip(root) {
+    const scope = root || document;
+    scope.querySelectorAll('[data-transfer-print]').forEach((printScreen) => {
+      if (printScreen.dataset.agTransferPrintReady === 'true') return;
+      printScreen.dataset.agTransferPrintReady = 'true';
+
+      const shouldAutoPrint = document.body?.classList.contains('transfer-print-body') && new URLSearchParams(window.location.search).get('autoprint') === '1';
+      if (shouldAutoPrint) {
+        window.setTimeout(() => window.print(), 450);
+      }
+
+      const dialog = printScreen.querySelector('[data-transfer-print-dialog]');
+      dialog?.addEventListener('change', (event) => {
+        if (event.target.matches('input[name="transferPrintForm"]')) syncTransferPrintDialogState(dialog);
+      });
+
+      dialog?.addEventListener('click', (event) => {
+        const close = event.target.closest('[data-transfer-print-dialog-close]');
+        if (close) {
+          event.preventDefault();
+          closeTransferPrintDialog(printScreen);
+          return;
+        }
+
+        const actionButton = event.target.closest('[data-transfer-print-dialog-action]');
+        if (!actionButton) return;
+        event.preventDefault();
+        const options = selectedTransferPrintDialogOptions(printScreen);
+        const action = actionButton.dataset.transferPrintDialogAction;
+        closeTransferPrintDialog(printScreen);
+
+        if (action === 'preview' || options.preview) {
+          previewTransferPrintForm(printScreen, options);
+          return;
+        }
+
+        printTransferDocumentOnly(printScreen, options);
+      });
+
+      printScreen.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-transfer-print-command]');
+        if (!button || !printScreen.contains(button)) return;
+        event.preventDefault();
+        const command = button.dataset.transferPrintCommand;
+        if (command === 'dialog') {
+          openTransferPrintDialog(printScreen);
+          return;
+        }
+        if (command === 'print') {
+          printTransferDocumentOnly(printScreen);
+          return;
+        }
+      });
     });
   }
 
@@ -1303,6 +1578,7 @@
     initBrowseScreens(root);
     initPriceWorkbench(root);
     initTransferRequestCenter(root);
+    initTransferPrintSlip(root);
     initDocumentTabs(root);
   }
 

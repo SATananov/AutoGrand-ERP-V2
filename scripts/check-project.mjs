@@ -19,6 +19,7 @@ const required = [
   'views/pages/stock-transfer-new.hbs',
   'views/pages/stock-transfer-card.hbs',
   'views/pages/stock-transfer-center.hbs',
+  'views/pages/stock-transfer-print.hbs',
   'views/pages/stock-item-card.hbs',
   'views/pages/stock-warehouse-card.hbs',
   'views/pages/company-locations.hbs',
@@ -49,6 +50,7 @@ const browse = fs.readFileSync(path.resolve('views/pages/screen-browse.hbs'), 'u
 const stockActions = fs.readFileSync(path.resolve('src/services/stock-actions-service.js'), 'utf8');
 const stockDashboard = fs.readFileSync(path.resolve('views/pages/stock-dashboard.hbs'), 'utf8');
 const stockTransferCenter = fs.readFileSync(path.resolve('views/pages/stock-transfer-center.hbs'), 'utf8');
+const stockTransferPrint = fs.readFileSync(path.resolve('views/pages/stock-transfer-print.hbs'), 'utf8');
 const companyLocations = fs.readFileSync(path.resolve('src/services/company-locations-service.js'), 'utf8');
 const appJs = fs.readFileSync(path.resolve('public/js/app.js'), 'utf8');
 const seedText = fs.readFileSync(path.resolve('scripts/seed-prisma.js'), 'utf8');
@@ -68,7 +70,7 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '3-4-transfer-center-polish-status-counters'"), 'Step 3.4 health label'],
+  [server.includes("step: '3-5-5-transfer-purpose-comment-ribbon-print-sync'"), 'Step 3.5.5 health label'],
   [browse.includes('screen.hasDocumentCard'), 'generic document browse flag'],
   [browse.includes('screen.hasStockActions'), 'stock browse action strip'],
   [stockActions.includes('createStockTransferFromForm'), 'createStockTransferFromForm'],
@@ -103,7 +105,10 @@ const checks = [
   [server.includes("app.get('/stock/transfers'") && stockActions.includes('getStockTransferRequestsCenterData') && stockTransferCenter.includes('Пътува към текущ обект') && stockTransferCenter.includes('Бързи действия'), 'transfer center polish status counters'],
   [stockActions.includes('stock_transfer_in_transit') && stockActions.includes('workflowCards') && stockActions.includes('priorityRows'), 'Step 3.4 transfer center service polish'],
   [appJs.includes('requestBasket') && appJs.includes('submitRequestBasket') && appJs.includes('markTransferMissing'), 'transfer request basket frontend behavior'],
-  [appJs.includes('initPriceWorkbench') && appJs.includes('ag_v2_price_list_columns') && appJs.includes('data-price-detail-tab'), 'price list frontend behavior']
+  [appJs.includes('initPriceWorkbench') && appJs.includes('ag_v2_price_list_columns') && appJs.includes('data-price-detail-tab'), 'price list frontend behavior'],
+  [server.includes("/stock/transfer/:documentId/print") && stockActions.includes('getStockTransferPrintData') && stockTransferPrint.includes('data-transfer-print') && stockTransferPrint.includes('Избор на печатна форма') && stockTransferPrint.includes('Принтер профил') && stockTransferPrint.includes('Дост. цена') && stockTransferPrint.includes('Прод. с ДДС') && stockTransferPrint.includes('За кого / причина') && stockActions.includes('quantityAlertClass') && stockActions.includes('transferPurposeNote'), 'Step 3.5.4 transfer print compact picking polish'],
+  [stockTransferCenter.includes('data-transfer-center-command="print"') && appJs.includes('initTransferPrintSlip'), 'Step 3.5 transfer print buttons'],
+  [appJs.includes('handleRibbonPrintCommand') && appJs.includes('activeDocumentPrintUrl') && appJs.includes('openTransferPrintDialog'), 'Step 3.5.5 ribbon print sync']
 ];
 
 for (const [passed, label] of checks) {
@@ -119,4 +124,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 3.4 Transfer Center Polish + Status Counters patch check passed.');
+console.log('OK: Step 3.5.5 Transfer Purpose Comment + Ribbon Print Sync patch check passed.');

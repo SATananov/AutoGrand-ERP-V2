@@ -1,4 +1,4 @@
-<div class="document-card-screen stock-transfer-card" data-document-card>
+<div class="document-card-screen stock-transfer-card" data-document-card data-document-print-url="/stock/transfer/{{transferCard.id}}/print">
   <header class="document-card-header polished-document-header">
     <div>
       <div class="screen-kicker">Склад / Трансфер документ</div>
@@ -24,7 +24,7 @@
         </form>
       {{/if}}
 
-      <button type="button">Печат</button>
+      <a class="ag-soft-command strong" href="/stock/transfer/{{transferCard.id}}/print">Печатен документ</a>
     </div>
   </header>
 
@@ -209,11 +209,11 @@
 
         <article class="document-tab-panel" data-card-panel="notes">
           <div class="document-tab-inner notes-tab">
-            <h2>Бележки</h2>
-            <textarea readonly>{{transferCard.note}}</textarea>
+            <h2>За кого / причина</h2>
+            <textarea readonly placeholder="Няма посочена причина към трансфера.">{{transferCard.purposeNote}}</textarea>
             <div class="workflow-note">
               <strong>Работен поток</strong>
-              <span>Чернова → Публикуван → заключен документ със складови OUT/IN движения.</span>
+              <span>Заявка → Проверка на рафт → В път → Приемане / Връщане → История.</span>
             </div>
           </div>
         </article>

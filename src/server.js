@@ -39,6 +39,7 @@ import {
   getStockTransferFormData,
   getStockTransferCardData,
   getStockTransferRequestsCenterData,
+  getStockTransferPrintData,
   getStockWarehouseCardData,
   createStockAdjustmentFromForm,
   createStockTransferFromForm,
@@ -84,7 +85,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.2.6',
+    appVersion: 'v0.3.7',
     companyName: 'КЪРДЖАЛИ - Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -753,6 +754,28 @@ app.post('/stock/transfer/new', async (req, res) => {
   res.redirect(`/stock/transfer/new?action=${result?.code || 'stock_transfer_invalid'}`);
 });
 
+
+app.get('/stock/transfer/:documentId/print', async (req, res) => {
+  const transferPrint = await getStockTransferPrintData(req.params.documentId, req.query.action || '', req.query || {});
+
+  if (!transferPrint) {
+    res.status(404);
+    return renderPage(req, res, 'not-found', {
+      ...baseViewData({
+        title: 'Печатният трансфер не е намерен',
+        currentScreen: 'stock-transfers',
+        statusText: 'Печатният трансфер не е намерен'
+      })
+    });
+  }
+
+  res.render('stock-transfer-print', {
+    layout: false,
+    title: `${transferPrint.number} — печатен трансферен документ`,
+    transferPrint
+  });
+});
+
 app.get('/stock/transfer/:documentId', async (req, res) => {
   const transferCard = await getStockTransferCardData(req.params.documentId, req.query.action || '');
 
@@ -859,7 +882,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '3-4-transfer-center-polish-status-counters'
+    step: '3-5-5-transfer-purpose-comment-ribbon-print-sync'
   });
 });
 

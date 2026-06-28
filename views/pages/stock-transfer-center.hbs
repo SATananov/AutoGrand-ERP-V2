@@ -95,7 +95,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -113,12 +113,13 @@
                 <td><mark>{{statusText}}</mark></td>
                 <td class="transfer-note-cell">
                   {{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}
-                  <input type="text" data-transfer-action-note placeholder="Коментар при изпращане..." />
+                  <input type="text" data-transfer-action-note placeholder="Причина при изпращане / за кого е..." />
                 </td>
                 <td class="transfer-row-actions">
                   <button type="button" class="ag-transfer-send" data-transfer-center-command="send" data-transfer-id="{{id}}">Изпрати</button>
                   <button type="button" class="ag-transfer-missing" data-transfer-center-command="missing" data-transfer-id="{{id}}">Липса</button>
                   <button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button>
                 </td>
               </tr>
             {{/each}}
@@ -146,7 +147,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -159,7 +160,8 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
-                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button></td>
               </tr>
             {{/each}}
           </tbody>
@@ -186,7 +188,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Приемане</th>
             </tr>
           </thead>
@@ -200,13 +202,14 @@
                 <td><mark>{{statusText}}</mark></td>
                 <td class="transfer-note-cell">
                   {{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}
-                  <input type="text" data-transfer-action-note placeholder="Коментар при приемане/връщане..." />
+                  <input type="text" data-transfer-action-note placeholder="Причина при приемане или връщане..." />
                 </td>
                 <td class="transfer-row-actions receive-actions">
                   <button type="button" class="ag-transfer-receive-print" data-transfer-center-command="receive-print" data-transfer-id="{{id}}">Приеми и печат</button>
                   <button type="button" class="ag-transfer-receive" data-transfer-center-command="receive" data-transfer-id="{{id}}">Само приеми</button>
                   <button type="button" class="ag-transfer-return" data-transfer-center-command="return" data-transfer-id="{{id}}">Върни към обекта изпращач</button>
                   <button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button>
                 </td>
               </tr>
             {{/each}}
@@ -234,7 +237,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -247,7 +250,8 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
-                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button></td>
               </tr>
             {{/each}}
           </tbody>
@@ -274,7 +278,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -287,7 +291,8 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
-                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button></td>
               </tr>
             {{/each}}
           </tbody>
@@ -314,7 +319,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -327,7 +332,8 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
-                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button></td>
               </tr>
             {{/each}}
           </tbody>
@@ -354,7 +360,7 @@
               <th>Артикули</th>
               <th>Количество</th>
               <th>Статус</th>
-              <th>Коментар</th>
+              <th>За кого / причина</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -367,7 +373,8 @@
                 <td>{{quantityText}}</td>
                 <td><mark>{{statusText}}</mark></td>
                 <td>{{#if note}}<span class="transfer-note-preview">{{note}}</span>{{else}}<span class="transfer-note-muted">Без коментар</span>{{/if}}</td>
-                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button></td>
+                <td class="transfer-row-actions"><button type="button" class="ag-transfer-open" data-transfer-center-command="open" data-transfer-url="{{cardUrl}}">Отвори</button>
+                  <button type="button" class="ag-transfer-print" data-transfer-center-command="print" data-transfer-url="{{printUrl}}">Печат</button></td>
               </tr>
             {{/each}}
           </tbody>

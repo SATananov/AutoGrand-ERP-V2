@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.3.5",
+  "version": "0.3.11",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 3.4 — Transfer Center Polish and Status Counters.",
+  "description": "AutoGrand ERP V2 Step 3.5.5 — Transfer Purpose Comment + Ribbon Print Sync.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

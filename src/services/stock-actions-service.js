@@ -4,6 +4,96 @@ import { locationTypeText } from './company-locations-service.js';
 const STOCK_LOW_THRESHOLD = 5;
 const TRANSIT_WAREHOUSE_CODE = 'AG-TRANSIT';
 const TRANSIT_WAREHOUSE_NAME = 'Трансферен склад / В път';
+const CURRENT_EMPLOYEE_NAME = process.env.AUTOGRAND_CURRENT_USER_NAME || 'СТЕФАН ТАНАНОВ';
+
+const TRANSFER_PRINT_FORMS = [
+  {
+    id: 'compact',
+    title: 'Трансферен документ — компактен',
+    subtitle: 'Много редове на една страница; к-во над 1 е маркирано за събиране.',
+    mode: 'compact',
+    showPrices: false
+  },
+  {
+    id: 'priced',
+    title: 'Трансферен документ — с цени',
+    subtitle: 'Компактен редов изглед с цени и ясно маркирани количества над 1.',
+    mode: 'priced',
+    showPrices: true
+  },
+  {
+    id: 'detailed',
+    title: 'Трансферен документ — подробен',
+    subtitle: 'Фирмен AutoGrand изглед с цени, коментар и подписи.',
+    mode: 'detailed',
+    showPrices: true
+  },
+  {
+    id: 'text',
+    title: 'Текстов печат / складов лист',
+    subtitle: 'Най-сбит служебен складов лист за бърза проверка и събиране.',
+    mode: 'text',
+    showPrices: false
+  }
+];
+
+const TRANSFER_PRINTER_PROFILES = [
+  {
+    id: 'warehouse-a4',
+    title: 'Складов принтер A4',
+    subtitle: 'Основен принтер за трансферни документи в обекта.',
+    paper: 'A4',
+    copies: 1
+  },
+  {
+    id: 'office-a4',
+    title: 'Офис принтер',
+    subtitle: 'Административен печат и копия за офис.',
+    paper: 'A4',
+    copies: 1
+  },
+  {
+    id: 'labels',
+    title: 'Етикетен принтер',
+    subtitle: 'Профил за бъдещ печат на етикети.',
+    paper: 'Label',
+    copies: 1
+  },
+  {
+    id: 'pdf-archive',
+    title: 'PDF / архив',
+    subtitle: 'Запази като PDF или архивно копие през браузъра.',
+    paper: 'A4 / PDF',
+    copies: 1
+  }
+];
+
+function normalizePrintForm(value, lineCount = 0) {
+  const requested = String(value || '').trim().toLowerCase();
+  const found = TRANSFER_PRINT_FORMS.find((form) => form.id === requested);
+  if (found) return found;
+  return Number(lineCount || 0) > 10 ? TRANSFER_PRINT_FORMS[0] : TRANSFER_PRINT_FORMS[2];
+}
+
+function normalizePrinterProfile(value) {
+  const requested = String(value || '').trim().toLowerCase();
+  return TRANSFER_PRINTER_PROFILES.find((profile) => profile.id === requested) || TRANSFER_PRINTER_PROFILES[0];
+}
+
+function normalizeCopies(value, fallback = 1) {
+  const copies = Number.parseInt(String(value || ''), 10);
+  if (!Number.isFinite(copies) || copies < 1) return fallback;
+  return Math.min(copies, 9);
+}
+
+function withPrintQuery(baseUrl, params = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value) !== '') search.set(key, String(value));
+  });
+  const query = search.toString();
+  return query ? `${baseUrl}?${query}` : baseUrl;
+}
 
 function numberText(value) {
   return Number(value || 0).toFixed(2);
@@ -614,6 +704,7 @@ export async function getStockAdjustmentCardData(documentId, action = '') {
     statusText: adjustmentStatusText(document.status),
     statusKind: adjustmentStatusKind(document.status),
     note: document.note || '',
+    purposeNote: transferPurposeNote(document.note || ''),
     isEditable,
     canPost,
     canCancel,
@@ -648,6 +739,8 @@ export async function getStockAdjustmentCardData(documentId, action = '') {
     summary: {
       linesText: String(rows.length),
       quantityText: numberText(totalQuantity),
+      totalCostText: money(totalCost),
+      totalSaleVatText: money(totalSaleVat),
       movementRowsText: String(movementRows.length)
     },
     historyRows: [
@@ -969,7 +1062,7 @@ export async function createStockTransferDocumentFromForm(body = {}) {
 export async function createTransferRequestsFromBasket(body = {}) {
   const toWarehouseId = normalizeId(body.toWarehouseId);
   const rawLines = Array.isArray(body.lines) ? body.lines : [];
-  const note = safeNote(body.note) || 'Заявка от ценова листа. Чака проверка на рафт.';
+  const note = safeNote(body.note);
 
   if (!toWarehouseId || rawLines.length === 0) {
     return { ok: false, code: 'transfer_request_empty' };
@@ -980,7 +1073,7 @@ export async function createTransferRequestsFromBasket(body = {}) {
       fromWarehouseId: normalizeId(line.fromWarehouseId),
       itemId: normalizeId(line.itemId),
       quantity: normalizeQuantity(line.quantity),
-      note: safeNote(line.note) || 'Заявено от ценова листа; чака проверка на рафт.'
+      note: safeNote(line.note)
     }))
     .filter((line) => line.fromWarehouseId && line.itemId && line.quantity && line.fromWarehouseId !== toWarehouseId);
 
@@ -1038,7 +1131,7 @@ export async function createTransferRequestsFromBasket(body = {}) {
           fromWarehouseId,
           toWarehouseId,
           status: 'DRAFT',
-          note: `${note} Източник: ценова листа; заявка за трансфер.`
+          note
         }
       });
 
@@ -1100,6 +1193,30 @@ export async function markStockTransferNotFoundOnShelf(documentId, body = {}) {
 
 function warehouseDisplayName(warehouse) {
   return warehouse?.location?.name || warehouse?.name || '';
+}
+
+
+function transferPurposeNote(rawNote = '') {
+  const parts = String(rawNote || '')
+    .split('|')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => {
+      const lower = part.toLocaleLowerCase('bg-BG');
+      return !lower.startsWith('статус:')
+        && !lower.startsWith('приет трансфер от')
+        && !lower.startsWith('върнат към')
+        && !lower.startsWith('липса на рафт')
+        && !lower.startsWith('заявка от ценова листа')
+        && !lower.startsWith('заявено от ценова листа')
+        && !lower.startsWith('източник:')
+        && !lower.includes('източник: ценова листа')
+        && !lower.includes('чака проверка на рафт')
+        && !lower.includes('печатният документ е отворен')
+        && !lower.includes('стоката е преместена във в път');
+    });
+
+  return parts.join(' | ');
 }
 
 function transferHasShelfMissing(document) {
@@ -1282,8 +1399,10 @@ function transferCenterRow(document, currentWarehouseId) {
     items,
     itemsText: items.slice(0, 3).map((item) => `${item.itemCode} · ${item.quantityText}`).join(', '),
     hasMoreItems: items.length > 3,
-    note: document.note || '',
+    note: transferPurposeNote(document.note || ''),
+    rawNote: document.note || '',
     cardUrl: `/stock/transfer/${document.id}`,
+    printUrl: `/stock/transfer/${document.id}/print`,
     isShelfMissing: transferHasShelfMissing(document)
   };
 }
@@ -1316,7 +1435,7 @@ function priorityRow(row, priorityText, tab) {
     priorityText,
     tab,
     tabUrl: `/stock/transfers?tab=${encodeURIComponent(tab)}`,
-    noteText: row.note || 'Без коментар към трансфера.'
+    noteText: row.note || 'Няма посочено.'
   };
 }
 
@@ -1459,6 +1578,7 @@ export async function getStockTransferCardData(documentId, action = '') {
     statusText: transferStatusText(document.status),
     statusKind: transferStatusKind(document.status),
     note: document.note || '',
+    purposeNote: transferPurposeNote(document.note || ''),
     isEditable,
     canPost,
     canCancel,
@@ -1501,6 +1621,8 @@ export async function getStockTransferCardData(documentId, action = '') {
     summary: {
       linesText: String(rows.length),
       quantityText: numberText(totalQuantity),
+      totalCostText: money(totalCost),
+      totalSaleVatText: money(totalSaleVat),
       movementRowsText: String(movementRows.length)
     },
     historyRows: [
@@ -1508,6 +1630,189 @@ export async function getStockTransferCardData(documentId, action = '') {
       ...(document.postedAt ? [{ time: dateTimeText(document.postedAt), user: 'СТЕФАН ТАНАНОВ', action: 'Публикуван', details: 'Създадени са складови OUT/IN движения.' }] : []),
       ...(document.cancelledAt ? [{ time: dateTimeText(document.cancelledAt), user: 'СТЕФАН ТАНАНОВ', action: 'Отказан', details: 'Документът е заключен без складово движение.' }] : [])
     ]
+  };
+}
+
+
+function transferPrintTitle(status) {
+  return 'Трансферен документ';
+}
+
+function transferPrintPurpose(status) {
+  const map = {
+    DRAFT: 'Заявка за трансфер',
+    SENT: 'Трансферен лист · В път',
+    RECEIVED: 'Приемо-предавателен протокол',
+    RETURNED_TO_SENDER: 'Върнат трансфер',
+    POSTED: 'Складов трансфер',
+    CANCELLED: 'Отказан трансфер'
+  };
+
+  return map[status] || 'Вътрешен складов документ';
+}
+
+function transferPrintStatusNote(status) {
+  const map = {
+    DRAFT: 'Документът е заявка и чака проверка на рафт от изходния обект.',
+    SENT: 'Стоката е извадена от изходния обект и се води във В път до приемане.',
+    RECEIVED: 'Стоката е приета в получаващия обект и документът е приключен.',
+    RETURNED_TO_SENDER: 'Получаващият обект е отказал приемане и стоката е върната към изпращача.',
+    POSTED: 'Стар тип трансфер — входът и изходът са осчетоводени едновременно.',
+    CANCELLED: 'Документът е отказан или приключен без приемане.'
+  };
+
+  return map[status] || '';
+}
+
+export async function getStockTransferPrintData(documentId, action = '', options = {}) {
+  const id = normalizeId(documentId);
+  if (!id) return null;
+
+  const [document, movementRowsRaw] = await Promise.all([
+    prisma.stockTransferDocument.findUnique({
+      where: { id },
+      include: {
+        fromWarehouse: { include: { location: true } },
+        toWarehouse: { include: { location: true } },
+        lines: { include: { item: true }, orderBy: { id: 'asc' } }
+      }
+    }),
+    prisma.stockMovement.findMany({
+      where: { sourceDocument: { not: '' } },
+      include: { warehouse: { include: { location: true } }, item: true },
+      orderBy: [{ movementDate: 'asc' }, { id: 'asc' }]
+    })
+  ]);
+
+  if (!document) return null;
+
+  const selectedForm = normalizePrintForm(options.form, document.lines.length);
+  const printerProfile = normalizePrinterProfile(options.printer);
+  const copies = normalizeCopies(options.copies, printerProfile.copies || 1);
+  const previewBeforePrint = String(options.preview ?? '1') !== '0';
+
+  const lines = document.lines.map((line, index) => {
+    const quantity = Number(line.quantity || 0);
+    const costPrice = Number(line.item?.wholesalePrice || 0);
+    const salePriceVat = Number(line.item?.retailPrice || 0);
+    const costTotal = quantity * costPrice;
+    const saleTotalVat = quantity * salePriceVat;
+    return {
+      index: index + 1,
+      itemCode: line.item?.code || '',
+      itemName: line.item?.name || '',
+      unit: line.item?.unit || '',
+      quantity,
+      quantityText: numberText(quantity),
+      quantityUnitText: `${numberText(quantity)} ${line.item?.unit || ''}`.trim(),
+      quantityAlertClass: quantity > 1 ? (quantity >= 5 ? 'qty-alert qty-alert-strong' : 'qty-alert') : '',
+      quantityAlertText: quantity > 1 ? 'Вземи повече от 1 бр.' : '',
+      isMultiQuantity: quantity > 1,
+      costPrice,
+      salePriceVat,
+      costTotal,
+      saleTotalVat,
+      costPriceText: money(costPrice),
+      salePriceVatText: money(salePriceVat),
+      costTotalText: money(costTotal),
+      saleTotalVatText: money(saleTotalVat),
+      note: line.note || ''
+    };
+  });
+  const totalQuantity = lines.reduce((sum, line) => sum + Number(line.quantity || 0), 0);
+  const totalCost = lines.reduce((sum, line) => sum + Number(line.costTotal || 0), 0);
+  const totalSaleVat = lines.reduce((sum, line) => sum + Number(line.saleTotalVat || 0), 0);
+  const sentByName = ['SENT', 'RECEIVED', 'RETURNED_TO_SENDER', 'POSTED'].includes(document.status) ? CURRENT_EMPLOYEE_NAME : '';
+  const receivedByName = document.status === 'RECEIVED' ? CURRENT_EMPLOYEE_NAME : '';
+  const movementRows = movementRowsRaw
+    .filter((row) => row.sourceDocument === document.number)
+    .map(movementRow);
+  const printedAt = new Date();
+
+  const basePrintUrl = `/stock/transfer/${document.id}/print`;
+  const printUrlParams = {
+    form: selectedForm.id,
+    printer: printerProfile.id,
+    copies
+  };
+  const printForms = TRANSFER_PRINT_FORMS.map((form) => ({
+    ...form,
+    isSelected: form.id === selectedForm.id,
+    previewUrl: withPrintQuery(basePrintUrl, { ...printUrlParams, form: form.id, preview: 1 }),
+    printUrl: withPrintQuery(basePrintUrl, { ...printUrlParams, form: form.id, preview: 0, autoprint: 1 })
+  }));
+  const printerProfiles = TRANSFER_PRINTER_PROFILES.map((profile) => ({
+    ...profile,
+    isSelected: profile.id === printerProfile.id
+  }));
+
+  return {
+    action,
+    actionMessage: stockActionMessage(action),
+    title: transferPrintTitle(document.status),
+    purposeText: transferPrintPurpose(document.status),
+    statusNote: transferPrintStatusNote(document.status),
+    id: document.id,
+    number: document.number,
+    transferDateText: dateTimeText(document.transferDate),
+    printedAtText: dateTimeText(printedAt),
+    status: document.status,
+    statusText: transferStatusText(document.status),
+    statusKind: transferStatusKind(document.status),
+    note: transferPurposeNote(document.note || ''),
+    rawNote: document.note || '',
+    printForm: selectedForm,
+    printFormId: selectedForm.id,
+    printModeClass: `mode-${selectedForm.mode}`,
+    isDetailed: selectedForm.id === 'detailed',
+    isCompact: selectedForm.id === 'compact',
+    isPriced: selectedForm.id === 'priced',
+    isText: selectedForm.id === 'text',
+    showPrices: selectedForm.showPrices,
+    printForms,
+    printerProfiles,
+    printerProfile,
+    copies,
+    previewBeforePrint,
+    formDialog: {
+      previewChecked: previewBeforePrint ? 'checked' : '',
+      copiesText: String(copies)
+    },
+    quickPrintLinks: {
+      compactUrl: withPrintQuery(basePrintUrl, { ...printUrlParams, form: 'compact' }),
+      pricedUrl: withPrintQuery(basePrintUrl, { ...printUrlParams, form: 'priced' }),
+      detailedUrl: withPrintQuery(basePrintUrl, { ...printUrlParams, form: 'detailed' })
+    },
+    printUrl: withPrintQuery(basePrintUrl, printUrlParams),
+    cardUrl: `/stock/transfer/${document.id}`,
+    centerUrl: '/stock/transfers',
+    fromWarehouse: {
+      code: document.fromWarehouse?.code || '',
+      name: warehouseDisplayName(document.fromWarehouse) || document.fromWarehouse?.name || '',
+      city: document.fromWarehouse?.city || document.fromWarehouse?.location?.city || '',
+      typeText: locationTypeText(document.fromWarehouse?.location?.type)
+    },
+    toWarehouse: {
+      code: document.toWarehouse?.code || '',
+      name: warehouseDisplayName(document.toWarehouse) || document.toWarehouse?.name || '',
+      city: document.toWarehouse?.city || document.toWarehouse?.location?.city || '',
+      typeText: locationTypeText(document.toWarehouse?.location?.type)
+    },
+    lines,
+    movementRows,
+    summary: {
+      linesText: String(lines.length),
+      quantityText: numberText(totalQuantity),
+      totalCostText: money(totalCost),
+      totalSaleVatText: money(totalSaleVat),
+      movementRowsText: String(movementRows.length)
+    },
+    signatureBlocks: [
+      { title: 'Предал', name: sentByName, subtitle: sentByName ? 'име попълнено автоматично · подпис · дата' : 'име, подпис, дата' },
+      { title: 'Транспорт / куриер', name: '', subtitle: 'име, подпис, дата' },
+      { title: 'Приел', name: receivedByName, subtitle: receivedByName ? 'име попълнено автоматично · подпис · дата' : 'име, подпис, дата' }
+    ],
+    copyNote: 'Документът се печата от AutoGrand ERP. При разлика между системна наличност и физическа стока се прави складова корекция.'
   };
 }
 
@@ -1660,8 +1965,8 @@ export async function sendStockTransferRequestDocument(documentId, body = {}) {
     }
 
     const sendNote = sendComment
-      ? `Статус: Пътува. ${sendComment}`
-      : 'Статус: Пътува. Стоката е преместена във В път до приемане.';
+      ? `Статус: Пътува. Изпратил: ${CURRENT_EMPLOYEE_NAME}. ${sendComment}`
+      : `Статус: Пътува. Изпратил: ${CURRENT_EMPLOYEE_NAME}. Стоката е преместена във В път до приемане.`;
 
     await tx.stockTransferDocument.update({
       where: { id },
@@ -1742,7 +2047,7 @@ export async function receiveStockTransferRequestDocument(documentId, body = {})
       sequence += 1;
     }
 
-    const receiveNote = [withPrint ? 'Приет трансфер. Печат: placeholder.' : 'Приет трансфер без печат.', receiveComment]
+    const receiveNote = [withPrint ? `Приет трансфер от ${CURRENT_EMPLOYEE_NAME}. Печатният документ е отворен.` : `Приет трансфер от ${CURRENT_EMPLOYEE_NAME}.`, receiveComment]
       .filter(Boolean)
       .join(' ');
 
@@ -1754,7 +2059,7 @@ export async function receiveStockTransferRequestDocument(documentId, body = {})
       }
     });
 
-    return { ok: true, code: withPrint ? 'stock_transfer_received_print_placeholder' : 'stock_transfer_received', documentId: id };
+    return { ok: true, code: withPrint ? 'stock_transfer_received_print_placeholder' : 'stock_transfer_received', documentId: id, printUrl: `/stock/transfer/${id}/print` };
   });
 }
 
@@ -2055,7 +2360,7 @@ export function stockActionMessage(action = '') {
     stock_transfer_sent_waiting_receive: 'Трансферът е изпратен и чака приемане от получаващия обект.',
     stock_transfer_in_transit: 'Трансферът е изпратен. Стоката е в статус Пътува и се води във В път.',
     stock_transfer_received: 'Трансферът е приет в текущия обект.',
-    stock_transfer_received_print_placeholder: 'Трансферът е приет. Печатът е подготвен като placeholder.',
+    stock_transfer_received_print_placeholder: 'Трансферът е приет и печатният трансферен документ е готов.',
     stock_transfer_returned_to_sender: 'Трансферът е върнат към обекта изпращач.',
     stock_transfer_cancelled: 'Складовият трансфер е отказан.',
     transfer_request_created: 'Заявката за трансфер е изпратена към избраните обекти.',
