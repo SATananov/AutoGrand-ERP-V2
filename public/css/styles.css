@@ -7519,3 +7519,83 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 .document-moneta-markers {
   line-height: 2.2;
 }
+
+
+/* Step 4.6 — Global Print Engine */
+.ag-print-engine-page .ag-engine-status {
+  margin: 12px 0 18px;
+  padding: 10px 12px;
+  border: 1px solid rgba(29, 111, 72, 0.22);
+  border-radius: 10px;
+  background: rgba(228, 244, 235, 0.72);
+  color: #17482f;
+  font-weight: 700;
+}
+
+.ag-engine-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 8px;
+}
+
+.ag-engine-tabs button,
+.ag-mini-button {
+  border: 1px solid rgba(24, 92, 61, 0.25);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8fff9, #dff1e5);
+  color: #17482f;
+  font-weight: 800;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.ag-engine-tabs button.is-active {
+  background: linear-gradient(180deg, #1e7c51, #115a38);
+  color: #ffffff;
+}
+
+.ag-engine-panel {
+  border: 1px solid rgba(24, 92, 61, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 16px;
+  box-shadow: 0 14px 34px rgba(19, 63, 43, 0.08);
+}
+
+.ag-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.ag-mini-card {
+  border: 1px solid rgba(24, 92, 61, 0.15);
+  border-radius: 14px;
+  background: #fbfffc;
+  padding: 14px;
+}
+
+.ag-mini-card h3 {
+  margin: 0 0 8px;
+  color: #164930;
+}
+
+.ag-mini-card p {
+  margin: 0 0 8px;
+  color: #355b47;
+}
+
+.ag-moneta-concepts code {
+  display: inline-block;
+  margin: 4px 4px 0 0;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: rgba(20, 92, 58, 0.08);
+  color: #18482f;
+}
+
+.ag-cross-engine-link a {
+  color: #0f6841;
+  font-weight: 800;
+}

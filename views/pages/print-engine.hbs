@@ -1,0 +1,130 @@
+<section class="ag-foundation-page ag-print-engine-page" data-ag-print-engine>
+  <header class="ag-foundation-hero">
+    <div>
+      <p class="ag-kicker">Step 4.6 · Moneta-aligned foundation</p>
+      <h1>Глобален print engine</h1>
+      <p>
+        Общ слой за печатни форми, preview, PDF/XLSX export, етикети, barcode/QR и бъдещи принтер профили.
+        Следва Moneta hooks като <strong>PrintSelect</strong>, <strong>GetPrintDocument</strong>,
+        <strong>SelectPrintFormGeneral</strong> и <strong>PrintPostedDocument</strong>.
+      </p>
+    </div>
+    <div class="ag-health-card">
+      <span>Health label</span>
+      <strong>{{printEngine.healthLabel}}</strong>
+      <small>Без Prisma schema промяна</small>
+    </div>
+  </header>
+
+  <section class="ag-foundation-counters" aria-label="Print engine counters">
+    <article><span>Форми</span><strong>{{printEngine.counters.documentForms}}</strong></article>
+    <article><span>Канали</span><strong>{{printEngine.counters.channels}}</strong></article>
+    <article><span>Секции</span><strong>{{printEngine.counters.templateSections}}</strong></article>
+    <article><span>Профили</span><strong>{{printEngine.counters.deviceProfiles}}</strong></article>
+    <article><span>Hooks</span><strong>{{printEngine.counters.hooks}}</strong></article>
+  </section>
+
+  <nav class="ag-engine-tabs" aria-label="Print engine tabs">
+    <button type="button" data-ag-print-engine-tab="forms">Печатни форми</button>
+    <button type="button" data-ag-print-engine-tab="channels">Канали</button>
+    <button type="button" data-ag-print-engine-tab="hooks">Moneta hooks</button>
+    <button type="button" data-ag-print-engine-tab="devices">Принтер профили</button>
+  </nav>
+
+  <p class="ag-engine-status" data-ag-print-engine-status>
+    Избери форма за preview demo · PrintSelect → SelectPrintFormGeneral.
+  </p>
+
+  <section class="ag-engine-panel" data-ag-print-engine-panel="forms">
+    <h2>Печатни форми</h2>
+    <div class="ag-table-shell">
+      <table class="ag-data-table" data-ag-grid-key="print.engine.forms">
+        <thead>
+          <tr>
+            <th data-ag-column-key="code">Код</th>
+            <th data-ag-column-key="label">Форма</th>
+            <th data-ag-column-key="documentType">Документ</th>
+            <th data-ag-column-key="defaultChannel">Канал</th>
+            <th data-ag-column-key="permission">Право</th>
+            <th data-ag-column-key="monetaPrintType">Moneta print type</th>
+            <th data-ag-column-key="preview">Preview</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each printEngine.documentForms}}
+            <tr>
+              <td>{{code}}</td>
+              <td>{{label}}</td>
+              <td>{{documentType}}</td>
+              <td>{{defaultChannel}}</td>
+              <td>{{permission}}</td>
+              <td>{{monetaPrintType}}</td>
+              <td><button class="ag-mini-button" type="button" data-ag-print-preview-demo="{{code}}">Preview</button></td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ag-engine-panel" data-ag-print-engine-panel="channels" hidden>
+    <h2>Канали за печат / export</h2>
+    <div class="ag-card-grid">
+      {{#each printEngine.channels}}
+        <article class="ag-mini-card">
+          <h3>{{icon}} {{label}}</h3>
+          <p>{{description}}</p>
+          <small>{{code}} · {{monetaAction}}</small>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag-engine-panel" data-ag-print-engine-panel="hooks" hidden>
+    <h2>Moneta hooks</h2>
+    <div class="ag-table-shell">
+      <table class="ag-data-table" data-ag-grid-key="print.engine.hooks">
+        <thead>
+          <tr>
+            <th data-ag-column-key="code">Hook</th>
+            <th data-ag-column-key="monetaMethod">Moneta метод</th>
+            <th data-ag-column-key="phase">Фаза</th>
+            <th data-ag-column-key="label">Описание</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each printEngine.hooks}}
+            <tr>
+              <td>{{code}}</td>
+              <td>{{monetaMethod}}</td>
+              <td>{{phase}}</td>
+              <td>{{label}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="ag-engine-panel" data-ag-print-engine-panel="devices" hidden>
+    <h2>Принтер профили</h2>
+    <div class="ag-card-grid">
+      {{#each printEngine.deviceProfiles}}
+        <article class="ag-mini-card">
+          <h3>{{label}}</h3>
+          <p>{{channel}} · {{paper}} · {{orientation}}</p>
+          <small>{{code}} · {{monetaSource}}</small>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag-moneta-concepts">
+    <h2>Moneta reference concepts</h2>
+    <p>
+      {{#each printEngine.monetaConcepts}}
+        <code>{{this}}</code>
+      {{/each}}
+    </p>
+  </section>
+</section>

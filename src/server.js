@@ -41,6 +41,11 @@ import {
   getGlobalDocumentEngineData,
   getGlobalDocumentEngineDiagnostics
 } from './services/document-engine-service.js';
+import {
+  STEP_4_6_PRINT_ENGINE_HEALTH_LABEL,
+  getGlobalPrintEngineData,
+  getGlobalPrintEngineDiagnostics
+} from './services/print-engine-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
 import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
@@ -117,7 +122,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.9',
+    appVersion: 'v0.4.10',
     companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -357,7 +362,7 @@ app.get('/login', async (req, res) => {
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.9'
+    appVersion: 'v0.4.10'
   });
 });
 
@@ -460,6 +465,24 @@ app.get('/document-engine', (req, res) => {
 
 app.get('/api/document-engine/diagnostics', (req, res) => {
   res.json(getGlobalDocumentEngineDiagnostics());
+});
+
+
+app.get('/print-engine', (req, res) => {
+  const printEngine = getGlobalPrintEngineData();
+
+  renderPage(req, res, 'print-engine', {
+    ...baseViewData({
+      title: 'Глобален print engine — AutoGrand ERP V2',
+      currentScreen: 'print-engine',
+      statusText: 'Отворен екран: Глобален print engine'
+    }),
+    printEngine
+  });
+});
+
+app.get('/api/print-engine/diagnostics', (req, res) => {
+  res.json(getGlobalPrintEngineDiagnostics());
 });
 
 app.post('/api/items/:itemId/image', async (req, res) => {
@@ -1060,7 +1083,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: STEP_4_5_DOCUMENT_ENGINE_HEALTH_LABEL
+    step: STEP_4_6_PRINT_ENGINE_HEALTH_LABEL
   });
 });
 
