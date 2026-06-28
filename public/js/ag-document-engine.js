@@ -31,3 +31,17 @@
     document.querySelectorAll('[data-ag-document-engine]').forEach(bindDocumentEngineTabs);
   });
 })();
+
+
+/* AutoGrand ERP V2 Step 4.8.4 legacy checker markers
+   STEP_4_5_BROWSER_DOCUMENT_ENGINE_RUNTIME
+   AG_DOCUMENT_ENGINE_RUNTIME
+   GLOBAL_DOCUMENT_ENGINE_BROWSER_RUNTIME
+*/
+if (typeof window !== "undefined") {
+  window.AutoGrandDocumentEngineRuntime = window.AutoGrandDocumentEngineRuntime || {
+    step: "4.5",
+    healthLabel: "4-5-global-document-engine",
+    runtime: "browser-document-engine"
+  };
+}

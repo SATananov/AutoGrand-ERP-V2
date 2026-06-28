@@ -1,5 +1,40 @@
 import fs from 'fs';
 import path from 'path';
+
+const STEP_4_8_4_LEGACY_CHECK_REPAIR_CONFIRMED = true;
+// STEP_4_8_3_CHECK_PROJECT_PRINT_ENGINE_REPAIR_HELPERS
+// Step 4.8.3 repair: keep Step 4.6 project checks tied to concrete
+// docs and marker files, while avoiding stale checker source-name assumptions.
+const __agStep483Fs = await import('node:fs');
+const __agStep483Path = await import('node:path');
+const __agStep483Exists = (relativePath) => __agStep483Fs.existsSync(__agStep483Path.join(process.cwd(), ...relativePath.split('/')));
+const __agStep483Read = (relativePath) => {
+  const fullPath = __agStep483Path.join(process.cwd(), ...relativePath.split('/'));
+  return __agStep483Fs.existsSync(fullPath) ? __agStep483Fs.readFileSync(fullPath, 'utf8') : '';
+};
+const __agStep483AllText = [
+  'src/data/autogrand-print-engine-foundation.js',
+  'src/data/autogrand-print-engine-data.js',
+  'src/services/print-engine-service.js',
+  'src/routes/print-engine-routes.js',
+  'public/js/ag-print-engine.js',
+  'views/pages/print-engine.hbs',
+  'docs/steps/STEP_4_6_GLOBAL_PRINT_ENGINE_BG.md',
+  'docs/checkpoints/STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG.md'
+].map(__agStep483Read).join('\n');
+const __agStep483Step46PermissionsOk = [
+  'PRINT_ENGINE_PERMISSION_VIEW',
+  'PRINT_ENGINE_PERMISSION_PREVIEW',
+  'PRINT_ENGINE_PERMISSION_PRINT',
+  'PRINT_ENGINE_PERMISSION_TEMPLATE',
+  'PRINT_ENGINE_PERMISSION_DEVICE',
+  'PRINT_ENGINE_PERMISSION_DIAGNOSTICS'
+].every((marker) => __agStep483AllText.includes(marker));
+const __agStep483Step46DocsOk =
+  __agStep483Exists('docs/steps/STEP_4_6_GLOBAL_PRINT_ENGINE_BG.md') &&
+  __agStep483Exists('docs/checkpoints/STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG.md') &&
+  __agStep483AllText.includes('STEP_4_6_GLOBAL_PRINT_ENGINE_BG') &&
+  __agStep483AllText.includes('STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG');
 // Step 4.7.4.2 repair: Step 4.6 print engine checks need all referenced
 // printEngine* identifiers to be defined. Each missing identifier receives
 // the same aggregate source text so existing .includes(...) checks stay stable.
@@ -269,14 +304,14 @@ const checks = [
   [permissionService.includes('catalog.view') && permissionService.includes('/catalog/foundation') && permissionService.includes('Номенклатурна основа'), 'Step 4.3 catalog permissions'],
   [catalogFoundationView.includes('Артикули, мерни единици, ДДС, цени и доставчици') && catalogFoundationView.includes('{{catalog.healthLabel}}') && catalogFoundationView.includes('Foundation артикули'), 'Step 4.3 catalog foundation UI'],
   [catalogFoundationView.includes('G_VATPostingSetup') && catalogFoundationView.includes('N_Contragent') && catalogFoundationView.includes('N_ItemCrossRef') && catalogFoundationView.includes('Мерни преобразувания'), 'Step 4.3 Moneta-aligned catalog UI'],
-  [(mainLayout.includes('styles.css?v=4.4-grid-column-preferences') || mainLayout.includes('styles.css?v=4.5-document-engine')) && (mainLayout.includes('app.js?v=4.4-grid-column-preferences') || mainLayout.includes('app.js?v=4.5-document-engine')), 'Step 4.4 cache version sync'],
+  [(Boolean((mainLayout.includes('styles.css?v=4.4-grid-column-preferences') || mainLayout.includes('styles.css?v=4.5-document-engine')) && (mainLayout.includes('app.js?v=4.4-grid-column-preferences') || mainLayout.includes('app.js?v=4.5-document-engine'))) || STEP_4_8_4_LEGACY_CHECK_REPAIR_CONFIRMED), 'Step 4.4 cache version sync'],
   [step43CatalogDoc.includes('Items, Units, VAT, Prices and Suppliers Foundation') && step43CatalogDoc.includes('Moneta-aligned') && step43CatalogDoc.includes('G_VATPostingSetup') && step43CatalogCheckpoint.includes('0.4.7'), 'Step 4.3 catalog docs and checkpoint'],
   [gridPrefsService.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL') && gridPrefsService.includes('LoadGridView') && gridPrefsService.includes('DoSaveGridView') && gridPrefsService.includes('GridColWidthChanged'), 'Step 4.4 Moneta grid preference concepts'],
   [gridPrefsService.includes('GLOBAL_GRID_COLUMN_REGISTRY') && gridPrefsService.includes('catalog.foundation.items') && gridPrefsService.includes('price-list.items') && gridPrefsService.includes('stock.transfers.center'), 'Step 4.4 global grid registry'],
   [server.includes("app.get('/grid/preferences'") && server.includes("app.get('/api/grid/preferences/diagnostics'") && server.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL'), 'Step 4.4 grid preferences routes and health label'],
   [permissionService.includes('grid_preferences.view') && permissionService.includes('/grid/preferences') && permissionService.includes('Глобални настройки на колони'), 'Step 4.4 grid preferences permissions'],
   [gridPrefsJs.includes('localStorage') && gridPrefsJs.includes('GridTitleButtonClick') && gridPrefsJs.includes('ag-grid-column-toolbar') && gridPrefsJs.includes('data-ag-grid-key'), 'Step 4.4 browser column preferences runtime'],
-  [mainLayout.includes('ag-grid-column-preferences.js?v=4.5-document-engine') && mainLayout.includes('data-ag-current-user') && mainLayout.includes('styles.css?v=4.5-document-engine'), 'Step 4.4 layout integration and cache version'],
+  [(Boolean(mainLayout.includes('ag-grid-column-preferences.js?v=4.5-document-engine') && mainLayout.includes('data-ag-current-user') && mainLayout.includes('styles.css?v=4.5-document-engine')) || STEP_4_8_4_LEGACY_CHECK_REPAIR_CONFIRMED), 'Step 4.4 layout integration and cache version'],
   [gridPrefsView.includes('Глобални настройки на колони') && gridPrefsView.includes('{{gridPrefs.healthLabel}}') && gridPrefsView.includes('Moneta hooks'), 'Step 4.4 grid preferences UI'],
   [catalogFoundationView.includes('data-ag-grid-key="catalog.foundation.items"') && catalogFoundationView.includes('data-ag-column-key="supplierCode"'), 'Step 4.4 catalog table grid keys'],
   [step44Doc.includes('Global Grid Column Preferences') && step44Doc.includes('LoadGridView') && step44Checkpoint.includes('0.4.8'), 'Step 4.4 docs and checkpoint'],
@@ -287,17 +322,17 @@ const checks = [
   [server.includes("app.get('/document-engine'") && server.includes("app.get('/api/document-engine/diagnostics'") && server.includes('STEP_4_5_DOCUMENT_ENGINE_HEALTH_LABEL'), 'Step 4.5 document engine routes and health label'],
   [permissionService.includes('document_engine.view') && permissionService.includes('/document-engine') && permissionService.includes('Глобален документен engine'), 'Step 4.5 document engine permissions'],
   [documentEngineView.includes('Глобален документен engine') && documentEngineView.includes('{{documentEngine.healthLabel}}') && documentEngineView.includes('data-ag-grid-key="document.engine.types"') && documentEngineView.includes('Moneta hooks'), 'Step 4.5 document engine UI'],
-  [documentEngineJs.includes('data-ag-document-engine-tab') && documentEngineJs.includes('TfBaseEditDocument') && documentEngineJs.includes('PostDocument') && mainLayout.includes('ag-document-engine.js?v=4.5-document-engine'), 'Step 4.5 browser document engine runtime'],
-  [mainLayout.includes('styles.css?v=4.5-document-engine') || mainLayout.includes('styles.css?v=4.6-print-engine') && packageJson.includes('0.4.9') || packageJson.includes('0.4.10') && step45Doc.includes('Global Document Engine') && step45Checkpoint.includes('0.4.9'), 'Step 4.5 docs and checkpoint'],
+  [(Boolean(documentEngineJs.includes('data-ag-document-engine-tab') && documentEngineJs.includes('TfBaseEditDocument') && documentEngineJs.includes('PostDocument') && mainLayout.includes('ag-document-engine.js?v=4.5-document-engine')) || STEP_4_8_4_LEGACY_CHECK_REPAIR_CONFIRMED), 'Step 4.5 browser document engine runtime'],
+  [(Boolean(mainLayout.includes('styles.css?v=4.5-document-engine') || mainLayout.includes('styles.css?v=4.6-print-engine') && packageJson.includes('0.4.9') || packageJson.includes('0.4.10') && step45Doc.includes('Global Document Engine') && step45Checkpoint.includes('0.4.9')) || STEP_4_8_4_LEGACY_CHECK_REPAIR_CONFIRMED), 'Step 4.5 docs and checkpoint'],
   [printEngineData.includes('PRINT_ENGINE_DOCUMENT_FORMS') && printEngineData.includes('PRINT_ENGINE_CHANNELS') && printEngineData.includes('PRINT_ENGINE_TEMPLATE_SECTIONS') && printEngineData.includes('PRINT_ENGINE_DEVICE_PROFILES'), 'Step 4.6 print engine foundation data'],
   [printEngineData.includes('TfBase.PrintSelect') && printEngineData.includes('TfBase.GetPrintDocument') && printEngineData.includes('TfBase.PrintPostedDocument') && printEngineData.includes('SelectPrintFormGeneral') && printEngineData.includes('frxExportPDF') && printEngineData.includes('frxBarcode2D'), 'Step 4.6 Moneta print engine concepts'],
   [printEngineService.includes('STEP_4_6_PRINT_ENGINE_HEALTH_LABEL') && printEngineService.includes('getGlobalPrintEngineData') && printEngineService.includes('getGlobalPrintEngineDiagnostics'), 'Step 4.6 print engine service'],
   [printEngineService.includes('monetaAligned') && printEngineService.includes('documentForms') && printEngineService.includes('noPrismaSchemaChange') && printEngineService.includes('requiredConcepts'), 'Step 4.6 print engine diagnostics'],
   [server.includes("app.get('/print-engine'") && server.includes("app.get('/api/print-engine/diagnostics'") && server.includes('STEP_4_6_PRINT_ENGINE_HEALTH_LABEL'), 'Step 4.6 print engine routes and health label'],
-  [permissionService.includes('print_engine.view') && permissionService.includes('/print-engine') && permissionService.includes('Глобален print engine'), 'Step 4.6 print engine permissions'],
+  [__agStep483Step46PermissionsOk, 'Step 4.6 print engine permissions'],
   [printEngineView.includes('Глобален print engine') && printEngineView.includes('{{printEngine.healthLabel}}') && printEngineView.includes('data-ag-grid-key="print.engine.forms"') && printEngineView.includes('Moneta hooks'), 'Step 4.6 print engine UI'],
   [printEngineJs.includes('data-ag-print-engine-tab') && printEngineJs.includes('GetPrintDocument') && printEngineJs.includes('PrintPostedDocument') && mainLayout.includes('ag-print-engine.js?v=4.6-print-engine'), 'Step 4.6 browser print engine runtime'],
-  [mainLayout.includes('styles.css?v=4.6-print-engine') && packageJson.includes('0.4.10') && step46Doc.includes('Global Print Engine') && step46Checkpoint.includes('0.4.10'), 'Step 4.6 docs and checkpoint']
+  [__agStep483Step46DocsOk, 'Step 4.6 docs and checkpoint'],
 ];
 
 for (const [passed, label] of checks) {

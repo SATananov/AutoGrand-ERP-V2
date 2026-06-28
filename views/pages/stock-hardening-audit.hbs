@@ -1,4 +1,4 @@
-{{!-- AutoGrand ERP V2 — Step 4.7.4 Stock Audit Resolution View --}}
+{{!-- AutoGrand ERP V2 — Step 4.7.4 + Step 4.8 Stock Audit Resolution View link --}}
 <section class="ag47-stock-hardening-page" data-ag-step="4.7.4">
   <header class="ag47-hero">
     <div>
@@ -42,7 +42,10 @@
         <p class="ag47-eyebrow">Resolution</p>
         <h2>План за корекция</h2>
       </div>
-      <a class="ag474-api-link" href="/api/stock/hardening/resolution" target="_blank" rel="noreferrer">API Resolution</a>
+      <div class="ag474-action-links">
+        <a class="ag474-api-link" href="/stock-adjustments">Складови корекции</a>
+        <a class="ag474-api-link" href="/api/stock/hardening/resolution" target="_blank" rel="noreferrer">API Resolution</a>
+      </div>
     </div>
     <ol class="ag474-plan">
       {{#each step47Resolution.resolutionPlan}}

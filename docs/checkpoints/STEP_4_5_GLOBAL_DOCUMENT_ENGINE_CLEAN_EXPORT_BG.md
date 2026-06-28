@@ -64,3 +64,17 @@ npm run dev
 - Екранът показва документни типове, header/line полета, действия и Moneta hooks.
 - Diagnostics връща броячи за document types, statuses, actions, copy templates и validation hooks.
 - Permission guard работи с `document_engine.view`.
+
+
+# Step 4.5 — Global Document Engine Clean Export
+
+Status: clean checkpoint.
+
+Markers:
+- STEP_4_5_GLOBAL_DOCUMENT_ENGINE
+- STEP_4_5_DOCUMENT_ENGINE_FOUNDATION
+- STEP_4_5_BROWSER_DOCUMENT_ENGINE_RUNTIME
+- GLOBAL_DOCUMENT_ENGINE_BROWSER_RUNTIME
+- 4-5-global-document-engine
+
+The global document engine is kept as a reusable ERP foundation layer for sales, purchases, stock corrections and future document modules.

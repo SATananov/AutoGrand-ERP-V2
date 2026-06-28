@@ -1,0 +1,154 @@
+{{!-- AutoGrand ERP V2 — Step 4.8 Stock Correction / Adjustment Document Foundation --}}
+<section class="ag48-stock-adjustments-page" data-ag-step="4.8">
+  <header class="ag48-hero">
+    <div>
+      <p class="ag48-eyebrow">Step 4.8 · Stock Correction / Adjustment Document Foundation</p>
+      <h1>Складови корекции</h1>
+      <p class="ag48-lead">
+        Moneta-подобна основа за корекционен складов документ. Целта е всяка корекция да мине през документ,
+        причина, редове и бъдещо еднократно осчетоводяване — без ръчно триене на складови движения.
+      </p>
+    </div>
+    <div class="ag48-health {{#if step48Foundation.ok}}is-ok{{else}}is-warning{{/if}}">
+      {{#if step48Foundation.ok}}Foundation OK{{else}}Провери{{/if}}
+    </div>
+  </header>
+
+  {{#if step48Foundation.errors.length}}
+  <section class="ag48-panel ag48-warning-panel">
+    <h2>Диагностика</h2>
+    <ul>
+      {{#each step48Foundation.errors}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/if}}
+
+  <div class="ag48-grid">
+    <article class="ag48-card"><span>Типове документи</span><strong>{{step48Foundation.documentTypes.length}}</strong></article>
+    <article class="ag48-card"><span>Причини</span><strong>{{step48Foundation.reasonCodes.length}}</strong></article>
+    <article class="ag48-card"><span>Отрицателни</span><strong>{{step48Foundation.resolutionSummary.negativeIssueCount}}</strong></article>
+    <article class="ag48-card"><span>Дубликати</span><strong>{{step48Foundation.resolutionSummary.duplicateIssueCount}}</strong></article>
+  </div>
+
+  <section class="ag48-panel">
+    <div class="ag48-section-head">
+      <div>
+        <p class="ag48-eyebrow">Correction workflow</p>
+        <h2>Как работи корекцията</h2>
+      </div>
+      <div class="ag48-actions">
+        <a class="ag48-button" href="/stock-hardening">Складов audit</a>
+        <a class="ag48-button is-secondary" href="/api/stock/adjustments/foundation" target="_blank" rel="noreferrer">Foundation API</a>
+      </div>
+    </div>
+    <ol class="ag48-flow">
+      <li>Операторът вижда audit проблем: отрицателна наличност или потенциален дублаж.</li>
+      <li>Системата предлага корекционен документ в статус <strong>DRAFT</strong>.</li>
+      <li>Редът има артикул, обект/локация, количество, причина и складов ефект.</li>
+      <li>Следваща стъпка ще добави реално записване и еднократно осчетоводяване.</li>
+    </ol>
+  </section>
+
+  <section class="ag48-panel">
+    <div class="ag48-section-head">
+      <div>
+        <p class="ag48-eyebrow">Document types</p>
+        <h2>Типове корекционни документи</h2>
+      </div>
+    </div>
+    <div class="ag48-type-grid">
+      {{#each step48Foundation.documentTypes}}
+        <article class="ag48-type-card">
+          <strong>{{label}}</strong>
+          <span>{{code}} · {{direction}}</span>
+          <p>{{purpose}}</p>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag48-panel">
+    <div class="ag48-section-head">
+      <div>
+        <p class="ag48-eyebrow">Suggested drafts</p>
+        <h2>Предложени корекционни чернови от audit-а</h2>
+      </div>
+      <strong class="ag48-counter">{{step48Foundation.suggestedDrafts.length}}</strong>
+    </div>
+
+    {{#if step48Foundation.suggestedDrafts.length}}
+      <div class="ag48-table-wrap">
+        <table class="ag48-table">
+          <thead>
+            <tr>
+              <th>Проблем</th>
+              <th>Приоритет</th>
+              <th>Документ</th>
+              <th>Причина</th>
+              <th>Редове</th>
+              <th>Ефект</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each step48Foundation.suggestedDrafts}}
+              <tr>
+                <td>{{issueLabel}}</td>
+                <td>{{priority}}</td>
+                <td>{{draft.documentTypeLabel}}<br><span>{{draft.number}}</span></td>
+                <td>{{draft.reasonLabel}}</td>
+                <td>{{draft.totals.lineCount}}</td>
+                <td>{{draft.totals.totalSignedQuantity}}</td>
+              </tr>
+              {{#if draft.lines.length}}
+              <tr class="ag48-detail-row">
+                <td colspan="6">
+                  <div class="ag48-line-list">
+                    {{#each draft.lines}}
+                      <span>Ред {{lineNo}} · Артикул {{itemId}} · Обект {{locationId}} · Qty {{quantity}} · Ефект {{signedQuantity}} · {{reasonCode}}</span>
+                    {{/each}}
+                  </div>
+                </td>
+              </tr>
+              {{/if}}
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="ag48-empty">Няма audit проблеми, от които да се предложи корекционна чернова.</p>
+    {{/if}}
+  </section>
+
+  <section class="ag48-panel">
+    <div class="ag48-section-head">
+      <div>
+        <p class="ag48-eyebrow">Storage compatibility</p>
+        <h2>Готовност за реално записване</h2>
+      </div>
+      <span class="ag48-badge {{#if step48Foundation.storage.canPersistAdjustmentDocuments}}is-ok{{else}}is-soft{{/if}}">
+        {{#if step48Foundation.storage.canPersistAdjustmentDocuments}}Prisma model found{{else}}Preview foundation{{/if}}
+      </span>
+    </div>
+    <p>{{step48Foundation.storage.note}}</p>
+    <p class="ag48-muted">
+      Това е умишлено безопасно: Step 4.8 подготвя документа и правилата, а следваща подстъпка може да добави таблица,
+      реален номер, записване и еднократно осчетоводяване.
+    </p>
+  </section>
+
+  <section class="ag48-panel">
+    <h2>Moneta правила</h2>
+    <ul>
+      {{#each step48Foundation.monetaRules}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </section>
+
+  <section class="ag48-panel">
+    <h2>Foundation JSON</h2>
+    <pre class="ag48-json">{{step48FoundationJson}}</pre>
+  </section>
+</section>

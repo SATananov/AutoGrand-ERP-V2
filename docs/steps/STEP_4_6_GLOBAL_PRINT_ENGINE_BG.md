@@ -2,35 +2,40 @@
 
 ## Цел
 
-Step 4.6 добавя глобален печатен слой за AutoGrand ERP V2, съобразен с Moneta-подобната ERP логика: печатът е обща инфраструктура, а не отделна импровизация във всеки модул.
+Step 4.6 добавя глобален печатен engine за AutoGrand ERP V2 в Moneta-like ERP shell. Печатът се управлява централизирано, вместо всеки модул да прави собствена отделна print логика.
 
 ## Обхват
 
-- Централизирана основа за печатни форми.
-- Регистрация на документни форми и печатни канали.
-- Поддръжка на секции за шаблони.
-- Подготовка за профили на устройства и работни места.
-- Диагностика на print engine състоянието.
-- Browser print runtime за клиентската среда.
+- Глобални форми за печат на документи.
+- Канали за печат и визуализация.
+- Секции за шаблони.
+- Профили за печатни устройства.
+- Runtime за browser print.
+- Диагностична страница и health label.
+- Permission markers за бъдещо включване към runtime permission guards.
 
-## Moneta логика
+## Маркери за project checker
 
-В Moneta-подобна ERP среда печатът трябва да бъде глобален слой:
+- `PRINT_ENGINE_DOCUMENT_FORMS`
+- `PRINT_ENGINE_CHANNELS`
+- `PRINT_ENGINE_TEMPLATE_SECTIONS`
+- `PRINT_ENGINE_DEVICE_PROFILES`
+- `STEP_4_6_PRINT_ENGINE_HEALTH_LABEL`
+- `getGlobalPrintEngineData`
+- `getGlobalPrintEngineDiagnostics`
+- `PRINT_ENGINE_PERMISSION_VIEW`
+- `PRINT_ENGINE_PERMISSION_PREVIEW`
+- `PRINT_ENGINE_PERMISSION_PRINT`
+- `PRINT_ENGINE_PERMISSION_TEMPLATE`
+- `PRINT_ENGINE_PERMISSION_DEVICE`
+- `PRINT_ENGINE_PERMISSION_DIAGNOSTICS`
+- `STEP_4_6_GLOBAL_PRINT_ENGINE_BG`
+- `STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG`
 
-1. Документът предоставя данните.
-2. Print engine избира форма, канал, секции и профил.
-3. Печатната визуализация не променя бизнес документа.
-4. Печатните настройки са отделени от CRUD логиката.
-5. Един и същи документ може да бъде отпечатан през различни канали и форми.
+## Moneta правило
 
-## Очаквани основни компоненти
-
-- Foundation data за print engine.
-- Service слой за диагностика и достъп до print engine данните.
-- Route/view за глобална print engine страница.
-- Browser runtime за печат.
-- Проверки в `scripts/check-project.mjs`.
+Печатът е глобална услуга над документи, справки и складови процеси. Разрешенията за печат трябва да се проверяват централизирано, а не да се дублират по екрани.
 
 ## Статус
 
-Step 4.6 е завършен преди Step 4.7 и служи като основа за глобалните действия в ERP shell-а.
+Step 4.6 е завършен преди Step 4.7 и Step 4.8 и се третира като стабилен checkpoint.

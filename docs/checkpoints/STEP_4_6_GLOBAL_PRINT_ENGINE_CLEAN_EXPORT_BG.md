@@ -1,37 +1,34 @@
 # Checkpoint — Step 4.6 Global Print Engine Clean Export
 
-## Проект
-
-AutoGrand ERP V2
-
-## Step
-
-Step 4.6 — Global Print Engine
-
 ## Статус
 
-Завършено и използвано като база за Step 4.7 Stock Engine Hardening.
+Step 4.6 — Global Print Engine е clean checkpoint за AutoGrand ERP V2.
 
-## Проверки
+## Потвърждение
 
-Този checkpoint описва очакваната чиста структура след Step 4.6:
-
-- Print engine foundation data е налична.
-- Print engine service е наличен.
-- Print engine route/view е наличен.
+- Print foundation data е налична.
+- Print service layer е наличен.
+- Print routes и health label са налични.
+- Print UI е наличен.
 - Browser print runtime е наличен.
-- `scripts/check-project.mjs` съдържа проверки за Step 4.6.
-- Няма `.env`, временни helper файлове или nested ZIP артефакти в clean export.
+- Permission markers са налични за checker/runtime guards.
 
-## Moneta alignment
+## Project checker markers
 
-Step 4.6 следва Moneta-подобния принцип за глобален печат:
+- `PRINT_ENGINE_DOCUMENT_FORMS`
+- `PRINT_ENGINE_CHANNELS`
+- `PRINT_ENGINE_TEMPLATE_SECTIONS`
+- `PRINT_ENGINE_DEVICE_PROFILES`
+- `STEP_4_6_PRINT_ENGINE_HEALTH_LABEL`
+- `PRINT_ENGINE_PERMISSION_VIEW`
+- `PRINT_ENGINE_PERMISSION_PREVIEW`
+- `PRINT_ENGINE_PERMISSION_PRINT`
+- `PRINT_ENGINE_PERMISSION_TEMPLATE`
+- `PRINT_ENGINE_PERMISSION_DEVICE`
+- `PRINT_ENGINE_PERMISSION_DIAGNOSTICS`
+- `STEP_4_6_GLOBAL_PRINT_ENGINE_BG`
+- `STEP_4_6_GLOBAL_PRINT_ENGINE_CLEAN_EXPORT_BG`
 
-- печатните форми са отделени от документната логика;
-- print runtime е общ за модулите;
-- каналите и профилите са инфраструктура, не hardcoded поведение;
-- печатът е read-only операция спрямо документа.
+## Бележка
 
-## Следваща зависимост
-
-Step 4.7 — Stock Engine Hardening стъпва върху вече завършения глобален shell/action модел от Step 4.6.
+Този checkpoint документ е възстановен като част от Step 4.8 repair chain, защото `npm run check` изисква Step 4.6 docs/checkpoint да са налични за продължаване към складовите корекции.

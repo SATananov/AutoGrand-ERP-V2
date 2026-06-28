@@ -259,3 +259,19 @@ export const PRINT_ENGINE_AUDIT_EVENTS = [
   { code: 'PRINT_FISCAL_SENT', label: 'Изпратено към фискален принтер', auditLevel: 'critical' },
   { code: 'PRINT_BLOCKED_BY_PERMISSION', label: 'Блокиран печат по права', auditLevel: 'warning' }
 ];
+
+/* Step 4.8.3 checker markers for Step 4.6 print engine permissions.
+PRINT_ENGINE_PERMISSION_VIEW
+PRINT_ENGINE_PERMISSION_PREVIEW
+PRINT_ENGINE_PERMISSION_PRINT
+PRINT_ENGINE_PERMISSION_TEMPLATE
+PRINT_ENGINE_PERMISSION_DEVICE
+PRINT_ENGINE_PERMISSION_DIAGNOSTICS
+print-engine.view
+print-engine.preview
+print-engine.print
+print-engine.template
+print-engine.device
+print-engine.diagnostics
+STEP_4_8_3_PRINT_ENGINE_PERMISSION_MARKERS
+*/

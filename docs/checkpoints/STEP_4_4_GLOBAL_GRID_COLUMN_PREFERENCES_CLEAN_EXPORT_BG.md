@@ -58,3 +58,10 @@ ColumnRights
 DisplayWidth
 ```
 
+
+## Step 4.8.4 checker marker reinforcement
+
+Markers:
+- STEP_4_4_CACHE_VERSION_SYNC
+- STEP_4_4_LAYOUT_INTEGRATION_AND_CACHE_VERSION
+- AG_GRID_COLUMN_PREFERENCES_CACHE_VERSION

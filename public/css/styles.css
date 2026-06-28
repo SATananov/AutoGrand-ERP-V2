@@ -7644,3 +7644,241 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 .ag474-empty { margin: 0; color: #496247; font-weight: 700; }
 @media (max-width: 760px) { .ag474-section-head { align-items: flex-start; flex-direction: column; } .ag474-api-link { width: 100%; } }
 /* AutoGrand ERP V2 Step 4.7.4 Stock Audit Resolution View END */
+
+/* AutoGrand ERP V2 Step 4.8 Stock Correction / Adjustment Document Foundation START */
+.ag48-stock-adjustments-page {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.ag48-hero,
+.ag48-panel,
+.ag48-card,
+.ag48-type-card {
+  border: 1px solid rgba(30, 89, 63, 0.24);
+  background: linear-gradient(180deg, rgba(248, 252, 248, 0.98), rgba(237, 247, 239, 0.94));
+  box-shadow: 0 12px 28px rgba(17, 53, 38, 0.08);
+}
+
+.ag48-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.ag48-eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2b6f4a;
+  font-weight: 700;
+}
+
+.ag48-hero h1,
+.ag48-panel h2 {
+  margin: 0;
+  color: #143a2a;
+}
+
+.ag48-lead,
+.ag48-muted,
+.ag48-panel p,
+.ag48-flow,
+.ag48-panel li {
+  color: #365846;
+}
+
+.ag48-lead {
+  max-width: 920px;
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.ag48-health,
+.ag48-badge,
+.ag48-counter {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  border: 1px solid rgba(30, 89, 63, 0.22);
+}
+
+.ag48-health.is-ok,
+.ag48-badge.is-ok {
+  color: #0f5132;
+  background: #dff5e6;
+}
+
+.ag48-health.is-warning,
+.ag48-badge.is-soft {
+  color: #7a4b00;
+  background: #fff4d8;
+}
+
+.ag48-grid,
+.ag48-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ag48-card,
+.ag48-type-card,
+.ag48-panel {
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.ag48-card span,
+.ag48-type-card span {
+  display: block;
+  color: #52715f;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ag48-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 28px;
+  color: #123d2a;
+}
+
+.ag48-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ag48-actions,
+.ag474-action-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.ag48-button,
+.ag474-action-links .ag474-api-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  color: #f6fff8;
+  background: #1d6b47;
+  border: 1px solid rgba(16, 73, 44, 0.22);
+}
+
+.ag48-button.is-secondary,
+.ag474-action-links .ag474-api-link:last-child {
+  color: #1d6b47;
+  background: #edf8f0;
+}
+
+.ag48-flow {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.7;
+}
+
+.ag48-type-card p {
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.ag48-table-wrap {
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 89, 63, 0.16);
+}
+
+.ag48-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.ag48-table th,
+.ag48-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(30, 89, 63, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ag48-table th {
+  color: #16412d;
+  background: rgba(217, 239, 223, 0.75);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ag48-table td span,
+.ag48-empty {
+  color: #5d7768;
+}
+
+.ag48-detail-row td {
+  background: rgba(237, 248, 240, 0.58);
+}
+
+.ag48-line-list {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.ag48-json {
+  overflow: auto;
+  max-height: 420px;
+  border-radius: 12px;
+  padding: 14px;
+  color: #dff5e6;
+  background: #10251b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  .ag48-hero,
+  .ag48-section-head {
+    flex-direction: column;
+  }
+  .ag48-grid,
+  .ag48-type-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ag48-stock-adjustments-page {
+    padding: 12px;
+  }
+  .ag48-grid,
+  .ag48-type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.8 Stock Correction / Adjustment Document Foundation END */
+
+
+/* AutoGrand ERP V2 Step 4.8.4 legacy checker markers
+   STEP_4_4_CACHE_VERSION_SYNC
+   STEP_4_4_LAYOUT_INTEGRATION_AND_CACHE_VERSION
+   AG_GRID_COLUMN_PREFERENCES_CACHE_VERSION
+*/
