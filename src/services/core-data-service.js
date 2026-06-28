@@ -285,8 +285,49 @@ export const screenDefinitions = {
     columns: [
       { key: 'username', label: 'Потребител' },
       { key: 'displayName', label: 'Име' },
-      { key: 'role', label: 'Роля' },
-      { key: 'companyName', label: 'Фирма' }
+      { key: 'roleName', label: 'Роля' },
+      { key: 'defaultLocationName', label: 'Обект по подразбиране' },
+      { key: 'accessLocationsText', label: 'Достъп до обекти' },
+      { key: 'permissionsText', label: 'Права' },
+      { key: 'statusText', label: 'Статус' }
+    ]
+  },
+  'employees': {
+    title: 'Служители',
+    group: 'Администриране',
+    kind: 'employee',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'displayName', label: 'Име' },
+      { key: 'position', label: 'Длъжност' },
+      { key: 'primaryLocationName', label: 'Основен обект' },
+      { key: 'usernamesText', label: 'Потребители' },
+      { key: 'statusText', label: 'Статус' }
+    ]
+  },
+  'roles': {
+    title: 'Роли и шаблони права',
+    group: 'Администриране',
+    kind: 'role',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'name', label: 'Роля' },
+      { key: 'description', label: 'Описание' },
+      { key: 'permissionsText', label: 'Права' },
+      { key: 'usersText', label: 'Потребители' },
+      { key: 'statusText', label: 'Статус' }
+    ]
+  },
+  'permissions': {
+    title: 'Права',
+    group: 'Администриране',
+    kind: 'permission',
+    columns: [
+      { key: 'code', label: 'Код' },
+      { key: 'module', label: 'Модул' },
+      { key: 'actionText', label: 'Действие' },
+      { key: 'name', label: 'Право' },
+      { key: 'description', label: 'Описание' }
     ]
   },
   'settings': {
@@ -828,7 +869,14 @@ export async function getScreenData(screenId) {
 
     if (definition.kind === 'user') {
       const result = await prisma.user.findMany({
-        include: { company: true },
+        include: {
+          company: true,
+          employee: true,
+          roleTemplate: { include: { rolePermissions: true } },
+          defaultLocation: true,
+          locationAccesses: { include: { location: true } },
+          permissionOverrides: true
+        },
         orderBy: { username: 'asc' }
       });
 
@@ -836,8 +884,75 @@ export async function getScreenData(screenId) {
         id: row.id,
         username: row.username,
         displayName: row.displayName,
+        employeeName: row.employee?.displayName || row.displayName,
         role: row.role,
-        companyName: row.company?.name || ''
+        roleName: row.roleTemplate?.name || row.role || '',
+        companyName: row.company?.name || '',
+        defaultLocationName: row.defaultLocation?.name || '',
+        accessLocationsText: row.locationAccesses.map((entry) => entry.location?.city || entry.location?.name || '').filter(Boolean).join(', '),
+        permissionsText: String(row.roleTemplate?.rolePermissions?.length || 0),
+        overridesText: String(row.permissionOverrides?.length || 0),
+        statusText: row.isActive ? 'Активен' : 'Спрян'
+      }));
+    }
+
+    if (definition.kind === 'employee') {
+      const result = await prisma.employee.findMany({
+        include: { primaryLocation: true, users: true },
+        orderBy: [{ isActive: 'desc' }, { code: 'asc' }]
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        displayName: row.displayName,
+        position: row.position || '',
+        primaryLocationName: row.primaryLocation?.name || '',
+        usernamesText: row.users.map((user) => user.username).join(', '),
+        statusText: row.isActive ? 'Активен' : 'Спрян'
+      }));
+    }
+
+    if (definition.kind === 'role') {
+      const result = await prisma.role.findMany({
+        include: { users: true, rolePermissions: true },
+        orderBy: [{ level: 'asc' }, { code: 'asc' }]
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        description: row.description || '',
+        permissionsText: String(row.rolePermissions.length),
+        usersText: row.users.map((user) => user.username).join(', '),
+        statusText: row.isActive ? 'Активна' : 'Спряна'
+      }));
+    }
+
+    if (definition.kind === 'permission') {
+      const actionMap = {
+        read: 'Преглед',
+        insert: 'Добавяне',
+        edit: 'Редакция',
+        delete: 'Изтриване',
+        finish: 'Приключване',
+        print: 'Печат',
+        export: 'Експорт',
+        edit_props: 'Настройки',
+        annul: 'Анулиране'
+      };
+      const result = await prisma.permission.findMany({
+        orderBy: [{ sortOrder: 'asc' }, { code: 'asc' }]
+      });
+
+      rows = result.map((row) => ({
+        id: row.id,
+        code: row.code,
+        module: row.module,
+        actionText: actionMap[row.action] || row.action,
+        name: row.name,
+        description: row.description || ''
       }));
     }
 

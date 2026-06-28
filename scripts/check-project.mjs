@@ -34,8 +34,13 @@ const required = [
   'docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md',
   'docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md',
   'src/data/autogrand-foundation.js',
+  'src/data/autogrand-identity-foundation.js',
   'docs/steps/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_BG.md',
-  'docs/checkpoints/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_CLEAN_EXPORT_BG.md'
+  'docs/checkpoints/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_CLEAN_EXPORT_BG.md',
+  'docs/steps/STEP_4_2_USERS_EMPLOYEES_ROLES_PERMISSIONS_BG.md',
+  'docs/checkpoints/STEP_4_2_USERS_EMPLOYEES_ROLES_PERMISSIONS_CLEAN_EXPORT_BG.md',
+  'docs/steps/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_BG.md',
+  'docs/checkpoints/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -68,8 +73,13 @@ const foundationPlan = fs.readFileSync(path.resolve('docs/blueprints/CORE_FOUNDA
 const implementationSequence = fs.readFileSync(path.resolve('docs/blueprints/IMPLEMENTATION_SEQUENCE_BG.md'), 'utf8');
 const step40Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_0_MASTER_BLUEPRINT_MONETA_AUDIT_BG.md'), 'utf8');
 const autograndFoundation = fs.readFileSync(path.resolve('src/data/autogrand-foundation.js'), 'utf8');
+const autograndIdentity = fs.readFileSync(path.resolve('src/data/autogrand-identity-foundation.js'), 'utf8');
 const step41Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_BG.md'), 'utf8');
 const step41Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_1_COMPANY_REAL_LOCATIONS_FOUNDATION_CLEAN_EXPORT_BG.md'), 'utf8');
+const step42Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_2_USERS_EMPLOYEES_ROLES_PERMISSIONS_BG.md'), 'utf8');
+const step42Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_2_USERS_EMPLOYEES_ROLES_PERMISSIONS_CLEAN_EXPORT_BG.md'), 'utf8');
+const step421Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_BG.md'), 'utf8');
+const step421Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_2_1_REAL_KARDZHALI_USERS_SEED_CLEAN_EXPORT_BG.md'), 'utf8');
 
 const adjustmentCard = fs.readFileSync(path.resolve('views/pages/stock-adjustment-card.hbs'), 'utf8');
 const priceListWorkbench = fs.readFileSync(path.resolve('views/pages/price-list-workbench.hbs'), 'utf8');
@@ -86,13 +96,17 @@ const checks = [
   [purchaseCard.includes('getPurchaseDocumentCardData'), 'getPurchaseDocumentCardData'],
   [server.includes('/document/purchase/new/:docType'), 'purchase new route'],
   [server.includes('/document/purchase/:documentId/status'), 'purchase status route'],
-  [server.includes("step: '4-1-company-real-locations-foundation'"), 'Step 4.1 health label'],
+  [server.includes("step: '4-2-1-real-kardzhali-users-seed'"), 'Step 4.2.1 health label'],
   [autograndFoundation.includes('AUTOGRAND_COMPANY') && autograndFoundation.includes('Автогранд ООД') && autograndFoundation.includes('DEFAULT_LOCATION_CODE') && autograndFoundation.includes('AG-KJ-SHOP'), 'Step 4.1 AutoGrand company and default location foundation'],
   [autograndFoundation.includes('AG-STZ-CENTRAL') && autograndFoundation.includes('AG-STZ-WH') && autograndFoundation.includes('Централен склад') && autograndFoundation.includes('Регионален склад Стара Загора'), 'Step 4.1 Stara Zagora separate central/regional objects'],
   [autograndFoundation.includes("canSell: false") && autograndFoundation.includes("canTransfer: false") && autograndFoundation.includes("canTransfer: true"), 'Step 4.1 location role rules'],
   [seedText.includes('AUTOGRAND_LOCATIONS') && seedText.includes('AUTOGRAND_COMPANY'), 'Step 4.1 seed uses centralized foundation data'],
   [companyLocations.includes('canRequestTransferText') && companyLocations.includes('canDispatchTransferText') && companyLocations.includes('canReceiveTransferText'), 'Step 4.1 transfer capability labels'],
   [step41Doc.includes('Фирма → Обект → Потребител → Парола') && step41Checkpoint.includes('0.4.1'), 'Step 4.1 docs and checkpoint'],
+  [autograndIdentity.includes('AUTOGRAND_ROLE_TEMPLATES') && autograndIdentity.includes('MONETA_RIGHT_ACTIONS') && autograndIdentity.includes('AUTOGRAND_PERMISSIONS') && autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS'), 'Step 4.2 identity foundation data'],
+  [seedText.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && seedText.includes('AUTOGRAND_ROLE_TEMPLATES') && seedText.includes('seedIdentityFoundation') && seedText.includes('userLocationAccess.create'), 'Step 4.2 seed identity foundation'],
+  [step42Doc.includes('Employee') && step42Doc.includes('RolePermission') && step42Doc.includes('UserLocationAccess') && step42Checkpoint.includes('0.4.2'), 'Step 4.2 docs and checkpoint'],
+  [server.includes("appVersion: 'v0.4.3'") && seedText.includes('Step 4.2.1 real Kardzhali users seed completed'), 'Step 4.2.1 version and seed message'],
   [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
   [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
   [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
@@ -134,7 +148,11 @@ const checks = [
   [appJs.includes('initPriceWorkbench') && appJs.includes('ag_v2_price_list_columns') && appJs.includes('data-price-detail-tab'), 'price list frontend behavior'],
   [server.includes("/stock/transfer/:documentId/print") && stockActions.includes('getStockTransferPrintData') && stockTransferPrint.includes('data-transfer-print') && stockTransferPrint.includes('Избор на печатна форма') && stockTransferPrint.includes('Принтер профил') && stockTransferPrint.includes('Дост. цена') && stockTransferPrint.includes('Прод. с ДДС') && stockTransferPrint.includes('За кого / причина') && stockActions.includes('quantityAlertClass') && stockActions.includes('transferPurposeNote'), 'Step 3.5.4 transfer print compact picking polish'],
   [stockTransferCenter.includes('data-transfer-center-command="print"') && appJs.includes('initTransferPrintSlip'), 'Step 3.5 transfer print buttons'],
-  [appJs.includes('handleRibbonPrintCommand') && appJs.includes('activeDocumentPrintUrl') && appJs.includes('openTransferPrintDialog'), 'Step 3.5.5 ribbon print sync']
+  [appJs.includes('handleRibbonPrintCommand') && appJs.includes('activeDocumentPrintUrl') && appJs.includes('openTransferPrintDialog'), 'Step 3.5.5 ribbon print sync'],
+  [seedText.includes('prisma.employee.deleteMany') && seedText.includes('prisma.rolePermission.deleteMany'), 'Step 4.2 reset order'],
+  [server.includes("step: '4-2-1-real-kardzhali-users-seed'") && autograndIdentity.includes('ReadRight') && autograndIdentity.includes('FinishRight') && autograndIdentity.includes('PrintRight'), 'Step 4.2 Moneta rights mapping'],
+  [autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && autograndIdentity.includes('stefan.admin') && autograndIdentity.includes('stefan.manager') && autograndIdentity.includes('angel.angelov') && autograndIdentity.includes('CASHIER') && autograndIdentity.includes('SALES_REP'), 'Step 4.2.1 real Kardzhali users and roles'],
+  [seedText.includes('employeesByCode') && seedText.includes('employeeDisplayName') && step421Doc.includes('АНГЕЛ АНГЕЛОВ') && step421Checkpoint.includes('0.4.3'), 'Step 4.2.1 docs and shared employee profile support']
 ];
 
 for (const [passed, label] of checks) {
@@ -150,4 +168,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.1 Company + Real AutoGrand Locations Foundation patch check passed.');
+console.log('OK: Step 4.2.1 Real AutoGrand Kardzhali Users Seed patch check passed.');

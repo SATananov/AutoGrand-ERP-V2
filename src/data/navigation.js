@@ -110,6 +110,9 @@ export const NAV_GROUPS = [
     items: [
       { id: 'company-locations', title: 'Обекти на фирмата', icon: '⌂', href: '/locations' },
       { id: 'users', title: 'Потребители', icon: '▤' },
+      { id: 'employees', title: 'Служители', icon: '▤' },
+      { id: 'roles', title: 'Роли и права', icon: '▤' },
+      { id: 'permissions', title: 'Права', icon: '▤' },
       { id: 'settings', title: 'Настройки', icon: '▤' }
     ]
   },

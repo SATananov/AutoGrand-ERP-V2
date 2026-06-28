@@ -1,7 +1,15 @@
 import prisma from '../src/db/prisma.js';
 import { AUTOGRAND_COMPANY, AUTOGRAND_LOCATIONS } from '../src/data/autogrand-foundation.js';
+import { AUTOGRAND_REAL_KARDZHALI_USERS, AUTOGRAND_PERMISSIONS, AUTOGRAND_ROLE_TEMPLATES } from '../src/data/autogrand-identity-foundation.js';
 
 async function reset() {
+  await prisma.userPermissionOverride.deleteMany();
+  await prisma.userLocationAccess.deleteMany();
+  await prisma.rolePermission.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.employee.deleteMany();
+  await prisma.permission.deleteMany();
+  await prisma.role.deleteMany();
   await prisma.serviceOrderLine.deleteMany();
   await prisma.serviceOrder.deleteMany();
   await prisma.stockMovement.deleteMany();
@@ -22,8 +30,110 @@ async function reset() {
   await prisma.companyLocation.deleteMany();
   await prisma.counterparty.deleteMany();
   await prisma.vehicle.deleteMany();
-  await prisma.user.deleteMany();
   await prisma.company.deleteMany();
+}
+
+async function seedIdentityFoundation(company, locations) {
+  const permissionRows = new Map();
+  for (const permission of AUTOGRAND_PERMISSIONS) {
+    const row = await prisma.permission.create({ data: permission });
+    permissionRows.set(row.code, row);
+  }
+
+  const roleRows = new Map();
+  for (const role of AUTOGRAND_ROLE_TEMPLATES) {
+    const row = await prisma.role.create({
+      data: {
+        code: role.code,
+        name: role.name,
+        description: role.description,
+        level: role.level,
+        companyId: company.id,
+        isSystem: true,
+        isActive: true
+      }
+    });
+
+    roleRows.set(row.code, row);
+
+    for (const permissionCode of role.permissions) {
+      const permission = permissionRows.get(permissionCode);
+      if (!permission) continue;
+
+      await prisma.rolePermission.create({
+        data: { roleId: row.id, permissionId: permission.id, allowed: true }
+      });
+    }
+  }
+
+  const locationsByCode = new Map(locations.map((location) => [location.code, location]));
+  const employeesByCode = new Map();
+
+  for (const userSeed of AUTOGRAND_REAL_KARDZHALI_USERS) {
+    const roleTemplate = roleRows.get(userSeed.roleCode) || roleRows.get('READONLY');
+    const defaultLocation = locationsByCode.get(userSeed.defaultLocationCode) || null;
+
+    let employee = employeesByCode.get(userSeed.employeeCode);
+    if (!employee) {
+      employee = await prisma.employee.create({
+        data: {
+          code: userSeed.employeeCode,
+          firstName: userSeed.firstName || null,
+          lastName: userSeed.lastName || null,
+          displayName: userSeed.employeeDisplayName || userSeed.displayName,
+          position: userSeed.employeePosition || userSeed.position || roleTemplate?.name || '',
+          companyId: company.id,
+          primaryLocationId: defaultLocation?.id || null,
+          isActive: true
+        }
+      });
+      employeesByCode.set(userSeed.employeeCode, employee);
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        username: userSeed.username,
+        displayName: userSeed.displayName,
+        role: roleTemplate?.code?.toLowerCase() || 'readonly',
+        passwordHash: 'dev-placeholder-change-later',
+        language: 'bg',
+        companyId: company.id,
+        employeeId: employee.id,
+        roleId: roleTemplate?.id || null,
+        defaultLocationId: defaultLocation?.id || null,
+        isActive: true
+      }
+    });
+
+    let accessLocations = [];
+    if (userSeed.access === 'all-locations') {
+      accessLocations = locations;
+    } else if (userSeed.access === 'all-transfer-locations') {
+      accessLocations = locations.filter((location) => location.canTransfer);
+    } else {
+      const codes = Array.isArray(userSeed.access) ? userSeed.access : [userSeed.defaultLocationCode];
+      accessLocations = codes.map((code) => locationsByCode.get(code)).filter(Boolean);
+    }
+
+    const rolePermissionCodes = new Set(userSeed.roleCode === 'ADMIN'
+      ? AUTOGRAND_PERMISSIONS.map((permission) => permission.code)
+      : AUTOGRAND_ROLE_TEMPLATES.find((role) => role.code === userSeed.roleCode)?.permissions || []);
+
+    for (const location of accessLocations) {
+      await prisma.userLocationAccess.create({
+        data: {
+          userId: user.id,
+          locationId: location.id,
+          isDefault: defaultLocation?.id === location.id,
+          canLogin: true,
+          canSell: Boolean(location.canSell) && (rolePermissionCodes.has('sales.insert') || rolePermissionCodes.has('sales.finish')),
+          canRequestTransfer: Boolean(location.canTransfer) && rolePermissionCodes.has('transfer.request'),
+          canDispatchTransfer: Boolean(location.canTransfer) && rolePermissionCodes.has('transfer.dispatch'),
+          canReceiveTransfer: Boolean(location.canTransfer) && rolePermissionCodes.has('transfer.receive')
+        }
+      });
+    }
+  }
 }
 
 async function main() {
@@ -31,15 +141,6 @@ async function main() {
 
   const company = await prisma.company.create({
     data: AUTOGRAND_COMPANY
-  });
-
-  await prisma.user.create({
-    data: {
-      username: 'stefan',
-      displayName: 'СТЕФАН ТАНАНОВ',
-      role: 'admin',
-      companyId: company.id
-    }
   });
 
   const customers = await Promise.all([
@@ -83,6 +184,8 @@ async function main() {
       }
     }));
   }
+
+  await seedIdentityFoundation(company, locations);
 
   const activeWarehouse = warehouses.find((warehouse) => warehouse.code === 'AG-KJ-SHOP') || warehouses[0];
   const centralWarehouse = warehouses.find((warehouse) => warehouse.code === 'AG-STZ-CENTRAL') || activeWarehouse;
@@ -301,7 +404,7 @@ async function main() {
     }
   });
 
-  console.log('OK: AutoGrand ERP V2 Step 2.8 stock adjustment document card seed completed.');
+  console.log('OK: AutoGrand ERP V2 Step 4.2.1 real Kardzhali users seed completed.');
 }
 
 main()

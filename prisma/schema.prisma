@@ -17,6 +17,8 @@ model Company {
   createdAt DateTime @default(now())
 
   users     User[]
+  employees Employee[]
+  roles     Role[]
   locations CompanyLocation[]
 }
 
@@ -42,22 +44,152 @@ model CompanyLocation {
   sortOrder           Int      @default(100)
   createdAt           DateTime @default(now())
 
-  company    Company?    @relation(fields: [companyId], references: [id])
-  warehouses Warehouse[]
+  company         Company?             @relation(fields: [companyId], references: [id])
+  warehouses      Warehouse[]
+  employeePrimaryFor Employee[]          @relation("EmployeePrimaryLocation")
+  defaultForUsers User[]                @relation("UserDefaultLocation")
+  userAccesses    UserLocationAccess[]
 
   @@index([type])
   @@index([city])
   @@index([companyId])
 }
 
-model User {
+model Employee {
+  id                Int      @id @default(autoincrement())
+  code              String   @unique
+  firstName         String?
+  lastName          String?
+  displayName       String
+  position          String?
+  phone             String?
+  email             String?
+  companyId         Int?
+  primaryLocationId Int?
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  company         Company?         @relation(fields: [companyId], references: [id])
+  primaryLocation CompanyLocation? @relation("EmployeePrimaryLocation", fields: [primaryLocationId], references: [id])
+  users           User[]
+
+  @@index([companyId])
+  @@index([primaryLocationId])
+  @@index([isActive])
+}
+
+model Role {
   id          Int      @id @default(autoincrement())
-  username    String   @unique
-  displayName String
-  role        String   @default("operator")
+  code        String   @unique
+  name        String
+  description String?
+  level       Int      @default(100)
   companyId   Int?
-  company     Company? @relation(fields: [companyId], references: [id])
+  isSystem    Boolean  @default(true)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
+
+  company         Company?         @relation(fields: [companyId], references: [id])
+  users           User[]
+  rolePermissions RolePermission[]
+
+  @@index([companyId])
+  @@index([level])
+  @@index([isActive])
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique
+  module      String
+  action      String
+  name        String
+  description String?
+  sortOrder   Int      @default(100)
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+  userOverrides   UserPermissionOverride[]
+
+  @@index([module])
+  @@index([action])
+  @@index([sortOrder])
+}
+
+model RolePermission {
+  id           Int     @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  allowed      Boolean @default(true)
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  displayName       String
+  role              String   @default("operator")
+  passwordHash      String?
+  language          String   @default("bg")
+  companyId         Int?
+  employeeId        Int?
+  roleId            Int?
+  defaultLocationId Int?
+  isActive          Boolean  @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime @default(now())
+
+  company             Company?                 @relation(fields: [companyId], references: [id])
+  employee            Employee?                @relation(fields: [employeeId], references: [id])
+  roleTemplate        Role?                    @relation(fields: [roleId], references: [id])
+  defaultLocation     CompanyLocation?         @relation("UserDefaultLocation", fields: [defaultLocationId], references: [id])
+  locationAccesses    UserLocationAccess[]
+  permissionOverrides UserPermissionOverride[]
+
+  @@index([companyId])
+  @@index([employeeId])
+  @@index([roleId])
+  @@index([defaultLocationId])
+  @@index([isActive])
+}
+
+model UserLocationAccess {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  locationId          Int
+  isDefault           Boolean  @default(false)
+  canLogin            Boolean  @default(true)
+  canSell             Boolean  @default(false)
+  canRequestTransfer  Boolean  @default(false)
+  canDispatchTransfer Boolean  @default(false)
+  canReceiveTransfer  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location CompanyLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, locationId])
+  @@index([locationId])
+}
+
+model UserPermissionOverride {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  allowed      Boolean  @default(true)
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@index([permissionId])
 }
 
 model Counterparty {
