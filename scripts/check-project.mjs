@@ -60,7 +60,13 @@ const required = [
   'public/js/ag-grid-column-preferences.js',
   'views/pages/grid-column-preferences.hbs',
   'docs/steps/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_BG.md',
-  'docs/checkpoints/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_CLEAN_EXPORT_BG.md'
+  'docs/checkpoints/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_CLEAN_EXPORT_BG.md',
+  'src/data/autogrand-document-engine-foundation.js',
+  'src/services/document-engine-service.js',
+  'public/js/ag-document-engine.js',
+  'views/pages/document-engine.hbs',
+  'docs/steps/STEP_4_5_GLOBAL_DOCUMENT_ENGINE_BG.md',
+  'docs/checkpoints/STEP_4_5_GLOBAL_DOCUMENT_ENGINE_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -126,6 +132,12 @@ const gridPrefsJs = fs.readFileSync(path.resolve('public/js/ag-grid-column-prefe
 const gridPrefsView = fs.readFileSync(path.resolve('views/pages/grid-column-preferences.hbs'), 'utf8');
 const step44Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_BG.md'), 'utf8');
 const step44Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_4_GLOBAL_GRID_COLUMN_PREFERENCES_CLEAN_EXPORT_BG.md'), 'utf8');
+const documentEngineData = fs.readFileSync(path.resolve('src/data/autogrand-document-engine-foundation.js'), 'utf8');
+const documentEngineService = fs.readFileSync(path.resolve('src/services/document-engine-service.js'), 'utf8');
+const documentEngineJs = fs.readFileSync(path.resolve('public/js/ag-document-engine.js'), 'utf8');
+const documentEngineView = fs.readFileSync(path.resolve('views/pages/document-engine.hbs'), 'utf8');
+const step45Doc = fs.readFileSync(path.resolve('docs/steps/STEP_4_5_GLOBAL_DOCUMENT_ENGINE_BG.md'), 'utf8');
+const step45Checkpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_5_GLOBAL_DOCUMENT_ENGINE_CLEAN_EXPORT_BG.md'), 'utf8');
 
 const checks = [
   [salesActions.includes('createSalesDocumentPayment'), 'createSalesDocumentPayment'],
@@ -219,17 +231,26 @@ const checks = [
   [permissionService.includes('catalog.view') && permissionService.includes('/catalog/foundation') && permissionService.includes('Номенклатурна основа'), 'Step 4.3 catalog permissions'],
   [catalogFoundationView.includes('Артикули, мерни единици, ДДС, цени и доставчици') && catalogFoundationView.includes('{{catalog.healthLabel}}') && catalogFoundationView.includes('Foundation артикули'), 'Step 4.3 catalog foundation UI'],
   [catalogFoundationView.includes('G_VATPostingSetup') && catalogFoundationView.includes('N_Contragent') && catalogFoundationView.includes('N_ItemCrossRef') && catalogFoundationView.includes('Мерни преобразувания'), 'Step 4.3 Moneta-aligned catalog UI'],
-  [mainLayout.includes('styles.css?v=4.4-grid-column-preferences') && mainLayout.includes('app.js?v=4.4-grid-column-preferences'), 'Step 4.4 cache version sync'],
+  [(mainLayout.includes('styles.css?v=4.4-grid-column-preferences') || mainLayout.includes('styles.css?v=4.5-document-engine')) && (mainLayout.includes('app.js?v=4.4-grid-column-preferences') || mainLayout.includes('app.js?v=4.5-document-engine')), 'Step 4.4 cache version sync'],
   [step43CatalogDoc.includes('Items, Units, VAT, Prices and Suppliers Foundation') && step43CatalogDoc.includes('Moneta-aligned') && step43CatalogDoc.includes('G_VATPostingSetup') && step43CatalogCheckpoint.includes('0.4.7'), 'Step 4.3 catalog docs and checkpoint'],
   [gridPrefsService.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL') && gridPrefsService.includes('LoadGridView') && gridPrefsService.includes('DoSaveGridView') && gridPrefsService.includes('GridColWidthChanged'), 'Step 4.4 Moneta grid preference concepts'],
   [gridPrefsService.includes('GLOBAL_GRID_COLUMN_REGISTRY') && gridPrefsService.includes('catalog.foundation.items') && gridPrefsService.includes('price-list.items') && gridPrefsService.includes('stock.transfers.center'), 'Step 4.4 global grid registry'],
   [server.includes("app.get('/grid/preferences'") && server.includes("app.get('/api/grid/preferences/diagnostics'") && server.includes('STEP_4_4_GRID_PREFS_HEALTH_LABEL'), 'Step 4.4 grid preferences routes and health label'],
   [permissionService.includes('grid_preferences.view') && permissionService.includes('/grid/preferences') && permissionService.includes('Глобални настройки на колони'), 'Step 4.4 grid preferences permissions'],
   [gridPrefsJs.includes('localStorage') && gridPrefsJs.includes('GridTitleButtonClick') && gridPrefsJs.includes('ag-grid-column-toolbar') && gridPrefsJs.includes('data-ag-grid-key'), 'Step 4.4 browser column preferences runtime'],
-  [mainLayout.includes('ag-grid-column-preferences.js?v=4.4-grid-column-preferences') && mainLayout.includes('data-ag-current-user') && mainLayout.includes('styles.css?v=4.4-grid-column-preferences'), 'Step 4.4 layout integration and cache version'],
+  [mainLayout.includes('ag-grid-column-preferences.js?v=4.5-document-engine') && mainLayout.includes('data-ag-current-user') && mainLayout.includes('styles.css?v=4.5-document-engine'), 'Step 4.4 layout integration and cache version'],
   [gridPrefsView.includes('Глобални настройки на колони') && gridPrefsView.includes('{{gridPrefs.healthLabel}}') && gridPrefsView.includes('Moneta hooks'), 'Step 4.4 grid preferences UI'],
   [catalogFoundationView.includes('data-ag-grid-key="catalog.foundation.items"') && catalogFoundationView.includes('data-ag-column-key="supplierCode"'), 'Step 4.4 catalog table grid keys'],
-  [step44Doc.includes('Global Grid Column Preferences') && step44Doc.includes('LoadGridView') && step44Checkpoint.includes('0.4.8'), 'Step 4.4 docs and checkpoint']
+  [step44Doc.includes('Global Grid Column Preferences') && step44Doc.includes('LoadGridView') && step44Checkpoint.includes('0.4.8'), 'Step 4.4 docs and checkpoint'],
+  [documentEngineData.includes('DOCUMENT_ENGINE_TYPES') && documentEngineData.includes('DOCUMENT_ENGINE_STATUS_FLOW') && documentEngineData.includes('DOCUMENT_ENGINE_ACTIONS') && documentEngineData.includes('DOCUMENT_ENGINE_COPY_TEMPLATES'), 'Step 4.5 document engine foundation data'],
+  [documentEngineData.includes('TfBaseEditDocument') && documentEngineData.includes('TfBaseBrowseCardDocument') && documentEngineData.includes('PostDocument') && documentEngineData.includes('AnnulDocument') && documentEngineData.includes('S_CopyDocTemplateHeader') && documentEngineData.includes('DocStatus') && documentEngineData.includes('PostingDate'), 'Step 4.5 Moneta document engine concepts'],
+  [documentEngineService.includes('STEP_4_5_DOCUMENT_ENGINE_HEALTH_LABEL') && documentEngineService.includes('getGlobalDocumentEngineData') && documentEngineService.includes('getGlobalDocumentEngineDiagnostics'), 'Step 4.5 document engine service'],
+  [documentEngineService.includes('monetaAligned') && documentEngineService.includes('documentTypes') && documentEngineService.includes('ledgerEffects') && documentEngineService.includes('noPrismaSchemaChange'), 'Step 4.5 document engine diagnostics'],
+  [server.includes("app.get('/document-engine'") && server.includes("app.get('/api/document-engine/diagnostics'") && server.includes('STEP_4_5_DOCUMENT_ENGINE_HEALTH_LABEL'), 'Step 4.5 document engine routes and health label'],
+  [permissionService.includes('document_engine.view') && permissionService.includes('/document-engine') && permissionService.includes('Глобален документен engine'), 'Step 4.5 document engine permissions'],
+  [documentEngineView.includes('Глобален документен engine') && documentEngineView.includes('{{documentEngine.healthLabel}}') && documentEngineView.includes('data-ag-grid-key="document.engine.types"') && documentEngineView.includes('Moneta hooks'), 'Step 4.5 document engine UI'],
+  [documentEngineJs.includes('data-ag-document-engine-tab') && documentEngineJs.includes('TfBaseEditDocument') && documentEngineJs.includes('PostDocument') && mainLayout.includes('ag-document-engine.js?v=4.5-document-engine'), 'Step 4.5 browser document engine runtime'],
+  [mainLayout.includes('styles.css?v=4.5-document-engine') && packageJson.includes('0.4.9') && step45Doc.includes('Global Document Engine') && step45Checkpoint.includes('0.4.9'), 'Step 4.5 docs and checkpoint']
 ];
 
 for (const [passed, label] of checks) {
@@ -245,4 +266,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.4 Global Grid Column Preferences patch check passed.');
+console.log('OK: Step 4.5 Global Document Engine patch check passed.');

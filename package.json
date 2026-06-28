@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.4 — Global Grid Column Preferences.",
+  "description": "AutoGrand ERP V2 Step 4.5 — Global Document Engine.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

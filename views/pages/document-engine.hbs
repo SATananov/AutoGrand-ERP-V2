@@ -1,0 +1,168 @@
+<section class="document-engine-page" data-ag-document-engine>
+  <header class="ag-page-hero document-engine-hero">
+    <div>
+      <p class="eyebrow">Step 4.5 · Moneta-aligned</p>
+      <h1>Глобален документен engine</h1>
+      <p>
+        Единна основа за продажби, доставки, трансфери, корекции, статуси, редове,
+        приключване, анулиране, копиране и печат.
+      </p>
+    </div>
+    <aside class="ag-health-card">
+      <span>Health label</span>
+      <strong>{{documentEngine.healthLabel}}</strong>
+      <small>Без Prisma schema промяна</small>
+    </aside>
+  </header>
+
+  <section class="document-engine-counters" aria-label="Броячи">
+    <article><strong>{{documentEngine.counters.documentTypes}}</strong><span>Типове документи</span></article>
+    <article><strong>{{documentEngine.counters.statuses}}</strong><span>Статуси</span></article>
+    <article><strong>{{documentEngine.counters.actions}}</strong><span>Действия</span></article>
+    <article><strong>{{documentEngine.counters.validationHooks}}</strong><span>Moneta hooks</span></article>
+  </section>
+
+  <nav class="document-engine-tabs" aria-label="Документен engine секции">
+    <button type="button" data-ag-document-engine-tab="types">Типове</button>
+    <button type="button" data-ag-document-engine-tab="fields">Header / Lines</button>
+    <button type="button" data-ag-document-engine-tab="actions">Действия</button>
+    <button type="button" data-ag-document-engine-tab="hooks">Moneta hooks</button>
+  </nav>
+
+  <section class="document-engine-panel" data-ag-document-engine-panel="types">
+    <h2>Документни типове</h2>
+    <div class="ag-table-wrap">
+      <table class="ag-data-table" data-ag-grid-key="document.engine.types">
+        <thead>
+          <tr>
+            <th data-ag-column-key="code">Код</th>
+            <th data-ag-column-key="label">Име</th>
+            <th data-ag-column-key="monetaHeader">Moneta header</th>
+            <th data-ag-column-key="monetaLine">Moneta line</th>
+            <th data-ag-column-key="postingPermission">Posting право</th>
+            <th data-ag-column-key="ledgerEffects">Ефекти</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each documentEngine.documentTypes}}
+            <tr>
+              <td>{{code}}</td>
+              <td>{{label}}</td>
+              <td><code>{{monetaHeader}}</code></td>
+              <td><code>{{monetaLine}}</code></td>
+              <td><code>{{postingPermission}}</code></td>
+              <td>{{ledgerEffects}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Статуси / DocStatus</h2>
+    <div class="document-status-flow">
+      {{#each documentEngine.statuses}}
+        <article class="document-status-card">
+          <strong>{{label}}</strong>
+          <code>{{code}} · {{monetaCode}}</code>
+          <p>{{description}}</p>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="document-engine-panel" data-ag-document-engine-panel="fields" hidden>
+    <h2>Header полета</h2>
+    <div class="ag-table-wrap">
+      <table class="ag-data-table" data-ag-grid-key="document.engine.header-fields">
+        <thead>
+          <tr>
+            <th data-ag-column-key="key">Ключ</th>
+            <th data-ag-column-key="label">Етикет</th>
+            <th data-ag-column-key="monetaField">Moneta поле</th>
+            <th data-ag-column-key="required">Задължително</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each documentEngine.headerFields}}
+            <tr>
+              <td>{{key}}</td>
+              <td>{{label}}</td>
+              <td><code>{{monetaField}}</code></td>
+              <td>{{required}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Line полета</h2>
+    <div class="ag-table-wrap">
+      <table class="ag-data-table" data-ag-grid-key="document.engine.line-fields">
+        <thead>
+          <tr>
+            <th data-ag-column-key="key">Ключ</th>
+            <th data-ag-column-key="label">Етикет</th>
+            <th data-ag-column-key="monetaField">Moneta поле</th>
+            <th data-ag-column-key="numeric">Числово</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each documentEngine.lineFields}}
+            <tr>
+              <td>{{key}}</td>
+              <td>{{label}}</td>
+              <td><code>{{monetaField}}</code></td>
+              <td>{{numeric}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="document-engine-panel" data-ag-document-engine-panel="actions" hidden>
+    <h2>Действия и права</h2>
+    <div class="document-action-grid">
+      {{#each documentEngine.actionMatrix}}
+        <article class="document-action-card">
+          <h3>{{label}}</h3>
+          <code>{{documentType}} · {{monetaHeader}}</code>
+          <ul>
+            {{#each actions}}
+              <li><strong>{{label}}</strong> <span>{{monetaAction}}</span> <code>{{requiredPermission}}</code></li>
+            {{/each}}
+          </ul>
+        </article>
+      {{/each}}
+    </div>
+
+    <h2>Копиране / трансформация на документи</h2>
+    <div class="document-copy-flow">
+      {{#each documentEngine.copyTemplates}}
+        <article>
+          <strong>{{label}}</strong>
+          <code>{{sourceType}} → {{targetType}}</code>
+          <small>{{monetaHeader}} / {{monetaLine}}</small>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="document-engine-panel" data-ag-document-engine-panel="hooks" hidden>
+    <h2>Moneta hooks / процедури</h2>
+    <div class="document-hook-list">
+      {{#each documentEngine.validationHooks}}
+        <article>
+          <strong>{{label}}</strong>
+          <code>{{monetaProcedure}}</code>
+          <span>{{phase}}</span>
+        </article>
+      {{/each}}
+    </div>
+
+    <h2>Moneta concept markers</h2>
+    <p class="document-moneta-markers">
+      {{#each documentEngine.monetaConcepts}}<code>{{this}}</code> {{/each}}
+    </p>
+  </section>
+</section>
