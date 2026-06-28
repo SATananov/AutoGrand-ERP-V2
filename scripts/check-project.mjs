@@ -10,6 +10,8 @@ const required = [
   'src/services/stock-actions-service.js',
   'src/services/company-locations-service.js',
   'src/services/price-list-workbench-service.js',
+  'src/services/catalog-foundation-service.js',
+  'src/data/autogrand-catalog-foundation.js',
   'views/pages/sales-document-card.hbs',
   'views/pages/purchase-document-card.hbs',
   'views/pages/purchase-document-new.hbs',
@@ -25,6 +27,7 @@ const required = [
   'views/pages/company-locations.hbs',
   'views/pages/company-location-card.hbs',
   'views/pages/price-list-workbench.hbs',
+  'views/pages/catalog-foundation.hbs',
   'views/pages/screen-browse.hbs',
   'public/js/app.js',
   'public/css/styles.css',
@@ -50,7 +53,9 @@ const required = [
   'docs/steps/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_BG.md',
   'docs/checkpoints/STEP_4_3_1_LOGIN_CONTEXT_ROLE_VISIBILITY_POLISH_CLEAN_EXPORT_BG.md',
   'docs/steps/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_BG.md',
-  'docs/checkpoints/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_CLEAN_EXPORT_BG.md'
+  'docs/checkpoints/STEP_4_2_4_RUNTIME_PERMISSION_GUARDS_CLEAN_EXPORT_BG.md',
+  'docs/steps/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_BG.md',
+  'docs/checkpoints/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_CLEAN_EXPORT_BG.md'
 ];
 
 let ok = true;
@@ -106,6 +111,11 @@ const packageJson = fs.readFileSync(path.resolve('package.json'), 'utf8');
 const adjustmentCard = fs.readFileSync(path.resolve('views/pages/stock-adjustment-card.hbs'), 'utf8');
 const priceListWorkbench = fs.readFileSync(path.resolve('views/pages/price-list-workbench.hbs'), 'utf8');
 const priceListService = fs.readFileSync(path.resolve('src/services/price-list-workbench-service.js'), 'utf8');
+const catalogFoundationData = fs.readFileSync(path.resolve('src/data/autogrand-catalog-foundation.js'), 'utf8');
+const catalogFoundationService = fs.readFileSync(path.resolve('src/services/catalog-foundation-service.js'), 'utf8');
+const catalogFoundationView = fs.readFileSync(path.resolve('views/pages/catalog-foundation.hbs'), 'utf8');
+const step43CatalogDoc = fs.readFileSync(path.resolve('docs/steps/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_BG.md'), 'utf8');
+const step43CatalogCheckpoint = fs.readFileSync(path.resolve('docs/checkpoints/STEP_4_3_ITEMS_UNITS_VAT_PRICES_SUPPLIERS_FOUNDATION_CLEAN_EXPORT_BG.md'), 'utf8');
 
 const checks = [
   [salesActions.includes('createSalesDocumentPayment'), 'createSalesDocumentPayment'],
@@ -128,7 +138,7 @@ const checks = [
   [autograndIdentity.includes('AUTOGRAND_ROLE_TEMPLATES') && autograndIdentity.includes('MONETA_RIGHT_ACTIONS') && autograndIdentity.includes('AUTOGRAND_PERMISSIONS') && autograndIdentity.includes('AUTOGRAND_REAL_KARDZHALI_USERS'), 'Step 4.2 identity foundation data'],
   [seedText.includes('AUTOGRAND_REAL_KARDZHALI_USERS') && seedText.includes('AUTOGRAND_ROLE_TEMPLATES') && seedText.includes('seedIdentityFoundation') && seedText.includes('userLocationAccess.create'), 'Step 4.2 seed identity foundation'],
   [step42Doc.includes('Employee') && step42Doc.includes('RolePermission') && step42Doc.includes('UserLocationAccess') && step42Checkpoint.includes('0.4.2'), 'Step 4.2 docs and checkpoint'],
-  [server.includes("appVersion: 'v0.4.6'") && packageJson.includes('0.4.6'), 'Step 4.2.4 version label'],
+  [server.includes("appVersion: 'v0.4.7'") && packageJson.includes('0.4.7'), 'Step 4.3 catalog foundation version label'],
   [masterBlueprint.includes('Document Engine') && masterBlueprint.includes('Grid Engine') && masterBlueprint.includes('Print Engine') && masterBlueprint.includes('Permission Engine'), 'Step 4.0 master blueprint engines'],
   [monetaAudit.includes('BasePackage.bpl') && monetaAudit.includes('InventoryPackage.bpl') && monetaAudit.includes('DevicePackage.bpl'), 'Step 4.0 Moneta reference module audit'],
   [foundationPlan.includes('Артикули') && foundationPlan.includes('Потребители') && foundationPlan.includes('Принтер профили') && foundationPlan.includes('Номератори'), 'Step 4.0 foundation data plan'],
@@ -189,7 +199,18 @@ const checks = [
   [permissionService.includes('location_restricted') && permissionService.includes('canSell') && permissionService.includes('canRequestTransfer') && permissionService.includes('canDispatchTransfer') && permissionService.includes('canReceiveTransfer'), 'Step 4.2.4 location-aware action guard'],
   [forbiddenView.includes('Достъпът е ограничен') && forbiddenView.includes('{{forbidden.requiredPermission}}') && forbiddenView.includes('/login'), 'Step 4.2.4 forbidden access page'],
   [mainLayout.includes('activePermissionScopeLabel') && permissionService.includes('permissionContextToViewData'), 'Step 4.2.4 shell permission scope visibility'],
-  [step424Doc.includes('Menu, Route & Action Guard') && step424Doc.includes('Moneta-like') && step424Checkpoint.includes('0.4.6'), 'Step 4.2.4 docs and checkpoint']
+  [step424Doc.includes('Menu, Route & Action Guard') && step424Doc.includes('Moneta-like') && step424Checkpoint.includes('0.4.6'), 'Step 4.2.4 docs and checkpoint'],
+  [catalogFoundationData.includes('AUTOGRAND_UNITS') && catalogFoundationData.includes('AUTOGRAND_VAT_GROUPS') && catalogFoundationData.includes('AUTOGRAND_PRICE_LEVELS') && catalogFoundationData.includes('AUTOGRAND_SUPPLIERS') && catalogFoundationData.includes('AUTOGRAND_CATALOG_ITEMS'), 'Step 4.3 catalog foundation data'],
+  [catalogFoundationData.includes('N_ItemCategory') && catalogFoundationData.includes('N_ItemProductGroup') && catalogFoundationData.includes('N_ItemProductClass') && catalogFoundationData.includes('G_VATPostingSetup') && catalogFoundationData.includes('N_Contragent') && catalogFoundationData.includes('N_ItemCrossRef'), 'Step 4.3 Moneta-aligned catalog concepts'],
+  [catalogFoundationData.includes('AUTOGRAND_VAT_BUSINESS_POSTING_GROUPS') && catalogFoundationData.includes('AUTOGRAND_VAT_PRODUCT_POSTING_GROUPS') && catalogFoundationData.includes('AUTOGRAND_VAT_POSTING_SETUP') && catalogFoundationData.includes('AUTOGRAND_ITEM_UNIT_CONVERSIONS'), 'Step 4.3 VAT posting and unit conversion foundation'],
+  [catalogFoundationService.includes('STEP_4_3_CATALOG_HEALTH_LABEL') && catalogFoundationService.includes('getCatalogFoundationData') && catalogFoundationService.includes('getCatalogFoundationDiagnostics'), 'Step 4.3 catalog foundation service'],
+  [catalogFoundationService.includes('monetaConcepts') && catalogFoundationService.includes('vatPostingSetup') && catalogFoundationService.includes('itemCrossReferences') && catalogFoundationService.includes('itemUnitPriceHistory'), 'Step 4.3 Moneta diagnostics counters'],
+  [server.includes("app.get('/catalog/foundation'") && server.includes("app.get('/api/catalog/foundation/diagnostics'") && server.includes('STEP_4_3_CATALOG_HEALTH_LABEL'), 'Step 4.3 catalog foundation routes and health label'],
+  [permissionService.includes('catalog.view') && permissionService.includes('/catalog/foundation') && permissionService.includes('Номенклатурна основа'), 'Step 4.3 catalog permissions'],
+  [catalogFoundationView.includes('Артикули, мерни единици, ДДС, цени и доставчици') && catalogFoundationView.includes('{{catalog.healthLabel}}') && catalogFoundationView.includes('Foundation артикули'), 'Step 4.3 catalog foundation UI'],
+  [catalogFoundationView.includes('G_VATPostingSetup') && catalogFoundationView.includes('N_Contragent') && catalogFoundationView.includes('N_ItemCrossRef') && catalogFoundationView.includes('Мерни преобразувания'), 'Step 4.3 Moneta-aligned catalog UI'],
+  [mainLayout.includes('styles.css?v=4.3-catalog-foundation') && mainLayout.includes('app.js?v=4.3-catalog-foundation'), 'Step 4.3 cache version sync'],
+  [step43CatalogDoc.includes('Items, Units, VAT, Prices and Suppliers Foundation') && step43CatalogDoc.includes('Moneta-aligned') && step43CatalogDoc.includes('G_VATPostingSetup') && step43CatalogCheckpoint.includes('0.4.7'), 'Step 4.3 catalog docs and checkpoint']
 ];
 
 for (const [passed, label] of checks) {
@@ -205,4 +226,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.2.4 Runtime Permission Guards / Menu, Route & Action Guard patch check passed.');
+console.log('OK: Step 4.3 Items, Units, VAT, Prices and Suppliers Foundation patch check passed.');

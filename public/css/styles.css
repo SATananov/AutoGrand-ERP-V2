@@ -6820,3 +6820,227 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
     grid-template-columns: 1fr;
   }
 }
+
+/* Step 4.3 — catalog foundation screen */
+.ag-catalog-page {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+}
+
+.ag-catalog-hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid rgba(34, 91, 69, 0.28);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(235, 248, 239, 0.96), rgba(250, 255, 252, 0.98));
+  box-shadow: 0 16px 36px rgba(18, 65, 45, 0.12);
+}
+
+.ag-catalog-kicker {
+  margin: 0 0 6px;
+  color: #26734f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ag-catalog-hero h1 {
+  margin: 0;
+  color: #123d2b;
+  font-size: 26px;
+  line-height: 1.18;
+}
+
+.ag-catalog-hero p {
+  max-width: 880px;
+  margin: 10px 0 0;
+  color: #315b46;
+  line-height: 1.55;
+}
+
+.ag-catalog-health {
+  min-width: 250px;
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(19, 63, 45, 0.92);
+  color: #e7fff0;
+}
+
+.ag-catalog-health span,
+.ag-catalog-health em {
+  color: rgba(231, 255, 240, 0.82);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.ag-catalog-health strong {
+  font-size: 14px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.ag-catalog-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.ag-catalog-summary-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(35, 101, 70, 0.22);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(23, 75, 52, 0.08);
+}
+
+.ag-catalog-summary-card.is-soft {
+  background: #f6fbf8;
+}
+
+.ag-catalog-summary-card span {
+  color: #42624f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ag-catalog-summary-card strong {
+  color: #12462f;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.ag-catalog-summary-card em {
+  color: #5e7767;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.ag-catalog-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.ag-catalog-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ag-catalog-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ag-catalog-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(40, 92, 66, 0.18);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 26px rgba(18, 62, 43, 0.08);
+}
+
+.ag-catalog-panel header {
+  margin-bottom: 12px;
+}
+
+.ag-catalog-panel h2 {
+  margin: 0;
+  color: #163f2e;
+  font-size: 18px;
+}
+
+.ag-catalog-panel p {
+  margin: 6px 0 0;
+  color: #607868;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ag-catalog-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(28, 82, 55, 0.12);
+  border-radius: 12px;
+}
+
+.ag-catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ag-catalog-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 9px 10px;
+  background: #eef8f1;
+  color: #174a32;
+  font-size: 11px;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ag-catalog-table td {
+  padding: 9px 10px;
+  border-top: 1px solid rgba(28, 82, 55, 0.1);
+  color: #213d2f;
+  vertical-align: top;
+}
+
+.ag-catalog-table code {
+  color: #0f5d37;
+  font-weight: 800;
+}
+
+.ag-catalog-table small {
+  display: block;
+  margin-top: 3px;
+  color: #6f8276;
+}
+
+.ag-catalog-items-table th,
+.ag-catalog-items-table td {
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .ag-catalog-hero,
+  .ag-catalog-grid-2,
+  .ag-catalog-grid-3 {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .ag-catalog-health {
+    min-width: 0;
+  }
+}
+
+/* Step 4.3 Moneta-aligned catalog foundation polish */
+.ag-catalog-concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.ag-catalog-concepts code {
+  border: 1px solid rgba(159, 224, 117, 0.26);
+  border-radius: 999px;
+  background: rgba(12, 58, 35, 0.72);
+  color: #d9f8c6;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  white-space: nowrap;
+}

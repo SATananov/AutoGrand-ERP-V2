@@ -40,6 +40,8 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.adjustment.finish',
     'price_list.view',
     'price_list.edit',
+    'catalog.view',
+    'catalog.edit',
     'locations.view',
     'reports.view',
     'tools.snapshot'
@@ -52,6 +54,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.edit',
     'sales.payment',
     'price_list.view',
+    'catalog.view',
     'stock.view',
     'stock.transfer.view',
     'stock.transfer.create',
@@ -66,6 +69,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.edit',
     'sales.payment',
     'price_list.view',
+    'catalog.view',
     'stock.view',
     'stock.transfer.view',
     'stock.transfer.create',
@@ -78,6 +82,7 @@ const ROLE_PERMISSION_GRANTS = {
     'sales.view',
     'sales.payment',
     'price_list.view',
+    'catalog.view',
     'reports.view',
     'tools.snapshot'
   ],
@@ -93,6 +98,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.transfer.print',
     'stock.adjustment.view',
     'price_list.view',
+    'catalog.view',
     'tools.snapshot'
   ],
 
@@ -107,6 +113,7 @@ const ROLE_PERMISSION_GRANTS = {
     'stock.transfer.print',
     'stock.adjustment.view',
     'price_list.view',
+    'catalog.view',
     'tools.snapshot'
   ],
 
@@ -118,6 +125,7 @@ const ROLE_PERMISSION_GRANTS = {
     'purchase.finish',
     'stock.view',
     'price_list.view',
+    'catalog.view',
     'tools.snapshot'
   ],
 
@@ -127,6 +135,7 @@ const ROLE_PERMISSION_GRANTS = {
     'purchase.view',
     'stock.view',
     'price_list.view',
+    'catalog.view',
     'reports.view',
     'tools.snapshot'
   ],
@@ -135,6 +144,7 @@ const ROLE_PERMISSION_GRANTS = {
     'dashboard.view',
     'sales.view',
     'price_list.view',
+    'catalog.view',
     'stock.view',
     'tools.snapshot'
   ]
@@ -156,6 +166,7 @@ const MODULE_TERMS = {
   purchase: ['purchase', 'delivery', 'supplier', 'supply'],
   stock: ['stock', 'inventory', 'warehouse', 'transfer', 'adjustment'],
   price_list: ['price', 'item', 'article', 'nomenclature', 'product'],
+  catalog: ['catalog', 'unit', 'vat', 'supplier', 'sku', 'barcode'],
   locations: ['location', 'companylocation', 'object', 'warehouse'],
   reports: ['report', 'analysis', 'statement'],
   tools: ['tool', 'snapshot', 'print'],
@@ -165,6 +176,8 @@ const MODULE_TERMS = {
 const ROUTE_RULES = [
   route('*', '/', 'dashboard.view', 'Начало'),
   route('GET', '/price-list', 'price_list.view', 'Артикули, цени и наличности'),
+  route('GET', '/catalog/foundation', 'catalog.view', 'Номенклатурна основа'),
+  route('GET', '/api/catalog/foundation/diagnostics', 'catalog.view', 'Диагностика на номенклатурна основа'),
   route('POST', '/api/items/:itemId/image', 'price_list.edit', 'Качване на снимка на артикул'),
   route('DELETE', '/api/items/:itemId/image', 'price_list.edit', 'Премахване на снимка на артикул'),
 
@@ -230,6 +243,7 @@ const SCREEN_RULES = [
   screenRule(['purchase', 'delivery', 'supplier', 'dostav'], 'purchase.view', 'Доставни екрани'),
   screenRule(['stock', 'warehouse', 'inventory', 'transfer', 'adjustment', 'movement', 'balance'], 'stock.view', 'Складови екрани'),
   screenRule(['price', 'item', 'article', 'nomenclature'], 'price_list.view', 'Артикули и ценови листи'),
+  screenRule(['catalog', 'unit', 'vat', 'supplier', 'barcode'], 'catalog.view', 'Номенклатурна основа'),
   screenRule(['location', 'company'], 'locations.view', 'Обекти и фирма'),
   screenRule(['report', 'analysis'], 'reports.view', 'Справки')
 ];
@@ -241,6 +255,7 @@ const COMMAND_RULES = [
   commandRule(['transfer'], 'stock.transfer.view', 'Трансфери'),
   commandRule(['adjustment'], 'stock.adjustment.view', 'Складови корекции'),
   commandRule(['price', 'item', 'article'], 'price_list.view', 'Цени и артикули'),
+  commandRule(['catalog', 'unit', 'vat', 'supplier'], 'catalog.view', 'Номенклатурна основа'),
   commandRule(['location', 'company'], 'locations.view', 'Обекти'),
   commandRule(['reference', 'settings', 'admin'], 'system.reference', 'Системни функции'),
   commandRule(['print'], 'tools.snapshot', 'Печат / snapshot')

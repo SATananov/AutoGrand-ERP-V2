@@ -26,6 +26,11 @@ import {
   setLoginCookies
 } from './services/login-context-service.js';
 import { getPriceListWorkbenchData, safeItemImageBaseName } from './services/price-list-workbench-service.js';
+import {
+  STEP_4_3_CATALOG_HEALTH_LABEL,
+  getCatalogFoundationData,
+  getCatalogFoundationDiagnostics
+} from './services/catalog-foundation-service.js';
 import { getCompanyLocationCardData, getCompanyLocationsData } from './services/company-locations-service.js';
 import { getSalesDocumentCardData } from './services/sales-document-card-service.js';
 import { getPurchaseDocumentCardData } from './services/purchase-document-card-service.js';
@@ -102,7 +107,7 @@ function statusDateTimeText(date = new Date()) {
 function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.6',
+    appVersion: 'v0.4.7',
     companyName: 'КЪРДЖАЛИ · Автогранд ООД',
     userName: 'СТЕФАН ТАНАНОВ',
     databaseName: 'Local SQLite',
@@ -342,7 +347,7 @@ app.get('/login', async (req, res) => {
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.6'
+    appVersion: 'v0.4.7'
   });
 });
 
@@ -394,6 +399,23 @@ app.get('/price-list', async (req, res) => {
     }),
     priceList
   });
+});
+
+app.get('/catalog/foundation', async (req, res) => {
+  const catalog = getCatalogFoundationData();
+
+  renderPage(req, res, 'catalog-foundation', {
+    ...baseViewData({
+      title: 'Номенклатурна основа — AutoGrand ERP V2',
+      currentScreen: 'catalog-foundation',
+      statusText: 'Отворен екран: Артикули, мерни единици, ДДС, цени и доставчици'
+    }),
+    catalog
+  });
+});
+
+app.get('/api/catalog/foundation/diagnostics', (req, res) => {
+  res.json(getCatalogFoundationDiagnostics());
 });
 
 app.post('/api/items/:itemId/image', async (req, res) => {
@@ -994,7 +1016,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: STEP_4_2_4_PERMISSION_HEALTH_LABEL
+    step: STEP_4_3_CATALOG_HEALTH_LABEL
   });
 });
 

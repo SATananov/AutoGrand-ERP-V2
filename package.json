@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.2.4 — Runtime Permission Guards / Menu, Route & Action Guard.",
+  "description": "AutoGrand ERP V2 Step 4.3 — Moneta-aligned Items, Units, VAT, Prices and Suppliers Foundation.",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
