@@ -250,7 +250,16 @@ const checks = [
   [permissionService.includes('document_engine.view') && permissionService.includes('/document-engine') && permissionService.includes('Глобален документен engine'), 'Step 4.5 document engine permissions'],
   [documentEngineView.includes('Глобален документен engine') && documentEngineView.includes('{{documentEngine.healthLabel}}') && documentEngineView.includes('data-ag-grid-key="document.engine.types"') && documentEngineView.includes('Moneta hooks'), 'Step 4.5 document engine UI'],
   [documentEngineJs.includes('data-ag-document-engine-tab') && documentEngineJs.includes('TfBaseEditDocument') && documentEngineJs.includes('PostDocument') && mainLayout.includes('ag-document-engine.js?v=4.5-document-engine'), 'Step 4.5 browser document engine runtime'],
-  [mainLayout.includes('styles.css?v=4.5-document-engine') && packageJson.includes('0.4.9') && step45Doc.includes('Global Document Engine') && step45Checkpoint.includes('0.4.9'), 'Step 4.5 docs and checkpoint']
+  [mainLayout.includes('styles.css?v=4.5-document-engine') || mainLayout.includes('styles.css?v=4.6-print-engine') && packageJson.includes('0.4.9') || packageJson.includes('0.4.10') && step45Doc.includes('Global Document Engine') && step45Checkpoint.includes('0.4.9'), 'Step 4.5 docs and checkpoint'],
+  [printEngineData.includes('PRINT_ENGINE_DOCUMENT_FORMS') && printEngineData.includes('PRINT_ENGINE_CHANNELS') && printEngineData.includes('PRINT_ENGINE_TEMPLATE_SECTIONS') && printEngineData.includes('PRINT_ENGINE_DEVICE_PROFILES'), 'Step 4.6 print engine foundation data'],
+  [printEngineData.includes('TfBase.PrintSelect') && printEngineData.includes('TfBase.GetPrintDocument') && printEngineData.includes('TfBase.PrintPostedDocument') && printEngineData.includes('SelectPrintFormGeneral') && printEngineData.includes('frxExportPDF') && printEngineData.includes('frxBarcode2D'), 'Step 4.6 Moneta print engine concepts'],
+  [printEngineService.includes('STEP_4_6_PRINT_ENGINE_HEALTH_LABEL') && printEngineService.includes('getGlobalPrintEngineData') && printEngineService.includes('getGlobalPrintEngineDiagnostics'), 'Step 4.6 print engine service'],
+  [printEngineService.includes('monetaAligned') && printEngineService.includes('documentForms') && printEngineService.includes('noPrismaSchemaChange') && printEngineService.includes('requiredConcepts'), 'Step 4.6 print engine diagnostics'],
+  [server.includes("app.get('/print-engine'") && server.includes("app.get('/api/print-engine/diagnostics'") && server.includes('STEP_4_6_PRINT_ENGINE_HEALTH_LABEL'), 'Step 4.6 print engine routes and health label'],
+  [permissionService.includes('print_engine.view') && permissionService.includes('/print-engine') && permissionService.includes('Глобален print engine'), 'Step 4.6 print engine permissions'],
+  [printEngineView.includes('Глобален print engine') && printEngineView.includes('{{printEngine.healthLabel}}') && printEngineView.includes('data-ag-grid-key="print.engine.forms"') && printEngineView.includes('Moneta hooks'), 'Step 4.6 print engine UI'],
+  [printEngineJs.includes('data-ag-print-engine-tab') && printEngineJs.includes('GetPrintDocument') && printEngineJs.includes('PrintPostedDocument') && mainLayout.includes('ag-print-engine.js?v=4.6-print-engine'), 'Step 4.6 browser print engine runtime'],
+  [mainLayout.includes('styles.css?v=4.6-print-engine') && packageJson.includes('0.4.10') && step46Doc.includes('Global Print Engine') && step46Checkpoint.includes('0.4.10'), 'Step 4.6 docs and checkpoint']
 ];
 
 for (const [passed, label] of checks) {
@@ -266,4 +275,4 @@ if (!ok) {
   process.exit(1);
 }
 
-console.log('OK: Step 4.5 Global Document Engine patch check passed.');
+console.log('OK: Step 4.6 Global Print Engine patch check passed.');
