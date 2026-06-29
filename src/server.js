@@ -7,6 +7,7 @@ import { engine } from 'express-handlebars';
 import { fileURLToPath } from 'url';
 import { decorateNavigation } from './data/navigation.js';
 import { RIBBON_GROUPS } from './data/ribbon.js';
+import stockValuationRoutes from './routes/stock-valuation-routes.js';
 import {
   STEP_4_2_4_PERMISSION_HEALTH_LABEL,
   authorizeRequest,
@@ -340,7 +341,8 @@ app.use(async (req, res, next) => {
     }
     return next();
   }
-});
+});app.use('/', stockValuationRoutes);
+
 
 app.use((req, res, next) => {
   if (isPublicLoginPath(req)) return next();

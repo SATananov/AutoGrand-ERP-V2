@@ -1,0 +1,294 @@
+.stock-valuation-shell {
+  min-height: 100vh;
+  padding: 22px;
+  background: linear-gradient(180deg, rgba(4, 38, 24, 0.95), rgba(7, 55, 34, 0.96));
+  color: #e8f5ec;
+}
+
+.stock-valuation-hero,
+.stock-valuation-filter-card,
+.stock-valuation-panel,
+.stock-valuation-safety-strip article,
+.stock-valuation-kpis article {
+  border: 1px solid rgba(155, 207, 177, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+  border-radius: 18px;
+}
+
+.stock-valuation-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  align-items: flex-start;
+}
+
+.stock-valuation-eyebrow {
+  margin: 0 0 6px;
+  color: #acd8bd;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stock-valuation-hero h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 44px);
+}
+
+.stock-valuation-hero p {
+  max-width: 860px;
+  color: #d7ecdf;
+  line-height: 1.55;
+}
+
+.stock-valuation-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stock-valuation-button {
+  border: 1px solid rgba(196, 230, 209, 0.34);
+  border-radius: 12px;
+  background: #b9f0c9;
+  color: #062c1a;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stock-valuation-button-muted {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e7f6ec;
+}
+
+.stock-valuation-safety-strip,
+.stock-valuation-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.stock-valuation-safety-strip article,
+.stock-valuation-kpis article {
+  padding: 16px;
+}
+
+.stock-valuation-safety-strip strong,
+.stock-valuation-kpis span {
+  display: block;
+  color: #bcf0ca;
+}
+
+.stock-valuation-safety-strip span,
+.stock-valuation-kpis em {
+  color: #d8ece0;
+  font-size: 13px;
+}
+
+.stock-valuation-kpis strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.stock-valuation-kpis .danger strong,
+.stock-valuation-kpis .warn strong {
+  color: #ffe4a5;
+}
+
+.stock-valuation-filter-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  align-items: end;
+}
+
+.stock-valuation-filter-card label span {
+  display: block;
+  margin-bottom: 6px;
+  color: #b9dfc6;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stock-valuation-filter-card input,
+.stock-valuation-filter-card select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(185, 240, 201, 0.32);
+  border-radius: 12px;
+  background: rgba(1, 20, 12, 0.55);
+  color: #fff;
+  padding: 0 10px;
+}
+
+.stock-valuation-status {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #dcf4e5;
+}
+
+.stock-valuation-status[data-status="error"] {
+  background: rgba(139, 27, 27, 0.38);
+}
+
+.stock-valuation-status[data-status="warn"] {
+  background: rgba(128, 91, 12, 0.38);
+}
+
+.stock-valuation-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+
+.stock-valuation-tabs button {
+  border: 1px solid rgba(185, 240, 201, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eaf7ef;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.stock-valuation-tabs button.active {
+  background: #b9f0c9;
+  color: #062c1a;
+  font-weight: 800;
+}
+
+.stock-valuation-workspace [data-tab-panel],
+.stock-valuation-kpis[data-tab-panel] {
+  display: none;
+}
+
+.stock-valuation-workspace [data-tab-panel].active,
+.stock-valuation-kpis[data-tab-panel].active {
+  display: grid;
+}
+
+.stock-valuation-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.stock-valuation-panel {
+  padding: 18px;
+}
+
+.stock-valuation-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.stock-valuation-panel-head h2 {
+  margin: 0 0 6px;
+}
+
+.stock-valuation-panel-head p {
+  margin: 0;
+  color: #d7ecdf;
+}
+
+.stock-valuation-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-valuation-notes article {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #e9f7ee;
+}
+
+.stock-valuation-table-wrap {
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(185, 240, 201, 0.2);
+}
+
+.stock-valuation-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+.stock-valuation-table th,
+.stock-valuation-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  text-align: left;
+  vertical-align: top;
+}
+
+.stock-valuation-table th {
+  color: #b9f0c9;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stock-valuation-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-valuation-table a {
+  color: #b9f0c9;
+}
+
+.stock-valuation-table .empty {
+  text-align: center;
+  color: #cfe8d8;
+}
+
+@media print {
+  .stock-valuation-actions,
+  .stock-valuation-filter-card,
+  .stock-valuation-tabs,
+  .stock-valuation-status {
+    display: none !important;
+  }
+  .stock-valuation-shell {
+    background: #fff;
+    color: #111;
+    padding: 0;
+  }
+  .stock-valuation-hero,
+  .stock-valuation-panel,
+  .stock-valuation-kpis article,
+  .stock-valuation-safety-strip article {
+    box-shadow: none;
+    border-color: #999;
+    background: #fff;
+    color: #111;
+  }
+  .stock-valuation-workspace [data-tab-panel],
+  .stock-valuation-kpis[data-tab-panel] {
+    display: block !important;
+  }
+  .stock-valuation-table th {
+    background: #eee;
+    color: #111;
+  }
+}

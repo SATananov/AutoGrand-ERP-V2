@@ -1,0 +1,215 @@
+<link rel="stylesheet" href="/css/stock-valuation.css">
+
+<main class="stock-valuation-shell" data-stock-valuation-root>
+  <header class="stock-valuation-hero">
+    <div>
+      <p class="stock-valuation-eyebrow">Step 4.11 · Read-only</p>
+      <h1>Стойност на склада</h1>
+      <p>Inventory cost view за наличност, приблизителна себестойност и стойност по обекти. Справката не записва и не коригира складови движения.</p>
+    </div>
+    <div class="stock-valuation-actions">
+      <a class="stock-valuation-button stock-valuation-button-muted" href="/stock-reports">Складови справки</a>
+      <a class="stock-valuation-button stock-valuation-button-muted" href="/stock-control-center">Контролен център</a>
+      <button class="stock-valuation-button" type="button" data-valuation-print>Печат</button>
+      <button class="stock-valuation-button" type="button" data-valuation-export>CSV</button>
+    </div>
+  </header>
+
+  <section class="stock-valuation-safety-strip" aria-label="Read-only правила">
+    <article>
+      <strong>Стойностен изглед</strong>
+      <span>Себестойност и стойност се изчисляват от наличните read-only данни.</span>
+    </article>
+    <article>
+      <strong>Без journal write</strong>
+      <span>Няма редакция, изтриване, сторно или корекция от този екран.</span>
+    </article>
+    <article>
+      <strong>POSTED lock запазен</strong>
+      <span>Документите остават заключени според съществуващите правила.</span>
+    </article>
+  </section>
+
+  <form class="stock-valuation-filter-card" data-valuation-filters>
+    <label>
+      <span>От дата</span>
+      <input type="date" name="from" data-filter-from>
+    </label>
+    <label>
+      <span>До дата</span>
+      <input type="date" name="to" data-filter-to>
+    </label>
+    <label>
+      <span>Обект</span>
+      <select name="locationId" data-filter-location>
+        <option value="">Всички обекти</option>
+      </select>
+    </label>
+    <label>
+      <span>Артикул</span>
+      <select name="itemId" data-filter-item>
+        <option value="">Всички артикули</option>
+      </select>
+    </label>
+    <label>
+      <span>Метод</span>
+      <select name="valuationMode" data-filter-valuation-mode>
+        <option value="weighted-average">Среднопретеглена цена</option>
+        <option value="last-in">Последна входна цена</option>
+        <option value="movement-value">По стойност на движенията</option>
+      </select>
+    </label>
+    <label>
+      <span>Режим</span>
+      <select name="stockMode" data-filter-stock-mode>
+        <option value="all">Всички позиции</option>
+        <option value="positive">Само положителни</option>
+        <option value="negative">Само отрицателни</option>
+        <option value="zero">Нулеви наличности</option>
+        <option value="missing-cost">Липсва себестойност</option>
+      </select>
+    </label>
+    <label>
+      <span>Търсене</span>
+      <input type="search" name="search" placeholder="Артикул, обект, документ..." data-filter-search>
+    </label>
+    <label>
+      <span>Редове</span>
+      <select name="limit" data-filter-limit>
+        <option value="100">100</option>
+        <option value="250" selected>250</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+      </select>
+    </label>
+    <button class="stock-valuation-button" type="submit">Приложи</button>
+  </form>
+
+  <div class="stock-valuation-status" data-valuation-status>Зареждане на стойностната справка...</div>
+
+  <nav class="stock-valuation-tabs" aria-label="Стойностни складови справки">
+    <button type="button" class="active" data-valuation-tab="snapshot">Snapshot</button>
+    <button type="button" data-valuation-tab="balance">Стойност по позиции</button>
+    <button type="button" data-valuation-tab="locations">По обекти</button>
+    <button type="button" data-valuation-tab="movements">Движения със себестойност</button>
+  </nav>
+
+  <section class="stock-valuation-kpis" data-tab-panel="snapshot">
+    <article><span>Обща стойност</span><strong data-kpi="totalStockValue">0.00</strong><em>BGN</em></article>
+    <article><span>Положителна стойност</span><strong data-kpi="positiveStockValue">0.00</strong><em>BGN</em></article>
+    <article class="danger"><span>Отрицателна стойност</span><strong data-kpi="negativeStockValue">0.00</strong><em>BGN</em></article>
+    <article class="warn"><span>Без себестойност</span><strong data-kpi="missingCostPositions">0</strong><em>позиции</em></article>
+    <article><span>Покритие</span><strong data-kpi="costCoverage">0%</strong><em>cost coverage</em></article>
+  </section>
+
+  <section class="stock-valuation-workspace">
+    <article class="stock-valuation-panel" data-tab-panel="snapshot">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Управителски valuation snapshot</h2>
+          <p>Print-ready read-only обобщение за складова стойност и качество на себестойността.</p>
+        </div>
+        <span data-summary-period>-</span>
+      </div>
+      <div class="stock-valuation-notes" data-snapshot-notes></div>
+      <div class="stock-valuation-table-wrap">
+        <table class="stock-valuation-table" data-high-value-table>
+          <thead>
+            <tr>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th class="num">Наличност</th>
+              <th class="num">Ед. цена</th>
+              <th class="num">Стойност</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-valuation-panel" data-tab-panel="balance">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Стойност по артикул и обект</h2>
+          <p>Агрегирана наличност, единична цена и складова стойност.</p>
+        </div>
+        <span data-balance-counter>0 реда</span>
+      </div>
+      <div class="stock-valuation-table-wrap">
+        <table class="stock-valuation-table" data-balance-table>
+          <thead>
+            <tr>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th class="num">Наличност</th>
+              <th class="num">Ед. цена</th>
+              <th class="num">Стойност</th>
+              <th class="num">Вход стойност</th>
+              <th class="num">Изход стойност</th>
+              <th>Последно движение</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-valuation-panel" data-tab-panel="locations">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Стойност по обекти</h2>
+          <p>Мениджърска картина за стойността във всеки склад/обект.</p>
+        </div>
+        <span data-location-counter>0 обекта</span>
+      </div>
+      <div class="stock-valuation-table-wrap">
+        <table class="stock-valuation-table" data-location-table>
+          <thead>
+            <tr>
+              <th>Обект</th>
+              <th class="num">Обща стойност</th>
+              <th class="num">Положителна</th>
+              <th class="num">Отрицателна</th>
+              <th class="num">Нето количество</th>
+              <th class="num">Позиции</th>
+              <th class="num">Без себестойност</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-valuation-panel" data-tab-panel="movements">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Движения със стойност</h2>
+          <p>Последни движения с изчислена или липсваща себестойност. Само преглед.</p>
+        </div>
+        <span data-movement-counter>0 реда</span>
+      </div>
+      <div class="stock-valuation-table-wrap">
+        <table class="stock-valuation-table" data-movement-table>
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th>Документ</th>
+              <th class="num">Знак</th>
+              <th class="num">Ед. цена</th>
+              <th class="num">Стойност</th>
+              <th>Източник</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script src="/js/stock-valuation.js" defer></script>
