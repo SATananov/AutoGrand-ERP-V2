@@ -1,0 +1,342 @@
+.stock-reports-shell {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  color: #14351f;
+}
+
+.stock-reports-hero,
+.stock-report-filter-card,
+.stock-report-panel,
+.stock-report-kpi {
+  background: linear-gradient(180deg, #fbfff8 0%, #edf8ea 100%);
+  border: 1px solid rgba(27, 104, 54, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(12, 65, 32, 0.10);
+}
+
+.stock-reports-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border-left: 5px solid #1d7a3b;
+}
+
+.stock-reports-eyebrow {
+  margin: 0 0 6px;
+  color: #287742;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stock-reports-hero h1 {
+  margin: 0;
+  color: #0d3d20;
+  font-size: clamp(26px, 3vw, 38px);
+}
+
+.stock-reports-subtitle {
+  max-width: 850px;
+  margin: 8px 0 0;
+  color: #486151;
+  line-height: 1.45;
+}
+
+.stock-reports-hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stock-report-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border: 1px solid rgba(25, 109, 50, 0.28);
+  border-radius: 999px;
+  background: #147238;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.stock-report-button:hover {
+  filter: brightness(1.05);
+}
+
+.stock-report-button-muted {
+  background: #ecf7ec;
+  color: #13582d;
+}
+
+.stock-report-filter-card {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: end;
+  padding: 16px;
+}
+
+.stock-report-filter-card label {
+  display: grid;
+  gap: 6px;
+  color: #33543d;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stock-report-filter-card input,
+.stock-report-filter-card select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(31, 113, 55, 0.25);
+  border-radius: 12px;
+  background: #fff;
+  color: #18391f;
+  padding: 8px 10px;
+}
+
+.stock-report-status {
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #eef8ef;
+  color: #255735;
+  border: 1px solid rgba(25, 112, 50, 0.18);
+  font-weight: 700;
+}
+
+.stock-report-status[data-status-type="error"] {
+  background: #fff0ee;
+  color: #9d2e24;
+  border-color: rgba(157, 46, 36, 0.25);
+}
+
+.stock-report-status[data-status-type="warn"] {
+  background: #fff8e6;
+  color: #76520f;
+  border-color: rgba(179, 129, 22, 0.28);
+}
+
+.stock-report-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.stock-report-kpi {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.stock-report-kpi span,
+.stock-report-kpi em {
+  color: #58705f;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.stock-report-kpi strong {
+  color: #0c4e27;
+  font-size: 28px;
+}
+
+.stock-report-kpi.good strong { color: #16723a; }
+.stock-report-kpi.warn strong { color: #967016; }
+.stock-report-kpi.danger strong { color: #a23727; }
+
+.stock-report-panels,
+.stock-report-risk-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.stock-report-risk-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stock-report-panel {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.stock-report-panel.compact {
+  min-height: 180px;
+}
+
+.stock-report-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.stock-report-panel h2 {
+  margin: 0;
+  color: #103c22;
+  font-size: 19px;
+}
+
+.stock-report-panel p {
+  margin: 5px 0 0;
+  color: #597063;
+}
+
+.stock-report-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(34, 100, 52, 0.16);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.stock-report-table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.stock-report-table th,
+.stock-report-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(34, 100, 52, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.stock-report-table th {
+  position: sticky;
+  top: 0;
+  background: #e8f5e8;
+  color: #174629;
+  font-size: 12px;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.stock-report-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.stock-report-table .strong {
+  font-weight: 900;
+}
+
+.stock-report-table tr.danger-row td {
+  background: #fff2ef;
+}
+
+.stock-report-table tr.warn-row td {
+  background: #fff9ec;
+}
+
+.stock-report-table .empty {
+  text-align: center;
+  color: #6b776d;
+  padding: 22px;
+}
+
+.stock-report-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.stock-report-list-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3px 12px;
+  align-items: center;
+  border: 1px solid rgba(32, 102, 52, 0.14);
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.stock-report-list-item span {
+  color: #173f25;
+  font-weight: 800;
+}
+
+.stock-report-list-item em {
+  color: #657466;
+  font-style: normal;
+  grid-column: 1;
+}
+
+.stock-report-list-item strong {
+  color: #165e31;
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.empty-list {
+  color: #68786c;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .stock-report-filter-card,
+  .stock-report-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stock-report-risk-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .stock-reports-shell {
+    padding: 10px;
+  }
+
+  .stock-reports-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stock-reports-hero-actions,
+  .stock-report-filter-card,
+  .stock-report-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-reports-hero-actions .stock-report-button,
+  .stock-report-filter-card .stock-report-button {
+    width: 100%;
+  }
+}
+
+@media print {
+  .stock-report-filter-card,
+  .stock-reports-hero-actions,
+  .stock-report-status {
+    display: none !important;
+  }
+
+  .stock-reports-shell {
+    padding: 0;
+  }
+
+  .stock-reports-hero,
+  .stock-report-panel,
+  .stock-report-kpi {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

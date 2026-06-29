@@ -1,0 +1,146 @@
+<link rel="stylesheet" href="/css/stock-reports.css?v=4100">
+
+<section class="stock-reports-shell" data-stock-reports-root>
+  <header class="stock-reports-hero">
+    <div>
+      <p class="stock-reports-eyebrow">Склад · справки · анализ</p>
+      <h1>Складови справки</h1>
+      <p class="stock-reports-subtitle">
+        Read-only аналитичен слой върху съществуващите складови движения. Няма директна редакция на журнал, сторно или posted документи.
+      </p>
+    </div>
+    <div class="stock-reports-hero-actions" aria-label="Действия">
+      <a class="stock-report-button stock-report-button-muted" href="/stock-control-center">Контролен център</a>
+      <button class="stock-report-button" type="button" data-stock-report-print>Печат</button>
+      <button class="stock-report-button" type="button" data-stock-report-export>CSV</button>
+    </div>
+  </header>
+
+  <form class="stock-report-filter-card" data-stock-report-filters>
+    <label>
+      <span>От дата</span>
+      <input type="date" name="from" data-filter-from>
+    </label>
+    <label>
+      <span>До дата</span>
+      <input type="date" name="to" data-filter-to>
+    </label>
+    <label>
+      <span>Обект</span>
+      <select name="locationId" data-filter-location>
+        <option value="">Всички обекти</option>
+      </select>
+    </label>
+    <label>
+      <span>Артикул</span>
+      <select name="itemId" data-filter-item>
+        <option value="">Всички артикули</option>
+      </select>
+    </label>
+    <label>
+      <span>Редове</span>
+      <select name="limit" data-filter-limit>
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="250">250</option>
+        <option value="500">500</option>
+      </select>
+    </label>
+    <button class="stock-report-button" type="submit">Приложи</button>
+  </form>
+
+  <div class="stock-report-status" data-stock-report-status>Зареждане на справките...</div>
+
+  <section class="stock-report-kpi-grid" aria-label="Ключови показатели">
+    <article class="stock-report-kpi">
+      <span>Движения</span>
+      <strong data-kpi="movementRows">0</strong>
+      <em>за избрания период</em>
+    </article>
+    <article class="stock-report-kpi">
+      <span>Артикул/обект</span>
+      <strong data-kpi="skuLocations">0</strong>
+      <em>комбинации с движения</em>
+    </article>
+    <article class="stock-report-kpi good">
+      <span>Вход</span>
+      <strong data-kpi="incoming">0</strong>
+      <em>общо количество</em>
+    </article>
+    <article class="stock-report-kpi warn">
+      <span>Изход</span>
+      <strong data-kpi="outgoing">0</strong>
+      <em>общо количество</em>
+    </article>
+    <article class="stock-report-kpi danger">
+      <span>Отрицателни</span>
+      <strong data-kpi="negativeSkuLocations">0</strong>
+      <em>рискови наличности</em>
+    </article>
+  </section>
+
+  <section class="stock-report-panels">
+    <article class="stock-report-panel">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Наличности по артикул и обект</h2>
+          <p>Агрегирани вход/изход/нето количества от read-only движенията.</p>
+        </div>
+      </div>
+      <div class="stock-report-table-wrap">
+        <table class="stock-report-table" data-stock-report-balance>
+          <thead>
+            <tr>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th class="num">Вход</th>
+              <th class="num">Изход</th>
+              <th class="num">Нето</th>
+              <th class="num">Движения</th>
+              <th>Последно движение</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-report-panel">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Последни складови движения</h2>
+          <p>Само преглед. Директна промяна на складов журнал не е позволена.</p>
+        </div>
+      </div>
+      <div class="stock-report-table-wrap">
+        <table class="stock-report-table" data-stock-report-movements>
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Артикул</th>
+              <th>Обект</th>
+              <th>Документ</th>
+              <th>Тип</th>
+              <th class="num">Количество</th>
+              <th class="num">Знак</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="stock-report-risk-grid">
+    <article class="stock-report-panel compact">
+      <h2>Отрицателни наличности</h2>
+      <div data-stock-report-negative class="stock-report-list"></div>
+    </article>
+    <article class="stock-report-panel compact">
+      <h2>Най-активни позиции</h2>
+      <div data-stock-report-active class="stock-report-list"></div>
+    </article>
+  </section>
+</section>
+
+<script src="/js/stock-reports.js?v=4100" defer></script>
