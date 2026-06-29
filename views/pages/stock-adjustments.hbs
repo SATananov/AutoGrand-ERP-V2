@@ -1,18 +1,20 @@
-<section class="ag-stock-adjustments-page" data-ag-step="4.8.3">
+<!-- Step 4.8.2 compatibility marker: data-ag-step="4.8.2" -->
+<!-- Step 4.8.3 compatibility marker: data-ag-step="4.8.3" -->
+<section class="ag-stock-adjustments-page" data-ag-step="4.8.4">
   <div class="ag-page-header ag-stock-adjustments-hero">
     <div>
-      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.3</div>
+      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.4</div>
       <h1>Складови корекции</h1>
       <p>
-        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и видим movement trace към реалния складов журнал.
+        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED, movement trace, audit trail и безопасна обратна корекция.
       </p>
     </div>
-    <div class="ag-step-badge">Movement trace</div>
+    <div class="ag-step-badge">Audit safety</div>
   </div>
 
   <div class="ag-moneta-rules">
     <strong>Правило:</strong>
-    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ, ново bound stock movement движение и видим trace.
+    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ, записваме audit trail и при грешка правим нов обратен DRAFT документ.
   </div>
 
   <section class="ag-card ag-binding-card" id="agMovementBindingCard">
@@ -31,7 +33,7 @@
       <div class="ag-card-title-row">
         <div>
           <h2>Документи</h2>
-          <p>DRAFT документи могат да се редактират. POSTED документи са заключени и показват movement trace summary, таблица и line-to-movement връзки.</p>
+          <p>DRAFT документи могат да се редактират. POSTED документи са заключени и показват movement trace, audit trail и безопасна reversal опция.</p>
         </div>
         <button type="button" class="ag-btn ag-btn-secondary" id="agReloadAdjustmentsBtn">Обнови</button>
       </div>
@@ -130,11 +132,12 @@
       const activeClass = activeDocument && activeDocument.id === doc.id ? " is-active" : "";
       const postedClass = doc.status === "POSTED" ? " is-posted" : "";
       const movementMeta = doc.status === "POSTED" ? ` · Trace: ${formatNumber(doc.postedMovementCount)} движения` : "";
+      const auditMeta = doc.auditEventCount ? ` · Audit: ${formatNumber(doc.auditEventCount)}` : "";
       return `
         <button type="button" class="ag-adjustment-row${activeClass}${postedClass}" data-doc-id="${escapeHtml(doc.id)}">
           <span class="ag-adjustment-number">${escapeHtml(doc.number)}</span>
           <span class="ag-adjustment-status">${escapeHtml(statusLabel(doc.status))}</span>
-          <span class="ag-adjustment-meta">Редове: ${formatNumber(doc.lineCount)} · Разлика: ${formatNumber(doc.totalDelta)}${movementMeta}</span>
+          <span class="ag-adjustment-meta">Редове: ${formatNumber(doc.lineCount)} · Разлика: ${formatNumber(doc.totalDelta)}${movementMeta}${auditMeta}</span>
         </button>
       `;
     }).join("");
@@ -152,6 +155,8 @@
     const postingLog = Array.isArray(activeDocument.postingLog) ? activeDocument.postingLog : [];
     const movementTrace = Array.isArray(activeDocument.movementTrace) ? activeDocument.movementTrace : [];
     const traceSummary = activeDocument.traceSummary || {};
+    const auditTrail = Array.isArray(activeDocument.auditTrail) ? activeDocument.auditTrail : [];
+    const auditSummary = activeDocument.auditSummary || {};
     detailsEl.className = "ag-adjustment-details" + (locked ? " is-locked" : "");
     detailsEl.innerHTML = `
       <div class="ag-document-panel">
@@ -168,6 +173,7 @@
             <strong>POSTED · документът е заключен</strong>
             <span>Осчетоводено: ${escapeHtml(activeDocument.postedAt || "-")} · От: ${escapeHtml(activeDocument.postedBy || "-")}</span>
             <span>Trace движения: ${formatNumber(traceSummary.movementCount || activeDocument.postedMovementCount || 0)} · Таблица: ${escapeHtml((traceSummary.tables || [activeDocument.movementBindingTable || ""])[0] || "-")}</span>
+            <span>Audit събития: ${formatNumber(auditSummary.eventCount || activeDocument.auditEventCount || 0)} · Последно: ${escapeHtml(auditSummary.lastEventAt || activeDocument.lastAuditAt || "-")}</span>
           </div>
         ` : `
           <div class="ag-draft-trace-note">Movement trace ще се появи след POSTED. DRAFT документът няма реален складов ефект.</div>
@@ -262,6 +268,49 @@
         ` : ""}
       </div>
 
+      <div class="ag-audit-safety-panel ${locked ? "is-locked" : ""}">
+        <div class="ag-card-title-row">
+          <div>
+            <h3>Audit / Reversal safety</h3>
+            <p>${auditTrail.length ? "Append-only audit trail за действията по документа." : "Audit trail ще се попълва при действия по документа."}</p>
+          </div>
+          <button type="button" class="ag-btn ag-btn-secondary" id="agReloadAuditBtn">Обнови audit</button>
+        </div>
+        <div class="ag-audit-summary-grid">
+          <div><strong>${formatNumber(auditSummary.eventCount || 0)}</strong><span>Audit събития</span></div>
+          <div><strong>${escapeHtml((auditSummary.reasonCodes || ["-"])[0] || "-")}</strong><span>Reason code</span></div>
+          <div><strong>${escapeHtml((auditSummary.actors || ["-"])[0] || "-")}</strong><span>Потребител</span></div>
+          <div><strong>${escapeHtml(auditSummary.lastEventAt || "-")}</strong><span>Последно</span></div>
+        </div>
+        ${auditTrail.length ? `
+          <div class="ag-audit-list">
+            ${auditTrail.slice(0, 12).map((row) => `
+              <div class="ag-audit-row">
+                <div><strong>${escapeHtml(row.eventType)}</strong><small>${escapeHtml(row.createdAt || "-")}</small></div>
+                <div><span>${escapeHtml(row.reasonCode || "OTHER")}</span><small>${escapeHtml(row.actor || "system")}</small></div>
+                <div><span>${escapeHtml(row.reasonText || "-")}</span><small>${escapeHtml(row.eventScope || "document")}</small></div>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+        ${locked ? `
+          <div class="ag-reversal-box">
+            <strong>Безопасна обратна корекция</strong>
+            <p>Не редактира POSTED документа и не трие movement записи. Създава нов DRAFT документ с обратни редове.</p>
+            <div class="ag-reversal-actions">
+              <button type="button" class="ag-btn ag-btn-secondary" id="agPreviewReversalBtn">Preview reversal</button>
+              <button type="button" class="ag-btn ag-btn-primary" id="agCreateReversalDraftBtn">Създай обратен DRAFT</button>
+            </div>
+            <div id="agReversalPreview" class="ag-reversal-preview" hidden></div>
+          </div>
+        ` : `
+          <div class="ag-reversal-box">
+            <strong>Reversal safety</strong>
+            <p>Обратна корекция се подготвя само за POSTED документ.</p>
+          </div>
+        `}
+      </div>
+
       ${postingLog.length ? `
         <div class="ag-posting-log">
           <h3>Posting log raw audit</h3>
@@ -300,6 +349,35 @@
     const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/movement-trace");
     activeDocument.movementTrace = payload.movementTrace || [];
     activeDocument.traceSummary = payload.traceSummary || {};
+    renderDetails();
+  }
+
+  async function loadAudit() {
+    if (!activeDocument) return;
+    const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/audit");
+    activeDocument.auditTrail = payload.auditTrail || [];
+    activeDocument.auditSummary = payload.auditSummary || {};
+    renderDetails();
+  }
+
+  async function previewReversal() {
+    if (!activeDocument) return;
+    const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/reversal-preview");
+    const box = document.getElementById("agReversalPreview");
+    if (!box) return;
+    box.hidden = false;
+    box.innerHTML = `Редове: ${formatNumber(payload.reversal && payload.reversal.lineCount)} · Обща обратна разлика: ${formatNumber(payload.reversal && payload.reversal.totalDelta)}<br><small>Старият journal не се редактира. Ще се създаде нов DRAFT документ.</small>`;
+  }
+
+  async function createReversalDraft() {
+    if (!activeDocument) return;
+    if (!confirm("Да създам ли нов обратен DRAFT документ? Старият POSTED документ няма да се редактира.")) return;
+    const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/reversal-draft", {
+      method: "POST",
+      body: JSON.stringify({ actor: "AutoGrand", reason: "Обратна корекция" })
+    });
+    activeDocument = payload.document;
+    await loadDocuments();
     renderDetails();
   }
 
@@ -361,6 +439,33 @@
   });
 
   detailsEl.addEventListener("click", async (event) => {
+    if (event.target.id === "agReloadAuditBtn") {
+      try {
+        await loadAudit();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
+    if (event.target.id === "agPreviewReversalBtn") {
+      try {
+        await previewReversal();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
+    if (event.target.id === "agCreateReversalDraftBtn") {
+      try {
+        await createReversalDraft();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
     if (event.target.id === "agReloadTraceBtn") {
       try {
         await loadTrace();

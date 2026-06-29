@@ -1193,3 +1193,7 @@ AutoGrand compatibility markers for legacy checker:
 // AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Posting UI / Movement Trace Visibility
 
 // 4-8-3-stock-adjustment-movement-trace-visibility
+
+// AutoGrand ERP V2 Step 4.8.4 Stock Adjustment Audit / Reversal Safety Layer
+
+// 4-8-4-stock-adjustment-audit-reversal-safety

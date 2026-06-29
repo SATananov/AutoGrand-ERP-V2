@@ -1,9 +1,11 @@
 import express from "express";
 import {
   buildStockAdjustmentFromIssuePreview,
+  createStockAdjustmentReversalDraft,
   createDraftFromIssue,
   createStockAdjustmentDraft,
   deleteStockAdjustmentLine,
+  getStockAdjustmentAuditStatus,
   getStockAdjustmentDocument,
   getStockAdjustmentFoundationStatus,
   getStockAdjustmentMovementBindingStatus,
@@ -12,6 +14,7 @@ import {
   pingStockAdjustments,
   postStockAdjustmentDocument,
   previewStockAdjustment,
+  previewStockAdjustmentReversalDraft,
   upsertStockAdjustmentLine
 } from "../services/stock-adjustment-service.js";
 
@@ -130,6 +133,33 @@ router.get("/api/stock/adjustments/documents/:id/movement-trace", async (req, re
   try {
     const trace = await getStockAdjustmentMovementTrace(req.params.id);
     sendOk(res, trace);
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get("/api/stock/adjustments/documents/:id/audit", async (req, res) => {
+  try {
+    const audit = await getStockAdjustmentAuditStatus(req.params.id, { limit: req.query.limit });
+    sendOk(res, audit);
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get("/api/stock/adjustments/documents/:id/reversal-preview", async (req, res) => {
+  try {
+    const preview = await previewStockAdjustmentReversalDraft(req.params.id);
+    sendOk(res, preview);
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.post("/api/stock/adjustments/documents/:id/reversal-draft", async (req, res) => {
+  try {
+    const document = await createStockAdjustmentReversalDraft(req.params.id, req.body || {});
+    res.status(201).json({ ok: true, document });
   } catch (error) {
     sendError(res, error);
   }

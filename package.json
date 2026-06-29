@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Posting UI / Movement Trace Visibility | Step 4.4 Global Grid Column Preferences | 4-4-global-grid-column-preferences | Step 4.4 grid preferences version label | grid preferences version label",
+  "description": "AutoGrand ERP V2 Step 4.8.4 Stock Adjustment Audit / Reversal Safety Layer | Step 4.4 Global Grid Column Preferences | 4-4-global-grid-column-preferences | Step 4.4 grid preferences version label | grid preferences version label",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -103,6 +103,6 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.8.3",
-  "autograndHealthLabel": "4-8-3-stock-adjustment-movement-trace-visibility"
+  "autograndStep": "4.8.4",
+  "autograndHealthLabel": "4-8-4-stock-adjustment-audit-reversal-safety"
 }

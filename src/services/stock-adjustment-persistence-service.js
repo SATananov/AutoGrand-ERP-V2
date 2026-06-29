@@ -15,9 +15,11 @@ if (!globalThis.__autoGrandStockAdjustmentPrisma) {
 const DOCUMENT_TABLE = "ag_stock_adjustment_documents";
 const LINE_TABLE = "ag_stock_adjustment_lines";
 const POSTING_LOG_TABLE = "ag_stock_adjustment_posting_log";
+const AUDIT_TABLE = "ag_stock_adjustment_audit";
 const POSTED = "POSTED";
 const DRAFT = "DRAFT";
-const STEP = "4.8.3";
+const STEP = "4.8.4";
+// Step 4.8.3 compatibility marker: const STEP = "4.8.3"
 
 function nowIso() {
   return new Date().toISOString();
@@ -64,7 +66,11 @@ function normalizeDoc(row) {
     lineCount: Number(row.line_count || row.lineCount || 0),
     totalDelta: Number(row.total_delta || row.totalDelta || 0),
     postedMovementCount: Number(row.posted_movement_count || row.postedMovementCount || 0),
-    movementBindingTable: row.movement_binding_table || row.movementBindingTable || null
+    movementBindingTable: row.movement_binding_table || row.movementBindingTable || null,
+    auditEventCount: Number(row.audit_event_count || row.auditEventCount || 0),
+    lastAuditAt: row.last_audit_at || row.lastAuditAt || null,
+    reversalOfDocumentId: row.reversal_of_document_id || row.reversalOfDocumentId || "",
+    reversalReason: row.reversal_reason || row.reversalReason || ""
   };
 }
 
@@ -119,6 +125,28 @@ function normalizeTraceRow(row) {
   };
 }
 
+function normalizeAuditRow(row) {
+  let payload = null;
+  if (row.payload_json) {
+    try {
+      payload = JSON.parse(row.payload_json);
+    } catch {
+      payload = { raw: row.payload_json };
+    }
+  }
+  return {
+    id: row.id,
+    documentId: row.document_id || "",
+    eventType: row.event_type || "UNKNOWN",
+    eventScope: row.event_scope || "document",
+    reasonCode: row.reason_code || "OTHER",
+    reasonText: row.reason_text || "",
+    actor: row.actor || "system",
+    payload,
+    createdAt: row.created_at || null
+  };
+}
+
 function buildTraceSummary(traceRows = []) {
   const tables = Array.from(new Set(traceRows.map((row) => row.movementTable).filter(Boolean)));
   const postedBy = Array.from(new Set(traceRows.map((row) => row.postedBy).filter(Boolean)));
@@ -145,6 +173,29 @@ function buildTraceSummary(traceRows = []) {
     lastPostedAt,
     hasTrace: traceRows.length > 0,
     lockProof: traceRows.length > 0 ? "POSTED document has movement trace rows and is locked." : "No movement trace rows yet."
+  };
+}
+
+function buildAuditSummary(auditRows = []) {
+  const byType = auditRows.reduce((acc, row) => {
+    acc[row.eventType] = (acc[row.eventType] || 0) + 1;
+    return acc;
+  }, {});
+  const reasonCodes = Array.from(new Set(auditRows.map((row) => row.reasonCode).filter(Boolean)));
+  const actors = Array.from(new Set(auditRows.map((row) => row.actor).filter(Boolean)));
+  const lastEventAt = auditRows.reduce((latest, row) => {
+    if (!row.createdAt) return latest;
+    if (!latest || String(row.createdAt) > String(latest)) return row.createdAt;
+    return latest;
+  }, null);
+  return {
+    eventCount: auditRows.length,
+    byType,
+    reasonCodes,
+    actors,
+    lastEventAt,
+    hasAudit: auditRows.length > 0,
+    safetyRule: "Audit trail is append-only. Posted documents are reversed by a new draft document, not edited."
   };
 }
 
@@ -224,13 +275,37 @@ export async function ensureStockAdjustmentPersistence(db = prisma) {
   await ensureColumn(db, POSTING_LOG_TABLE, "source_type", "TEXT");
   await ensureColumn(db, POSTING_LOG_TABLE, "posted_by", "TEXT");
 
+  await ensureColumn(db, DOCUMENT_TABLE, "reversal_of_document_id", "TEXT");
+  await ensureColumn(db, DOCUMENT_TABLE, "reversal_reason", "TEXT");
+
+  await db.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS ${quoteIdent(AUDIT_TABLE)} (
+      id TEXT PRIMARY KEY,
+      document_id TEXT,
+      event_type TEXT NOT NULL,
+      event_scope TEXT NOT NULL DEFAULT 'document',
+      reason_code TEXT NOT NULL DEFAULT 'OTHER',
+      reason_text TEXT,
+      actor TEXT,
+      payload_json TEXT,
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  await db.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_ag_stock_adjustment_audit_document
+    ON ${quoteIdent(AUDIT_TABLE)}(document_id, created_at)
+  `);
+
   return {
     ok: true,
     step: STEP,
     documentTable: DOCUMENT_TABLE,
     lineTable: LINE_TABLE,
     postingLogTable: POSTING_LOG_TABLE,
-    movementBinding: "real-stock-movement-table-only"
+    auditTable: AUDIT_TABLE,
+    movementBinding: "real-stock-movement-table-only",
+    reversalMode: "new-draft-document-with-opposite-lines"
   };
 }
 
@@ -238,15 +313,14 @@ async function readDocumentRow(id, db = prisma) {
   await ensureStockAdjustmentPersistence(db);
   const rows = await db.$queryRawUnsafe(
     `SELECT d.*,
-            COUNT(l.id) AS line_count,
-            COALESCE(SUM(l.delta_quantity), 0) AS total_delta,
-            COUNT(pl.id) AS posted_movement_count,
-            MAX(pl.movement_table) AS movement_binding_table
+            (SELECT COUNT(*) FROM ${quoteIdent(LINE_TABLE)} l WHERE l.document_id = d.id) AS line_count,
+            (SELECT COALESCE(SUM(l.delta_quantity), 0) FROM ${quoteIdent(LINE_TABLE)} l WHERE l.document_id = d.id) AS total_delta,
+            (SELECT COUNT(*) FROM ${quoteIdent(POSTING_LOG_TABLE)} pl WHERE pl.document_id = d.id) AS posted_movement_count,
+            (SELECT MAX(pl.movement_table) FROM ${quoteIdent(POSTING_LOG_TABLE)} pl WHERE pl.document_id = d.id) AS movement_binding_table,
+            (SELECT COUNT(*) FROM ${quoteIdent(AUDIT_TABLE)} ae WHERE ae.document_id = d.id) AS audit_event_count,
+            (SELECT MAX(ae.created_at) FROM ${quoteIdent(AUDIT_TABLE)} ae WHERE ae.document_id = d.id) AS last_audit_at
      FROM ${quoteIdent(DOCUMENT_TABLE)} d
-     LEFT JOIN ${quoteIdent(LINE_TABLE)} l ON l.document_id = d.id
-     LEFT JOIN ${quoteIdent(POSTING_LOG_TABLE)} pl ON pl.document_id = d.id AND pl.line_id = l.id
-     WHERE d.id = ?
-     GROUP BY d.id`,
+     WHERE d.id = ?`,
     id
   );
   return rows[0] || null;
@@ -267,6 +341,38 @@ async function assertDraftDocument(id, db = prisma) {
   return row;
 }
 
+async function appendStockAdjustmentAuditEvent(db, event = {}) {
+  const payload = event.payload === undefined ? null : JSON.stringify(event.payload);
+  await db.$executeRawUnsafe(
+    `INSERT INTO ${quoteIdent(AUDIT_TABLE)}
+     (id, document_id, event_type, event_scope, reason_code, reason_text, actor, payload_json, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    newId("SAA"),
+    cleanText(event.documentId || event.document_id),
+    cleanText(event.eventType || event.event_type, "UNKNOWN"),
+    cleanText(event.eventScope || event.event_scope, "document"),
+    cleanText(event.reasonCode || event.reason_code, "OTHER"),
+    cleanText(event.reasonText || event.reason_text),
+    cleanText(event.actor || event.user || "system"),
+    payload,
+    nowIso()
+  );
+}
+
+async function getAuditRows(documentId, options = {}, db = prisma) {
+  await ensureStockAdjustmentPersistence(db);
+  const limit = Math.min(Math.max(Number(options.limit || 80), 1), 300);
+  const rows = await db.$queryRawUnsafe(
+    `SELECT * FROM ${quoteIdent(AUDIT_TABLE)}
+     WHERE document_id = ?
+     ORDER BY created_at DESC, id DESC
+     LIMIT ?`,
+    documentId,
+    limit
+  );
+  return rows.map(normalizeAuditRow);
+}
+
 export async function listStockAdjustmentDocuments(options = {}) {
   await ensureStockAdjustmentPersistence();
   const status = cleanText(options.status).toUpperCase();
@@ -275,15 +381,14 @@ export async function listStockAdjustmentDocuments(options = {}) {
   const params = status ? [status, limit] : [limit];
   const rows = await prisma.$queryRawUnsafe(
     `SELECT d.*,
-            COUNT(l.id) AS line_count,
-            COALESCE(SUM(l.delta_quantity), 0) AS total_delta,
-            COUNT(pl.id) AS posted_movement_count,
-            MAX(pl.movement_table) AS movement_binding_table
+            (SELECT COUNT(*) FROM ${quoteIdent(LINE_TABLE)} l WHERE l.document_id = d.id) AS line_count,
+            (SELECT COALESCE(SUM(l.delta_quantity), 0) FROM ${quoteIdent(LINE_TABLE)} l WHERE l.document_id = d.id) AS total_delta,
+            (SELECT COUNT(*) FROM ${quoteIdent(POSTING_LOG_TABLE)} pl WHERE pl.document_id = d.id) AS posted_movement_count,
+            (SELECT MAX(pl.movement_table) FROM ${quoteIdent(POSTING_LOG_TABLE)} pl WHERE pl.document_id = d.id) AS movement_binding_table,
+            (SELECT COUNT(*) FROM ${quoteIdent(AUDIT_TABLE)} ae WHERE ae.document_id = d.id) AS audit_event_count,
+            (SELECT MAX(ae.created_at) FROM ${quoteIdent(AUDIT_TABLE)} ae WHERE ae.document_id = d.id) AS last_audit_at
      FROM ${quoteIdent(DOCUMENT_TABLE)} d
-     LEFT JOIN ${quoteIdent(LINE_TABLE)} l ON l.document_id = d.id
-     LEFT JOIN ${quoteIdent(POSTING_LOG_TABLE)} pl ON pl.document_id = d.id AND pl.line_id = l.id
      ${where}
-     GROUP BY d.id
      ORDER BY d.created_at DESC
      LIMIT ?`,
     ...params
@@ -331,12 +436,15 @@ export async function getStockAdjustmentDocument(id) {
   );
   const postingLog = await getPostingLogRows(id);
   const movementTrace = await getMovementTraceRows(id);
+  const auditTrail = await getAuditRows(id, { limit: 80 });
   return {
     ...normalizeDoc(docRow),
     lines: lineRows.map(normalizeLine),
     postingLog,
     movementTrace,
-    traceSummary: buildTraceSummary(movementTrace)
+    traceSummary: buildTraceSummary(movementTrace),
+    auditTrail,
+    auditSummary: buildAuditSummary(auditTrail)
   };
 }
 
@@ -349,10 +457,28 @@ export async function getStockAdjustmentMovementTrace(documentId) {
     throw err;
   }
   const movementTrace = await getMovementTraceRows(documentId);
+  const auditTrail = await getAuditRows(documentId, { limit: 40 });
   return {
     document: normalizeDoc(docRow),
     traceSummary: buildTraceSummary(movementTrace),
+    auditSummary: buildAuditSummary(auditTrail),
     movementTrace
+  };
+}
+
+export async function getStockAdjustmentAuditTrail(documentId, options = {}) {
+  await ensureStockAdjustmentPersistence();
+  const docRow = await readDocumentRow(documentId);
+  if (!docRow) {
+    const err = new Error("Документът за складова корекция не е намерен.");
+    err.statusCode = 404;
+    throw err;
+  }
+  const auditTrail = await getAuditRows(documentId, options);
+  return {
+    document: normalizeDoc(docRow),
+    auditSummary: buildAuditSummary(auditTrail),
+    auditTrail
   };
 }
 
@@ -366,8 +492,8 @@ export async function createStockAdjustmentDraft(input = {}) {
 
   await prisma.$executeRawUnsafe(
     `INSERT INTO ${quoteIdent(DOCUMENT_TABLE)}
-     (id, number, status, reason, note, issue_key, source_issue_json, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (id, number, status, reason, note, issue_key, source_issue_json, created_at, updated_at, reversal_of_document_id, reversal_reason)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     number,
     DRAFT,
@@ -376,8 +502,19 @@ export async function createStockAdjustmentDraft(input = {}) {
     cleanText(input.issueKey || input.issue_key),
     sourceIssue,
     now,
-    now
+    now,
+    cleanText(input.reversalOfDocumentId || input.reversal_of_document_id),
+    cleanText(input.reversalReason || input.reversal_reason)
   );
+
+  await appendStockAdjustmentAuditEvent(prisma, {
+    documentId: id,
+    eventType: input.reversalOfDocumentId || input.reversal_of_document_id ? "REVERSAL_DRAFT_CREATED" : "DRAFT_CREATED",
+    reasonCode: cleanText(input.reasonCode || input.reason_code, input.reversalOfDocumentId || input.reversal_of_document_id ? "REVERSAL_SAFETY" : "OTHER"),
+    reasonText: cleanText(input.reason, "Складова корекция"),
+    actor: cleanText(input.actor || input.createdBy || "system"),
+    payload: { number, issueKey: cleanText(input.issueKey || input.issue_key), reversalOfDocumentId: cleanText(input.reversalOfDocumentId || input.reversal_of_document_id) }
+  });
 
   return getStockAdjustmentDocument(id);
 }
@@ -449,6 +586,16 @@ export async function upsertStockAdjustmentLine(documentId, input = {}) {
     );
   }
 
+  await appendStockAdjustmentAuditEvent(prisma, {
+    documentId,
+    eventType: existing.length > 0 ? "LINE_UPDATED" : "LINE_CREATED",
+    eventScope: "line",
+    reasonCode: cleanText(input.reasonCode || input.reason_code, "OTHER"),
+    reasonText: cleanText(input.reason || input.note),
+    actor: cleanText(input.actor || input.updatedBy || "system"),
+    payload: { lineId: id, itemId: cleanText(input.itemId || input.item_id), deltaQuantity }
+  });
+
   return getStockAdjustmentDocument(documentId);
 }
 
@@ -460,6 +607,14 @@ export async function deleteStockAdjustmentLine(documentId, lineId) {
     lineId,
     documentId
   );
+  await appendStockAdjustmentAuditEvent(prisma, {
+    documentId,
+    eventType: "LINE_DELETED",
+    eventScope: "line",
+    reasonCode: "OTHER",
+    actor: "system",
+    payload: { lineId }
+  });
   return getStockAdjustmentDocument(documentId);
 }
 
@@ -491,6 +646,14 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
     }
     if (docRow.status === POSTED) {
       const existingLog = await getPostingLogRows(documentId, tx);
+      await appendStockAdjustmentAuditEvent(tx, {
+        documentId,
+        eventType: "POST_REPLAY_BLOCKED",
+        reasonCode: "REVERSAL_SAFETY",
+        reasonText: "Repeated POST was blocked by idempotency guard.",
+        actor: cleanText(options.postedBy || options.user || "system"),
+        payload: { existingMovementCount: existingLog.length }
+      });
       return {
         ok: true,
         alreadyPosted: true,
@@ -594,6 +757,15 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
       documentId
     );
 
+    await appendStockAdjustmentAuditEvent(tx, {
+      documentId,
+      eventType: "DOCUMENT_POSTED_LOCKED",
+      reasonCode: cleanText(options.reasonCode || options.reason_code, "OTHER"),
+      reasonText: "Document posted and locked with bound stock movements.",
+      actor: postedBy,
+      payload: { movementCount: movements.length, movementBinding: binding.table, bindingProfile: binding.profile }
+    });
+
     return {
       ok: true,
       step: STEP,
@@ -608,6 +780,107 @@ export async function postStockAdjustmentDocument(documentId, options = {}) {
     ...result,
     document: await getStockAdjustmentDocument(documentId)
   };
+}
+
+
+export async function previewStockAdjustmentReversal(documentId) {
+  await ensureStockAdjustmentPersistence();
+  const doc = await getStockAdjustmentDocument(documentId);
+  if (!doc) {
+    const err = new Error("Документът за складова корекция не е намерен.");
+    err.statusCode = 404;
+    throw err;
+  }
+  if (doc.status !== POSTED) {
+    const err = new Error("Обратна корекция може да се подготви само за POSTED документ.");
+    err.statusCode = 409;
+    throw err;
+  }
+  const reversalLines = (doc.lines || [])
+    .filter((line) => Math.abs(asNumber(line.deltaQuantity, 0)) > 0.0000001)
+    .map((line) => ({
+      sourceLineId: line.id,
+      itemId: line.itemId,
+      itemCode: line.itemCode,
+      itemName: line.itemName,
+      warehouseId: line.warehouseId,
+      warehouseName: line.warehouseName,
+      currentQuantity: line.countedQuantity,
+      countedQuantity: line.currentQuantity,
+      deltaQuantity: -asNumber(line.deltaQuantity, 0),
+      reason: `Обратна корекция на ${doc.number}`
+    }));
+  const totalDelta = reversalLines.reduce((sum, line) => sum + Number(line.deltaQuantity || 0), 0);
+  return {
+    ok: true,
+    step: STEP,
+    sourceDocument: doc,
+    reversal: {
+      reason: `Обратна корекция на ${doc.number}`,
+      note: "Създава се нов DRAFT документ. Старият POSTED документ и movement trace не се редактират.",
+      lineCount: reversalLines.length,
+      totalDelta,
+      lines: reversalLines
+    },
+    safety: {
+      oldMovementsDeleted: false,
+      oldJournalEdited: false,
+      createsNewDraftDocument: true,
+      autoPost: false
+    }
+  };
+}
+
+export async function createReversalDraftFromDocument(documentId, input = {}) {
+  const preview = await previewStockAdjustmentReversal(documentId);
+  const sourceDoc = preview.sourceDocument;
+  const reason = cleanText(input.reason, preview.reversal.reason);
+  const actor = cleanText(input.actor || input.createdBy || input.user || "system");
+  const reversalDoc = await createStockAdjustmentDraft({
+    reason,
+    note: cleanText(input.note, preview.reversal.note),
+    issueKey: `REVERSAL:${sourceDoc.id}`,
+    reasonCode: "REVERSAL_SAFETY",
+    actor,
+    reversalOfDocumentId: sourceDoc.id,
+    reversalReason: reason,
+    sourceIssue: {
+      type: "stock-adjustment-reversal",
+      sourceDocumentId: sourceDoc.id,
+      sourceNumber: sourceDoc.number,
+      sourcePostedAt: sourceDoc.postedAt,
+      sourceMovementCount: sourceDoc.postedMovementCount
+    }
+  });
+
+  for (const line of preview.reversal.lines) {
+    await upsertStockAdjustmentLine(reversalDoc.id, {
+      ...line,
+      reasonCode: "REVERSAL_SAFETY",
+      actor,
+      note: `Source line: ${line.sourceLineId}`
+    });
+  }
+
+  await appendStockAdjustmentAuditEvent(prisma, {
+    documentId: sourceDoc.id,
+    eventType: "REVERSAL_DRAFT_LINKED",
+    reasonCode: "REVERSAL_SAFETY",
+    reasonText: reason,
+    actor,
+    payload: { reversalDocumentId: reversalDoc.id, reversalNumber: reversalDoc.number }
+  });
+
+  await appendStockAdjustmentAuditEvent(prisma, {
+    documentId: reversalDoc.id,
+    eventType: "REVERSAL_SOURCE_LINKED",
+    reasonCode: "REVERSAL_SAFETY",
+    reasonText: reason,
+    actor,
+    payload: { sourceDocumentId: sourceDoc.id, sourceNumber: sourceDoc.number }
+  });
+
+  return getStockAdjustmentDocument(reversalDoc.id);
 }
 
 export async function createDraftFromIssue(issue = {}) {
@@ -647,7 +920,7 @@ export async function getStockAdjustmentPersistenceHealth() {
     movementTarget,
     movementBinding: bindingStatus,
     canPost: Boolean(movementTarget),
-    rule: "Осчетоводяването използва реална таблица за складови движения и връща видим movement trace за POSTED документа."
+    rule: "Осчетоводяването използва реална таблица за складови движения, връща movement trace и записва audit trail. Обратната корекция е нов DRAFT документ."
   };
 }
 

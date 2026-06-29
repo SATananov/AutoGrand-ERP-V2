@@ -1,9 +1,11 @@
 import { getStockAdjustmentFoundation } from "../data/stock-adjustment-foundation.js";
 import {
   createDraftFromIssue,
+  createReversalDraftFromDocument,
   createStockAdjustmentDraft,
   deleteStockAdjustmentLine,
   ensureStockAdjustmentPersistence,
+  getStockAdjustmentAuditTrail,
   getStockAdjustmentDocument,
   getStockAdjustmentMovementBindingHealth,
   getStockAdjustmentMovementTrace,
@@ -11,6 +13,7 @@ import {
   listStockAdjustmentDocuments,
   listStockAdjustmentMovementBindingCandidates,
   postStockAdjustmentDocument,
+  previewStockAdjustmentReversal,
   upsertStockAdjustmentLine
 } from "./stock-adjustment-persistence-service.js";
 
@@ -29,9 +32,9 @@ export async function pingStockAdjustments() {
   const health = await getStockAdjustmentPersistenceHealth();
   return {
     ok: true,
-    step: "4.8.3",
-    version: "0.4.15",
-    message: "Stock adjustment posting movement trace is visible in the UI.",
+    step: "4.8.4",
+    version: "0.4.16",
+    message: "Stock adjustment audit and reversal safety are visible in the UI.",
     health
   };
 }
@@ -47,9 +50,11 @@ export async function getStockAdjustmentFoundationStatus() {
     movementBinding,
     traceVisibility: {
       ok: true,
-      step: "4.8.3",
+      step: "4.8.4",
       api: "/api/stock/adjustments/documents/:id/movement-trace",
-      ui: "POSTED documents show movement trace summary and rows."
+      auditApi: "/api/stock/adjustments/documents/:id/audit",
+      reversalApi: "/api/stock/adjustments/documents/:id/reversal-draft",
+      ui: "POSTED documents show movement trace, audit trail and reversal safety actions."
     }
   };
 }
@@ -73,11 +78,11 @@ export function previewStockAdjustment(payload = {}) {
 
   return {
     ok: true,
-    step: "4.8.3",
+    step: "4.8.4",
     mode: "preview-only",
     itemId: cleanText(payload.itemId || payload.item_id),
     itemCode: cleanText(payload.itemCode || payload.item_code),
-    itemName: cleanText(payload.itemName || payload.item_name, "РђСЂС‚РёРєСѓР»"),
+    itemName: cleanText(payload.itemName || payload.item_name, "Артикул"),
     warehouseId: cleanText(payload.warehouseId || payload.warehouse_id || payload.locationId),
     currentQuantity,
     countedQuantity,
@@ -85,7 +90,7 @@ export function previewStockAdjustment(payload = {}) {
     direction: deltaQuantity >= 0 ? "IN" : "OUT",
     createsMovement: Math.abs(deltaQuantity) > 0.0000001,
     postingIntegration: "POSTED document writes one bound stock movement per non-zero line.",
-    monetaRule: "Preview РЅРµ РїРёРїР° СЃРєР»Р°РґР°. Р РµР°Р»РµРЅ РµС„РµРєС‚ РёРјР° СЃР°РјРѕ СЃР»РµРґ DRAFT РєСЉРј POSTED."
+    monetaRule: "Preview не пипа склада. Реален ефект има само след DRAFT към POSTED."
   };
 }
 
@@ -102,7 +107,7 @@ export function buildStockAdjustmentFromIssuePreview(issue = {}) {
 
   return {
     ok: true,
-    step: "4.8.3",
+    step: "4.8.4",
     mode: "issue-preview",
     issueKey: cleanText(issue.key || issue.issueKey || issue.id),
     issue,
@@ -111,13 +116,29 @@ export function buildStockAdjustmentFromIssuePreview(issue = {}) {
   };
 }
 
+export async function getStockAdjustmentAuditStatus(documentId, options = {}) {
+  return getStockAdjustmentAuditTrail(documentId, options);
+}
+
+export async function previewStockAdjustmentReversalDraft(documentId) {
+  return previewStockAdjustmentReversal(documentId);
+}
+
+export async function createStockAdjustmentReversalDraft(documentId, payload = {}) {
+  return createReversalDraftFromDocument(documentId, payload);
+}
+
 export {
   createDraftFromIssue,
+  createReversalDraftFromDocument,
   createStockAdjustmentDraft,
   deleteStockAdjustmentLine,
   ensureStockAdjustmentPersistence,
+  getStockAdjustmentAuditTrail,
   getStockAdjustmentDocument,
   getStockAdjustmentPersistenceHealth,
+  getStockAdjustmentMovementTrace,
+  previewStockAdjustmentReversal,
   listStockAdjustmentDocuments,
   postStockAdjustmentDocument,
   upsertStockAdjustmentLine
