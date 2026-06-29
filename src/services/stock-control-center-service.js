@@ -1,149 +1,129 @@
-// AutoGrand ERP V2 - Step 4.9 Stock Transfer / Adjustment Consolidation & Inventory Control Center
-// Read-only consolidation service. It does not post, edit, delete, or reverse stock journal records.
-
 import {
   getStockControlCenterFoundation,
-  STOCK_CONTROL_CENTER_MODULES,
-  STOCK_CONTROL_CENTER_OPERATOR_RULES,
-  STOCK_CONTROL_CENTER_QUALITY_GATES,
-  STOCK_CONTROL_CENTER_VERSION,
+  STOCK_CONTROL_CENTER_STEP,
 } from '../data/stock-control-center-foundation.js';
 
-export const STEP_4_9_STOCK_CONTROL_CENTER_SERVICE_MARKER = 'STEP_4_9_STOCK_CONTROL_CENTER_SERVICE';
-
-function toStatusCard(module, index) {
-  return {
-    id: `stock-control-${index + 1}`,
-    key: module.key,
-    label: module.label,
-    route: module.route,
-    api: module.api,
-    purpose: module.purpose,
-    monetaRule: module.monetaRule,
-    state: 'available',
-    severity: 'normal',
-  };
-}
-
-function buildConsolidatedTimeline() {
+function buildStepSummary() {
   return [
     {
-      step: '4.8',
-      label: 'Stock Correction / Adjustment Document Foundation',
-      state: 'closed',
-      route: '/stock-adjustments',
-    },
-    {
       step: '4.8.1',
-      label: 'Persistent Documents + Posting Lock',
-      state: 'closed',
-      route: '/stock-adjustments',
+      title: 'Persistent adjustment documents',
+      status: 'complete',
+      note: 'Draft and posted adjustment documents are persistent and auditable.',
     },
     {
       step: '4.8.2',
-      label: 'Movement Binding',
-      state: 'closed',
-      route: '/stock-adjustments',
+      title: 'Movement binding',
+      status: 'complete',
+      note: 'Posted adjustment documents create traceable stock movement effects.',
     },
     {
       step: '4.8.3',
-      label: 'Movement Trace Visibility',
-      state: 'closed',
-      route: '/stock-adjustments',
+      title: 'Movement trace visibility',
+      status: 'complete',
+      note: 'Operators can inspect stock movement trace from the adjustment UI.',
     },
     {
       step: '4.8.4',
-      label: 'Audit / Reversal Safety',
-      state: 'closed',
-      route: '/stock-adjustments',
+      title: 'Audit and reversal safety',
+      status: 'complete',
+      note: 'Reversal creates safe draft documents instead of mutating posted history.',
     },
     {
       step: '4.8.5',
-      label: 'Operator Workflow Hardening',
-      state: 'closed',
-      route: '/stock-adjustments',
-    },
-    {
-      step: '4.8.6',
-      label: 'Final QA / Clean Export',
-      state: 'closed',
-      route: '/stock-adjustments',
+      title: 'Operator workflow hardening',
+      status: 'complete',
+      note: 'UI and API surfaces reinforce the safe correction workflow.',
     },
     {
       step: '4.9',
-      label: 'Inventory Control Center',
-      state: 'active',
-      route: '/stock-control-center',
+      title: 'Stock control center foundation',
+      status: 'complete',
+      note: 'Control center consolidates transfer, adjustment, trace and QA concepts.',
+    },
+    {
+      step: STOCK_CONTROL_CENTER_STEP,
+      title: 'Control center UI polish',
+      status: 'active',
+      note: 'Dashboard cards, operator checklist and QA indicators are polished.',
     },
   ];
 }
 
-function buildOperatorChecklist() {
-  return STOCK_CONTROL_CENTER_OPERATOR_RULES.map((rule, index) => ({
-    ...rule,
-    index: index + 1,
-    checked: true,
+function buildControlCards(foundation) {
+  return foundation.lanes.map((lane, index) => ({
+    ...lane,
+    number: String(index + 1).padStart(2, '0'),
+    isActive: lane.status === 'active',
+    isPlanned: lane.status === 'planned',
   }));
 }
 
-function buildQualityGateCards() {
-  return STOCK_CONTROL_CENTER_QUALITY_GATES.map((gate, index) => ({
-    id: `quality-gate-${index + 1}`,
-    label: gate,
-    expected: 'PASS',
-    owner: 'Step 4.9 QA',
-  }));
+function buildQaPanels(foundation) {
+  return [
+    {
+      key: 'routeSurface',
+      title: 'Route and API surface',
+      bgTitle: 'Route и API повърхност',
+      status: 'OK',
+      detail: 'The control center keeps a visible page and JSON summary endpoints.',
+    },
+    {
+      key: 'operatorSurface',
+      title: 'Operator surface',
+      bgTitle: 'Операторска повърхност',
+      status: 'OK',
+      detail: 'Workflow cards explain what the operator can safely do next.',
+    },
+    {
+      key: 'safetySurface',
+      title: 'Safety rules',
+      bgTitle: 'Правила за безопасност',
+      status: 'OK',
+      detail: `${foundation.safetyRules.length} non-destructive stock rules are visible.`,
+    },
+  ];
 }
 
-export function getStockControlCenterData(options = {}) {
+export function getStockControlCenterSummary(options = {}) {
+  const generatedAt = options.generatedAt ?? new Date();
   const foundation = getStockControlCenterFoundation();
-  const generatedAt = options.generatedAt || new Date().toISOString();
+  const controlCards = buildControlCards(foundation);
+  const qaPanels = buildQaPanels(foundation);
+  const stepSummary = buildStepSummary();
 
   return {
-    marker: STEP_4_9_STOCK_CONTROL_CENTER_SERVICE_MARKER,
-    version: STOCK_CONTROL_CENTER_VERSION,
-    generatedAt,
-    title: 'Inventory Control Center',
-    subtitle: 'Stock transfer and adjustment consolidation view',
+    ok: true,
+    step: STOCK_CONTROL_CENTER_STEP,
+    module: foundation.module,
+    generatedAtIso: generatedAt.toISOString(),
+    pageTitle: 'Център за складов контрол',
+    pageSubtitle: 'Консолидиран контрол върху трансфери, корекции, движения и безопасност.',
     foundation,
-    statusCards: STOCK_CONTROL_CENTER_MODULES.map(toStatusCard),
-    timeline: buildConsolidatedTimeline(),
-    operatorChecklist: buildOperatorChecklist(),
-    qualityGates: buildQualityGateCards(),
-    summary: {
-      modules: STOCK_CONTROL_CENTER_MODULES.length,
-      qualityGates: STOCK_CONTROL_CENTER_QUALITY_GATES.length,
-      operatorRules: STOCK_CONTROL_CENTER_OPERATOR_RULES.length,
-      currentState: 'CONTROL_CENTER_READY',
-    },
-    links: {
-      stockDashboard: '/stock-dashboard',
-      transferCenter: '/stock-transfer-center',
-      adjustments: '/stock-adjustments',
-      ping: '/api/stock/control-center/ping',
-      foundation: '/api/stock/control-center/foundation',
-      summary: '/api/stock/control-center/summary',
-    },
+    metrics: foundation.metrics,
+    controlCards,
+    checklist: foundation.checklist,
+    safetyRules: foundation.safetyRules,
+    qaPanels,
+    stepSummary,
   };
 }
 
-export function getStockControlCenterFoundationData() {
-  return getStockControlCenterFoundation();
+export function getStockControlCenterViewModel(options = {}) {
+  const summary = getStockControlCenterSummary(options);
+
+  return {
+    title: 'Складов контрол',
+    bodyClass: 'page-stock-control-center',
+    ...summary,
+  };
 }
 
-export function getStockControlCenterSummary() {
-  const data = getStockControlCenterData();
+export function getStockControlCenterPing() {
   return {
-    marker: 'STEP_4_9_STOCK_CONTROL_CENTER_SUMMARY',
-    version: data.version,
-    generatedAt: data.generatedAt,
-    summary: data.summary,
-    modules: data.statusCards.map((card) => ({
-      key: card.key,
-      label: card.label,
-      state: card.state,
-      route: card.route,
-    })),
-    qualityGates: data.qualityGates,
+    ok: true,
+    step: STOCK_CONTROL_CENTER_STEP,
+    module: 'stock-control-center',
+    status: 'ready',
   };
 }

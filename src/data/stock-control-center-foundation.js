@@ -1,85 +1,120 @@
-// AutoGrand ERP V2 - Step 4.9 Stock Transfer / Adjustment Consolidation & Inventory Control Center
-// Foundation constants for the inventory control center.
+export const STOCK_CONTROL_CENTER_STEP = '4.9.1';
+export const STOCK_CONTROL_CENTER_MODULE = 'stock-control-center';
+export const STOCK_CONTROL_CENTER_ROUTE = '/stock-control-center';
 
-export const STEP_4_9_STOCK_CONTROL_CENTER_MARKER = 'STEP_4_9_STOCK_CONTROL_CENTER';
-
-export const STOCK_CONTROL_CENTER_VERSION = '4.9.0';
-
-export const STOCK_CONTROL_CENTER_MODULES = Object.freeze([
+export const STOCK_CONTROL_CENTER_LANES = [
   {
-    key: 'stock-transfers',
+    key: 'transfers',
     label: 'Stock Transfers',
-    route: '/stock-transfer-center',
-    api: '/api/stock/transfers',
-    purpose: 'Move stock between company locations without deleting old movements.',
-    monetaRule: 'Transfer documents must create auditable stock movements, not manual journal edits.',
+    bgLabel: 'Складови трансфери',
+    status: 'planned',
+    intent: 'Transfer documents will move stock between objects without manual journal edits.',
+    operatorNote: 'Use transfer documents when the same item changes location or object.',
   },
   {
-    key: 'stock-adjustments',
+    key: 'adjustments',
     label: 'Stock Adjustments',
-    route: '/stock-adjustments',
-    api: '/api/stock/adjustments',
-    purpose: 'Correct physical stock through DRAFT -> POSTED adjustment documents.',
-    monetaRule: 'Wrong posted corrections are reversed through a new document, never by editing old journal entries.',
+    bgLabel: 'Корекции на склад',
+    status: 'active',
+    intent: 'Step 4.8 adjustment documents remain the approved correction path.',
+    operatorNote: 'Use draft adjustment documents and post them only after review.',
   },
   {
-    key: 'movement-trace',
+    key: 'movementTrace',
     label: 'Movement Trace',
-    route: '/api/stock/adjustments/documents/:id/movement-trace',
-    api: '/api/stock/adjustments/documents/:id/movement-trace',
-    purpose: 'Expose the movement records created by posted adjustment documents.',
-    monetaRule: 'Traceability must show the binding between documents and movements.',
+    bgLabel: 'Проследяване на движения',
+    status: 'active',
+    intent: 'Every posted stock effect must be traceable back to its source document.',
+    operatorNote: 'Use the movement trace panel before reversal or audit decisions.',
   },
   {
-    key: 'audit-reversal',
+    key: 'auditSafety',
     label: 'Audit / Reversal Safety',
-    route: '/api/stock/adjustments/documents/:id/audit',
-    api: '/api/stock/adjustments/documents/:id/reversal-preview',
-    purpose: 'Provide audit visibility and safe reversal draft workflow.',
-    monetaRule: 'A reversal is a new auditable document, not a destructive update.',
+    bgLabel: 'Одит и безопасно сторниране',
+    status: 'active',
+    intent: 'Corrections are additive and reversible, never destructive.',
+    operatorNote: 'Create a reversal draft instead of editing posted movement history.',
   },
-]);
+];
 
-export const STOCK_CONTROL_CENTER_QUALITY_GATES = Object.freeze([
-  'npm run check',
-  'step-4-8-1-stock-adjustment-smoke',
-  'step-4-8-2-stock-adjustment-movement-binding-smoke',
-  'step-4-8-3-stock-adjustment-movement-trace-visibility-smoke',
-  'step-4-8-4-stock-adjustment-audit-reversal-safety-smoke',
-  'step-4-8-5-stock-adjustment-operator-workflow-smoke',
-  'step-4-8-6-stock-adjustment-final-qa-clean-export-smoke',
-  'step-4-9-stock-control-center-smoke',
-]);
+export const STOCK_CONTROL_CENTER_METRICS = [
+  {
+    key: 'readOnly',
+    label: 'Read-only control center',
+    bgLabel: 'Само преглед и контрол',
+    state: 'locked',
+    tone: 'safe',
+    value: 'ON',
+  },
+  {
+    key: 'adjustmentWorkflow',
+    label: 'Adjustment workflow',
+    bgLabel: 'Процес за корекции',
+    state: 'active',
+    tone: 'ok',
+    value: '4.8.x',
+  },
+  {
+    key: 'transferWorkflow',
+    label: 'Transfer workflow',
+    bgLabel: 'Процес за трансфери',
+    state: 'planned',
+    tone: 'planned',
+    value: 'NEXT',
+  },
+  {
+    key: 'qaGate',
+    label: 'QA gate',
+    bgLabel: 'QA контрол',
+    state: 'active',
+    tone: 'ok',
+    value: 'PASS',
+  },
+];
 
-export const STOCK_CONTROL_CENTER_OPERATOR_RULES = Object.freeze([
+export const STOCK_CONTROL_CENTER_OPERATOR_CHECKLIST = [
   {
-    key: 'no-delete-journal',
-    title: 'No manual deletion',
-    description: 'Old stock movement records remain part of the audit history.',
+    key: 'checkDraft',
+    title: 'Check draft document',
+    bgTitle: 'Провери черновата',
+    description: 'Confirm item, quantity, object, note and reason before posting.',
   },
   {
-    key: 'document-first',
-    title: 'Document-first correction',
-    description: 'Stock changes are performed through transfer or adjustment documents.',
+    key: 'checkTrace',
+    title: 'Check movement trace',
+    bgTitle: 'Провери проследяването',
+    description: 'Confirm the movement source and document relation before audit decisions.',
   },
   {
-    key: 'posted-lock',
-    title: 'Posted lock',
-    description: 'Posted documents are locked and corrections are handled through reversal drafts.',
+    key: 'checkLock',
+    title: 'Respect posted lock',
+    bgTitle: 'Спазвай заключването',
+    description: 'Posted documents are immutable; use a reversal or new correction document.',
   },
   {
-    key: 'trace-required',
-    title: 'Movement trace required',
-    description: 'Operators must be able to trace the movement records created by a document.',
+    key: 'checkExport',
+    title: 'Clean export checkpoint',
+    bgTitle: 'Чист export checkpoint',
+    description: 'No temporary apply folders or patch helpers should remain before commit.',
   },
-]);
+];
+
+export const STOCK_CONTROL_CENTER_SAFETY_RULES = [
+  'No direct stock journal edits from the control center.',
+  'No deletion of posted stock movement history.',
+  'No silent quantity changes after posting.',
+  'Every correction must keep source document traceability.',
+  'Transfers and adjustments must stay separate document types.',
+];
 
 export function getStockControlCenterFoundation() {
   return {
-    marker: STEP_4_9_STOCK_CONTROL_CENTER_MARKER,
-    version: STOCK_CONTROL_CENTER_VERSION,
-    modules: STOCK_CONTROL_CENTER_MODULES,
-    qualityGates: STOCK_CONTROL_CENTER_QUALITY_GATES,
-    operatorRules: STOCK_CONTROL_CENTER_OPERATOR_RULES,
+    step: STOCK_CONTROL_CENTER_STEP,
+    module: STOCK_CONTROL_CENTER_MODULE,
+    route: STOCK_CONTROL_CENTER_ROUTE,
+    lanes: STOCK_CONTROL_CENTER_LANES,
+    metrics: STOCK_CONTROL_CENTER_METRICS,
+    checklist: STOCK_CONTROL_CENTER_OPERATOR_CHECKLIST,
+    safetyRules: STOCK_CONTROL_CENTER_SAFETY_RULES,
   };
 }

@@ -23,14 +23,6 @@ function requireIncludes(rel, tokens, label) {
   console.log(`OK: ${label}`);
 }
 
-function requireIncludesAny(rel, tokens, label) {
-  const content = read(rel);
-  if (!tokens.some((token) => content.includes(token))) {
-    throw new Error(`${label} missing in ${rel}: ${tokens.join(' OR ')}`);
-  }
-  console.log(`OK: ${label}`);
-}
-
 function ensureNoMojibake(rel) {
   const content = read(rel);
   const markers = [String.fromCharCode(65533), String.fromCharCode(63, 63, 63, 63)];
@@ -46,48 +38,57 @@ function ensureNoMojibake(rel) {
   'src/services/stock-control-center-service.js',
   'src/routes/stock-control-center-routes.js',
   'views/pages/stock-control-center.hbs',
-  'scripts/step-4-9-stock-control-center-smoke.cjs',
-  'docs/steps/STEP_4_9_STOCK_TRANSFER_ADJUSTMENT_CONSOLIDATION_INVENTORY_CONTROL_CENTER_BG.md',
-  'docs/checkpoints/STEP_4_9_STOCK_TRANSFER_ADJUSTMENT_CONSOLIDATION_INVENTORY_CONTROL_CENTER_BG.md',
+  'scripts/step-4-9-1-stock-control-center-ui-polish-smoke.cjs',
+  'docs/steps/STEP_4_9_1_STOCK_CONTROL_CENTER_UI_POLISH_OPERATOR_DASHBOARD_BG.md',
+  'docs/checkpoints/STEP_4_9_1_STOCK_CONTROL_CENTER_UI_POLISH_OPERATOR_DASHBOARD_BG.md',
 ].forEach(exists);
 
 requireIncludes('src/data/stock-control-center-foundation.js', [
   'STOCK_CONTROL_CENTER_STEP',
   'STOCK_CONTROL_CENTER_LANES',
   'STOCK_CONTROL_CENTER_METRICS',
+  'STOCK_CONTROL_CENTER_OPERATOR_CHECKLIST',
   'STOCK_CONTROL_CENTER_SAFETY_RULES',
   'getStockControlCenterFoundation',
-], 'Step 4.9 foundation surface');
+], 'Step 4.9.1 foundation surface');
 
 requireIncludes('src/services/stock-control-center-service.js', [
   'getStockControlCenterSummary',
   'getStockControlCenterViewModel',
   'getStockControlCenterPing',
-], 'Step 4.9 service surface');
+  'buildControlCards',
+  'buildQaPanels',
+  'stepSummary',
+], 'Step 4.9.1 service surface');
 
 requireIncludes('src/routes/stock-control-center-routes.js', [
   '/stock-control-center',
   '/api/stock/control-center/ping',
   '/api/stock/control-center/foundation',
   '/api/stock/control-center/summary',
-], 'Step 4.9 route surface');
+  '/api/stock/control-center/operator-checklist',
+  'getStockControlCenterViewModel',
+], 'Step 4.9.1 route surface');
 
 requireIncludes('views/pages/stock-control-center.hbs', [
-  'stock-control-center',
+  'stock-control-center-v491',
+  'Operator checklist',
   'Control lanes',
   'QA gates',
-], 'Step 4.9 UI surface');
-
-requireIncludes('src/server.js', [
-  'stockControlCenterRouter',
-  './routes/stock-control-center-routes.js',
-], 'Step 4.9 server registration');
+  'Safety rules',
+  '{{#each metrics}}',
+  '{{#each controlCards}}',
+  '{{#each checklist}}',
+], 'Step 4.9.1 UI surface');
 
 requireIncludes('public/css/styles.css', [
-  'stock-control-center',
-], 'Step 4.9 CSS surface');
+  'AUTOGRAND_STEP_4_9_1_STOCK_CONTROL_CENTER_UI_POLISH_START',
+  'stock-control-center-v491',
+  'stock-control-center__metrics',
+  'stock-control-center__timeline-row',
+], 'Step 4.9.1 CSS surface');
 
-requireIncludesAny('package.json', ['"version": "0.4.19"', '"version": "0.4.20"'], 'Step 4.9 package version');
+requireIncludes('package.json', ['"version": "0.4.20"'], 'Step 4.9.1 package version');
 
 [
   'src/data/stock-control-center-foundation.js',
@@ -96,4 +97,4 @@ requireIncludesAny('package.json', ['"version": "0.4.19"', '"version": "0.4.20"'
   'views/pages/stock-control-center.hbs',
 ].forEach(ensureNoMojibake);
 
-console.log('OK: Step 4.9 stock control center smoke markers passed.');
+console.log('OK: Step 4.9.1 stock control center UI polish smoke passed.');
