@@ -102,7 +102,8 @@ getStockAdjustmentFormData,
 import stockControlCenterRouter from './routes/stock-control-center-routes.js';
 
 
-import stockControlDetailInspectorRoutes from "./routes/stock-control-detail-inspector-routes.js";
+import stockControlDetailInspectorRoutes from "./routes/stock-control-detail-inspector-routes.js";
+import inventoryPlanningRoutes from "./routes/inventory-planning-routes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
@@ -1113,6 +1114,9 @@ app.use('/', stockControlDetailInspectorRoutes);
 });
 
 // AutoGrand ERP V2 Step 4.9.3 Stock Control Detail Inspector route mount
+
+// AutoGrand ERP V2 Step 4.12 Inventory Planning route mount
+app.use(inventoryPlanningRoutes);
 
 app.listen(PORT, () => {
   console.log(`AutoGrand ERP V2 is running at http://localhost:${PORT}`);

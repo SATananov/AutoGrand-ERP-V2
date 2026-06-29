@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.35",
+  "version": "0.4.36",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.11.4 Stock Valuation Final QA Clean Module Closure",
+  "description": "AutoGrand ERP V2 Step 4.12 Inventory Planning / Reorder Suggestions Foundation",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

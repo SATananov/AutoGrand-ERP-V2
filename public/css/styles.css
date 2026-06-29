@@ -581,7 +581,7 @@ textarea {
   }
 }
 
-/* Step 1.1 Р Р†Р вЂљРІР‚Сњ Moneta Sales Screens Applied */
+/* Step 1.1 Р Р†Р љРІР‚Сњ Moneta Sales Screens Applied */
 .sales-screen {
   min-height: 100%;
   display: grid;
@@ -850,7 +850,7 @@ textarea {
   }
 }
 
-/* Step 1.2 Р Р†Р вЂљРІР‚Сњ Sales Document Card Foundation */
+/* Step 1.2 Р Р†Р љРІР‚Сњ Sales Document Card Foundation */
 .preview-open-link {
   min-height: 30px;
   padding: 6px 11px;
@@ -1155,7 +1155,7 @@ textarea {
   }
 }
 
-/* Step 1.3 Р Р†Р вЂљРІР‚Сњ Sales Document Card Polish + Real Tabs */
+/* Step 1.3 Р Р†Р љРІР‚Сњ Sales Document Card Polish + Real Tabs */
 .polished-document-header {
   border-left: 5px solid #6ea238;
 }
@@ -1324,7 +1324,7 @@ textarea {
   }
 }
 
-/* Step 2 Р Р†Р вЂљРІР‚Сњ Sales Real CRUD Foundation */
+/* Step 2 Р Р†Р љРІР‚Сњ Sales Real CRUD Foundation */
 .command-link {
   min-height: 30px;
   padding: 7px 11px;
@@ -1445,7 +1445,7 @@ textarea {
   }
 }
 
-/* Step 2.1 Р Р†Р вЂљРІР‚Сњ Sales Line Edit/Delete + Document Safety */
+/* Step 2.1 Р Р†Р љРІР‚Сњ Sales Line Edit/Delete + Document Safety */
 .document-lock-banner {
   display: grid;
   gap: 3px;
@@ -1575,7 +1575,7 @@ textarea {
   }
 }
 
-/* Step 2.2 Р Р†Р вЂљРІР‚Сњ Sales Posting + Stock Movement */
+/* Step 2.2 Р Р†Р љРІР‚Сњ Sales Posting + Stock Movement */
 .document-action-message {
   display: grid;
   gap: 3px;
@@ -1663,7 +1663,7 @@ textarea {
   }
 }
 
-/* Step 2.3 Р Р†Р вЂљРІР‚Сњ Sales Payments + Cash Register */
+/* Step 2.3 Р Р†Р љРІР‚Сњ Sales Payments + Cash Register */
 .payment-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));
@@ -1785,7 +1785,7 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
-/* Step 2.5 Р Р†Р вЂљРІР‚Сњ Desktop Workspace Behavior Layer
+/* Step 2.5 Р Р†Р љРІР‚Сњ Desktop Workspace Behavior Layer
    Structural behavior only: MDI windows, tabs, menu collapse, drag/resize handles. */
 .erp-workspace {
   overflow: hidden;
@@ -2108,7 +2108,7 @@ textarea {
   }
 }
 
-/* Step 2.5.1 Р Р†Р вЂљРІР‚Сњ Step1-like main module tree + sidebar behavior */
+/* Step 2.5.1 Р Р†Р љРІР‚Сњ Step1-like main module tree + sidebar behavior */
 :root {
   --ag-v2-sidebar-width: 505px;
 }
@@ -2447,7 +2447,7 @@ body > .sidebar-dock-button {
 }
 
 .ag-quick-links-list.ag-empty-quick-links::before {
-  content: "Р В РЎСљР РЋР РЏР В РЎВР В Р’В° Р В РўвЂР В РЎвЂўР В Р’В±Р В Р’В°Р В Р вЂ Р В Р’ВµР В Р вЂ¦Р В РЎвЂ Р В Р’В±Р РЋР вЂ°Р РЋР вЂљР В Р’В·Р В РЎвЂ Р В Р вЂ Р РЋР вЂљР РЋР вЂ°Р В Р’В·Р В РЎвЂќР В РЎвЂ";
+  content: "Р В РЎСљР РЋР РЏР В РЎВР В Р’В° Р В РўР В РЎ-Р В Р’В±Р В Р’В°Р В Р  Р В Р’ВµР В Р ...Р В РЎ Р В Р’В±Р РЋР °Р РЋР љР В Р’В·Р В РЎ Р В Р  Р РЋР љР РЋР °Р В Р’В·Р В РЎ"Р В РЎ";
   display: block;
   padding: 8px 0;
   color: #73806f;
@@ -2586,7 +2586,7 @@ body > .sidebar-dock-button {
   font-size: 20px;
 }
 
-/* Step 2.5.2 Р Р†Р вЂљРІР‚Сњ Moneta-like quick links context menu and richer menu icons */
+/* Step 2.5.2 Р Р†Р љРІР‚Сњ Moneta-like quick links context menu and richer menu icons */
 .ag-quick-link-item .tree-icon {
   color: #0a0f0a;
   font-weight: 900;
@@ -2632,7 +2632,7 @@ body > .sidebar-dock-button {
   background: #d4dce5;
 }
 
-/* Step 2.5.3 Р Р†Р вЂљРІР‚Сњ robust visible menu icons and quick-link fix polish */
+/* Step 2.5.3 Р Р†Р љРІР‚Сњ robust visible menu icons and quick-link fix polish */
 .tree-icon[data-ag-glyph]::before {
   content: attr(data-ag-glyph) !important;
 }
@@ -2669,7 +2669,7 @@ body > .sidebar-dock-button {
   min-width: 304px;
 }
 
-/* Step 2.5.4 Р Р†Р вЂљРІР‚Сњ cleaner, user-friendly menu icon polish + floating restore menu tab */
+/* Step 2.5.4 Р Р†Р љРІР‚Сњ cleaner, user-friendly menu icon polish + floating restore menu tab */
 .ag-top-module-summary > .tree-icon,
 .module-group > summary > .tree-icon,
 .tree-leaf > .tree-icon {
@@ -2774,7 +2774,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 2.5.5 Р Р†Р вЂљРІР‚Сњ compact logical bottom statusbar with live clock */
+/* Step 2.5.5 Р Р†Р љРІР‚Сњ compact logical bottom statusbar with live clock */
 .erp-statusbar {
   grid-template-columns: minmax(190px, 0.62fr) minmax(155px, 0.48fr) minmax(170px, 0.52fr) minmax(215px, 0.66fr) minmax(170px, 0.5fr) minmax(175px, 0.5fr) minmax(230px, 0.72fr) !important;
   min-height: 28px !important;
@@ -2877,7 +2877,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 2.5.6 Р Р†Р вЂљРІР‚Сњ Ribbon command layout + Snapshot button */
+/* Step 2.5.6 Р Р†Р љРІР‚Сњ Ribbon command layout + Snapshot button */
 .erp-ribbon {
   height: 116px !important;
   align-items: stretch !important;
@@ -3047,7 +3047,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.5.7 Р Р†Р вЂљРІР‚Сњ Snapshot tools + ribbon button alignment polish */
+/* Step 2.5.7 Р Р†Р љРІР‚Сњ Snapshot tools + ribbon button alignment polish */
 .ribbon-button {
   grid-template-rows: 46px 30px !important;
   align-content: start !important;
@@ -3101,7 +3101,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .ribbon-button[data-ribbon-command="snapshot"]::after {
-  content: "Р Р†РІР‚вЂњРЎвЂў";
+  content: "Р Р†РІР‚"РЎ-";
   position: absolute;
   right: 10px;
   bottom: 22px;
@@ -3183,7 +3183,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6 Р Р†Р вЂљРІР‚Сњ Stock Module Foundation */
+/* Step 2.6 Р Р†Р љРІР‚Сњ Stock Module Foundation */
 .stock-screen,
 .stock-card-screen,
 .stock-form-screen {
@@ -3433,7 +3433,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6.1 Р Р†Р вЂљРІР‚Сњ Company locations / trade objects polish */
+/* Step 2.6.1 Р Р†Р љРІР‚Сњ Company locations / trade objects polish */
 .location-groups-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
@@ -3522,7 +3522,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6.2 Р Р†Р вЂљРІР‚Сњ Shell/menu sync and ribbon layout guard */
+/* Step 2.6.2 Р Р†Р љРІР‚Сњ Shell/menu sync and ribbon layout guard */
 .erp-ribbon {
   height: 116px !important;
   min-height: 116px !important;
@@ -3563,18 +3563,18 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   max-height: 96px !important;
 }
 
-.tree-leaf[data-module-title="Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р В РЎвЂ Р В РЎвЂ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’Вµ"] .tree-icon,
-.tree-leaf[data-module-title="Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂ°Р РЋР вЂљ"] .tree-icon,
-.tree-leaf[data-module-title="Р В РЎСљР В Р’В°Р В Р’В»Р В РЎвЂР РЋРІР‚РЋР В Р вЂ¦Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂ"] .tree-icon,
-.tree-leaf[data-module-title="Р В РЎСљР В РЎвЂўР В Р вЂ Р В Р’В° Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ"] .tree-icon,
-.tree-leaf[data-module-title="Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ"] .tree-icon,
-.tree-leaf[data-module-title="Р В РЎСљР В РЎвЂўР В Р вЂ  Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ"] .tree-icon,
-.tree-leaf[data-module-title="Р В РЎС›Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљР В РЎвЂ Р В РЎвЂ Р В Р’В·Р В Р’В°Р РЋР РЏР В Р вЂ Р В РЎвЂќР В РЎвЂ"] .tree-icon,
-.tree-leaf[data-module-title="Р В Р’ВР РЋР С“Р РЋРІР‚С™Р В РЎвЂўР РЋР вЂљР В РЎвЂР РЋР РЏ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљР В РЎвЂ"] .tree-icon {
+.tree-leaf[data-module-title="Р В РЎєР В Р’В±Р В Р’ВµР В РЎ"Р РЋРІР‚С™Р В РЎ Р В РЎ Р РЋР С“Р В РЎ"Р В Р’В»Р В Р’В°Р В РўР В РЎ-Р В Р  Р В Р’Вµ"] .tree-icon,
+.tree-leaf[data-module-title="Р В Р Р‹Р В РЎ"Р В Р’В»Р В Р’В°Р В РўР В РЎ-Р В Р   Р РЋРІР‚В Р В Р’ВµР В Р ...Р РЋРІР‚С™Р РЋР °Р РЋР љ"] .tree-icon,
+.tree-leaf[data-module-title="Р В РЎСљР В Р’В°Р В Р’В»Р В РЎР РЋРІР‚РЋР В Р ...Р В РЎ-Р РЋР С“Р РЋРІР‚С™Р В РЎ"] .tree-icon,
+.tree-leaf[data-module-title="Р В РЎСљР В РЎ-Р В Р  Р В Р’В° Р РЋР С“Р В РЎ"Р В Р’В»Р В Р’В°Р В РўР В РЎ-Р В Р  Р В Р’В° Р В РЎ"Р В РЎ-Р РЋР љР В Р’ВµР В РЎ"Р РЋРІР‚В Р В РЎР РЋР РЏ"] .tree-icon,
+.tree-leaf[data-module-title="Р В Р Р‹Р В РЎ"Р В Р’В»Р В Р’В°Р В РўР В РЎ-Р В Р  Р В Р’В° Р В РЎ"Р В РЎ-Р РЋР љР В Р’ВµР В РЎ"Р РЋРІР‚В Р В РЎР РЋР РЏ"] .tree-icon,
+.tree-leaf[data-module-title="Р В РЎСљР В РЎ-Р В Р   Р РЋРІР‚С™Р РЋР љР В Р’В°Р В Р ...Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР љ"] .tree-icon,
+.tree-leaf[data-module-title="Р В РЎС›Р РЋР љР В Р’В°Р В Р ...Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР љР В РЎ Р В РЎ Р В Р’В·Р В Р’В°Р РЋР РЏР В Р  Р В РЎ"Р В РЎ"] .tree-icon,
+.tree-leaf[data-module-title="Р В Р’ВР РЋР С“Р РЋРІР‚С™Р В РЎ-Р РЋР љР В РЎР РЋР РЏ Р РЋРІР‚С™Р РЋР љР В Р’В°Р В Р ...Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР љР В РЎ"] .tree-icon {
   color: #184a2f !important;
 }
 
-/* Step 2.7 Р Р†Р вЂљРІР‚Сњ stock transfer document card polish */
+/* Step 2.7 Р Р†Р љРІР‚Сњ stock transfer document card polish */
 .stock-transfer-card .stock-transfer-route-box {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -3609,7 +3609,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.9 Р Р†Р вЂљРІР‚Сњ Price list working screen */
+/* Step 2.9 Р Р†Р љРІР‚Сњ Price list working screen */
 .price-workbench {
   display: grid;
   gap: 12px;
@@ -4084,7 +4084,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.9.1 Р Р†Р вЂљРІР‚Сњ Price list availability panel polish */
+/* Step 2.9.1 Р Р†Р љРІР‚Сњ Price list availability panel polish */
 .price-workbench {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
@@ -4254,7 +4254,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .availability-table .current-location td:first-child strong::after {
-  content: ' Р вЂ™Р’В· Р РЋРІР‚С™Р В Р’ВµР В РЎвЂќР РЋРЎвЂњР РЋРІР‚В°';
+  content: ' Р 'Р’В· Р РЋРІР‚С™Р В Р’ВµР В РЎ"Р РЋРЎ"Р РЋРІР‚В°';
   color: #51813a;
   font-size: 11px;
 }
@@ -4401,7 +4401,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.0 Р Р†Р вЂљРІР‚Сњ Transfer request basket and shelf confirmation workflow */
+/* Step 3.0 Р Р†Р љРІР‚Сњ Transfer request basket and shelf confirmation workflow */
 .price-detail-zone {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -4580,13 +4580,13 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .request-row.needs-action td:first-child::before {
-  content: 'Р Р†РІР‚вЂќР РЏ';
+  content: 'Р Р†РІР‚"Р РЏ';
   color: #c76b5d;
   margin-right: 5px;
 }
 
 .request-row.missing td:first-child::before {
-  content: 'Р В РІР‚С”Р В Р’ВР В РЎСџР В Р Р‹Р В РЎвЂ™';
+  content: 'Р В РІР‚С”Р В Р’ВР В РЎСџР В Р Р‹Р В РЎ'';
   display: inline-flex;
   margin-right: 8px;
   padding: 2px 6px;
@@ -4620,7 +4620,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.1 Р Р†Р вЂљРІР‚Сњ Transfer requests center */
+/* Step 3.1 Р Р†Р љРІР‚Сњ Transfer requests center */
 .transfer-center-screen {
   display: grid;
   gap: 14px;
@@ -4993,7 +4993,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.2 Р Р†Р вЂљРІР‚Сњ Transfer receiving actions and object-based labels */
+/* Step 3.2 Р Р†Р љРІР‚Сњ Transfer receiving actions and object-based labels */
 .transfer-center-cards {
   grid-template-columns: repeat(6, minmax(145px, 1fr));
 }
@@ -5050,7 +5050,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .transfer-row-actions .ag-transfer-receive-print::before {
-  content: 'РЎР‚РЎСџРІР‚вЂњР РѓР С—РЎвЂР РЏ';
+  content: 'РЎР‚РЎСџРІР‚"Р РѓР С—РЎР РЏ';
   margin-right: 5px;
 }
 
@@ -5083,7 +5083,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.3 Р Р†Р вЂљРІР‚Сњ Transfer in transit status and request comments */
+/* Step 3.3 Р Р†Р љРІР‚Сњ Transfer in transit status and request comments */
 .transfer-request-note-field {
   display: grid;
   gap: 5px;
@@ -5141,7 +5141,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 
 .transfer-center-row.tone-in-transit td:first-child::before,
 .transfer-center-row.tone-receive td:first-child::before {
-  content: 'Р В РІР‚в„ў Р В РЎСџР В Р вЂћР В РЎС›';
+  content: 'Р В РІР‚в„ў Р В РЎСџР В Р ћР В РЎС›';
   display: inline-flex;
   margin-right: 8px;
   padding: 2px 7px;
@@ -5154,11 +5154,11 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .transfer-row-actions .ag-transfer-send::before {
-  content: 'Р Р†РІР‚В РІР‚вЂќ';
+  content: 'Р Р†РІР‚В РІР‚"';
   margin-right: 5px;
 }
 
-/* Step 3.4 Р Р†Р вЂљРІР‚Сњ Transfer center polish + status counters */
+/* Step 3.4 Р Р†Р љРІР‚Сњ Transfer center polish + status counters */
 .stock-transfer-alerts-shell {
   display: grid;
   gap: 10px;
@@ -5400,7 +5400,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.5 Р Р†Р вЂљРІР‚Сњ Transfer Print Document / Transfer Slip */
+/* Step 3.5 Р Р†Р љРІР‚Сњ Transfer Print Document / Transfer Slip */
 .transfer-print-body {
   min-height: 100vh;
   margin: 0;
@@ -5916,8 +5916,8 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.5.3 Р Р†Р вЂљРІР‚Сњ Transfer Print Forms and Preview Dialog */
-/* Step 3.5.4 Р Р†Р вЂљРІР‚Сњ Transfer Print Compact Picking Polish */
+/* Step 3.5.3 Р Р†Р љРІР‚Сњ Transfer Print Forms and Preview Dialog */
+/* Step 3.5.4 Р Р†Р љРІР‚Сњ Transfer Print Compact Picking Polish */
 .transfer-print-profile-bar {
   display: flex;
   flex-wrap: wrap;
@@ -6359,7 +6359,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3 Р Р†Р вЂљРІР‚Сњ Login Context like Moneta */
+/* Step 4.3 Р Р†Р љРІР‚Сњ Login Context like Moneta */
 .ag-login-body {
   min-height: 100vh;
   margin: 0;
@@ -6621,7 +6621,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3.1 Р Р†Р вЂљРІР‚Сњ Login Context Role Visibility Polish */
+/* Step 4.3.1 Р Р†Р љРІР‚Сњ Login Context Role Visibility Polish */
 .titlebar-context {
   display: grid;
   justify-items: end;
@@ -6659,7 +6659,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .titlebar-context .titlebar-role::before {
-  content: "Р В Р’В Р В РЎвЂўР В Р’В»Р РЋР РЏ: ";
+  content: "Р В Р’В Р В РЎ-Р В Р’В»Р РЋР РЏ: ";
   color: #6b7d68;
   font-weight: 800;
 }
@@ -6677,7 +6677,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 
 .erp-statusbar .statusbar-user { min-width: 240px; }
 
-/* Step 4.2.4 Р Р†Р вЂљРІР‚Сњ role permission guard polish */
+/* Step 4.2.4 Р Р†Р љРІР‚Сњ role permission guard polish */
 .titlebar-permission-scope {
   display: inline-flex;
   align-items: center;
@@ -6821,7 +6821,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3 Р Р†Р вЂљРІР‚Сњ catalog foundation screen */
+/* Step 4.3 Р Р†Р љРІР‚Сњ catalog foundation screen */
 .ag-catalog-page {
   display: grid;
   gap: 18px;
@@ -7400,7 +7400,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.5 Р Р†Р вЂљРІР‚Сњ Global Document Engine */
+/* Step 4.5 Р Р†Р љРІР‚Сњ Global Document Engine */
 .document-engine-page {
   display: grid;
   gap: 18px;
@@ -7521,7 +7521,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 4.6 Р Р†Р вЂљРІР‚Сњ Global Print Engine */
+/* Step 4.6 Р Р†Р љРІР‚Сњ Global Print Engine */
 .ag-print-engine-page .ag-engine-status {
   margin: 12px 0 18px;
   padding: 10px 12px;
@@ -8154,8 +8154,8 @@ AutoGrand compatibility markers for legacy checker:
 - Step 4.4 grid preferences version label
 - appVersion: 'v0.4.8'
 - 0.4.8
-- Р В Р’В¦Р В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂ
-- Р В Р’В Р В Р’ВµР В РЎвЂ“Р В РЎвЂР В РЎвЂўР В Р вЂ¦Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂ Р В Р Р‹Р РЋРІР‚С™Р В Р’В°Р РЋР вЂљР В Р’В° Р В РІР‚вЂќР В Р’В°Р В РЎвЂ“Р В РЎвЂўР РЋР вЂљР В Р’В°
+- Р В Р’В¦Р В Р’ВµР В Р ...Р РЋРІР‚С™Р РЋР љР В Р’В°Р В Р’В»Р В Р’ВµР В Р ... Р РЋР С“Р В РЎ"Р В Р’В»Р В Р’В°Р В Рў
+- Р В Р’В Р В Р’ВµР В РЎ-Р В РЎР В РЎ-Р В Р ...Р В Р’В°Р В Р’В»Р В Р’ВµР В Р ... Р РЋР С“Р В РЎ"Р В Р’В»Р В Р’В°Р В Рў Р В Р Р‹Р РЋРІР‚С™Р В Р’В°Р РЋР љР В Р’В° Р В РІР‚"Р В Р’В°Р В РЎ-Р В РЎ-Р РЋР љР В Р’В°
 - Step 4.1 Stara Zagora separate central/regional objects
 - canSell: false
 - canTransfer: false
@@ -8168,7 +8168,7 @@ AutoGrand compatibility markers for legacy checker:
 - canDispatchTransferText
 - canReceiveTransferText
 - Step 4.1 transfer capability labels
-- Р В Р’В¤Р В РЎвЂР РЋР вЂљР В РЎВР В Р’В° Р Р†РІР‚В РІР‚в„ў Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™ Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В РЎвЂўР РЋРІР‚С™Р РЋР вЂљР В Р’ВµР В Р’В±Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В Р’В» Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В Р’В°Р РЋР вЂљР В РЎвЂўР В Р’В»Р В Р’В°
+- Р В Р’В¤Р В РЎР РЋР љР В РЎВР В Р’В° Р Р†РІР‚В РІР‚в„ў Р В РЎєР В Р’В±Р В Р’ВµР В РЎ"Р РЋРІР‚С™ Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В РЎ-Р РЋРІР‚С™Р РЋР љР В Р’ВµР В Р’В±Р В РЎР РЋРІР‚С™Р В Р’ВµР В Р’В» Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В Р’В°Р РЋР љР В РЎ-Р В Р’В»Р В Р’В°
 - 0.4.1
 - Step 4.1 docs and checkpoint
 - AUTOGRAND_ROLE_TEMPLATES
@@ -8193,15 +8193,15 @@ AutoGrand compatibility markers for legacy checker:
 - InventoryPackage.bpl
 - DevicePackage.bpl
 - Step 4.0 Moneta reference module audit
-- Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р В РЎвЂ
-- Р В РЎСџР В РЎвЂўР РЋРІР‚С™Р РЋР вЂљР В Р’ВµР В Р’В±Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В Р’В»Р В РЎвЂ
-- Р В РЎСџР РЋР вЂљР В РЎвЂР В Р вЂ¦Р РЋРІР‚С™Р В Р’ВµР РЋР вЂљ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋРІР‚С›Р В РЎвЂР В Р’В»Р В РЎвЂ
-- Р В РЎСљР В РЎвЂўР В РЎВР В Р’ВµР РЋР вЂљР В Р’В°Р РЋРІР‚С™Р В РЎвЂўР РЋР вЂљР В РЎвЂ
+- Р В РЎ'Р РЋР љР РЋРІР‚С™Р В РЎР В РЎ"Р РЋРЎ"Р В Р’В»Р В РЎ
+- Р В РЎСџР В РЎ-Р РЋРІР‚С™Р РЋР љР В Р’ВµР В Р’В±Р В РЎР РЋРІР‚С™Р В Р’ВµР В Р’В»Р В РЎ
+- Р В РЎСџР РЋР љР В РЎР В Р ...Р РЋРІР‚С™Р В Р’ВµР РЋР љ Р В РЎ-Р РЋР љР В РЎ-Р РЋРІР‚С›Р В РЎР В Р’В»Р В РЎ
+- Р В РЎСљР В РЎ-Р В РЎВР В Р’ВµР РЋР љР В Р’В°Р РЋРІР‚С™Р В РЎ-Р РЋР љР В РЎ
 - Step 4.0 foundation data plan
 - Step 4.1
 - Step 4.8
-- Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚В¦Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋРЎвЂњР РЋР вЂљР В Р’ВµР В Р вЂ¦ checkpoint
-- Р В Р’В°Р РЋР вЂљР РЋРІР‚В¦Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋРЎвЂњР РЋР вЂљР В Р’ВµР В Р вЂ¦ checkpoint
+- Р В РЎ'Р РЋР љР РЋРІР‚В¦Р В РЎР РЋРІР‚С™Р В Р’ВµР В РЎ"Р РЋРІР‚С™Р РЋРЎ"Р РЋР љР В Р’ВµР В Р ... checkpoint
+- Р В Р’В°Р РЋР љР РЋРІР‚В¦Р В РЎР РЋРІР‚С™Р В Р’ВµР В РЎ"Р РЋРІР‚С™Р РЋРЎ"Р РЋР љР В Р’ВµР В Р ... checkpoint
 - Step 4.0 implementation sequence and checkpoint
 - screen.hasDocumentCard
 - generic document browse flag
@@ -9618,3 +9618,248 @@ button.ag-stock-closure-action {
   }
 }
 /* END AG STEP 4.9.5 STOCK CONTROL FINAL QA CLOSURE */
+
+/* AutoGrand ERP V2 Step 4.12 Inventory Planning START */
+.ag-step-412 {
+  padding: 18px;
+  color: #1f3420;
+}
+
+.ag-step-412__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 18px;
+  align-items: stretch;
+  border: 1px solid rgba(68, 122, 44, 0.24);
+  background: linear-gradient(135deg, #f4f9ee 0%, #e6f0da 100%);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 28px rgba(38, 74, 32, 0.08);
+}
+
+.ag-step-412__guard-card {
+  border: 1px solid rgba(61, 107, 43, 0.24);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ag-step-412__guard-card strong,
+.ag-step-412__metric strong {
+  color: #285719;
+}
+
+.ag-step-412__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.ag-step-412__metric {
+  border: 1px solid rgba(68, 122, 44, 0.22);
+  background: #fbfff7;
+  border-radius: 14px;
+  padding: 14px;
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ag-step-412__metric span,
+.ag-step-412__metric small,
+.ag-step-412__list small,
+.ag-step-412__table small {
+  color: #61745c;
+}
+
+.ag-step-412__metric strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ag-step-412__metric.is-warning {
+  background: #fff9e8;
+}
+
+.ag-step-412__metric.is-danger {
+  background: #fff1ee;
+}
+
+.ag-step-412__metric.is-muted {
+  background: #f4f6f1;
+}
+
+.ag-step-412__manager-panel {
+  border: 1px solid rgba(68, 122, 44, 0.22);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #eef7e8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ag-step-412__status-pill,
+.ag-step-412__readonly-badge,
+.ag-step-412__risk {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ag-step-412__status-pill,
+.ag-step-412__readonly-badge {
+  border: 1px solid rgba(54, 110, 36, 0.25);
+  color: #2c651f;
+  background: #f7fff1;
+}
+
+.ag-step-412__card {
+  margin-bottom: 16px;
+}
+
+.ag-step-412__table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(68, 122, 44, 0.18);
+  border-radius: 12px;
+}
+
+.ag-step-412__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+  background: #ffffff;
+}
+
+.ag-step-412__table th,
+.ag-step-412__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e4ecde;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.ag-step-412__table th {
+  background: #e9f3e1;
+  color: #294522;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ag-step-412__table td small,
+.ag-step-412__table td span {
+  display: block;
+}
+
+.ag-step-412__table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ag-step-412__table tr.risk-critical {
+  background: #fff3ef;
+}
+
+.ag-step-412__table tr.risk-warning {
+  background: #fff9e8;
+}
+
+.ag-step-412__table tr.risk-watch {
+  background: #f8fbf4;
+}
+
+.ag-step-412__risk--critical {
+  color: #8f2417;
+  background: #ffe1da;
+}
+
+.ag-step-412__risk--warning {
+  color: #856000;
+  background: #fff0b9;
+}
+
+.ag-step-412__risk--watch {
+  color: #335f1d;
+  background: #e7f4dc;
+}
+
+.ag-step-412__risk--ok {
+  color: #2a6726;
+  background: #dff2d6;
+}
+
+.ag-step-412__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ag-step-412__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.ag-step-412__list li {
+  border: 1px solid #e0ead8;
+  background: #fbfff7;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.ag-step-412__empty {
+  border: 1px dashed #b8ccb0;
+  background: #f8fbf5;
+  border-radius: 12px;
+  padding: 12px;
+  color: #5f7258;
+}
+
+.ag-step-412__footer-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid #d7e4ce;
+  padding-top: 12px;
+  color: #4d6147;
+}
+
+.ag-step-412__footer-note span {
+  border: 1px solid #d7e4ce;
+  background: #f7fbf2;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 980px) {
+  .ag-step-412__hero,
+  .ag-step-412__summary-grid,
+  .ag-step-412__split {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-412__manager-panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+/* AutoGrand ERP V2 Step 4.12 Inventory Planning END */
