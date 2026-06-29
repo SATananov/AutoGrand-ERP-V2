@@ -286,11 +286,22 @@ function normalizeFilters(query = {}) {
   const valuationMode = ['last-in', 'weighted-average', 'movement-value'].includes(String(query.valuationMode || ''))
     ? String(query.valuationMode)
     : 'weighted-average';
-  const stockMode = ['all', 'positive', 'negative', 'zero', 'missing-cost'].includes(String(query.stockMode || ''))
+  const stockMode = ['all', 'positive', 'negative', 'zero', 'missing-cost', 'high-value'].includes(String(query.stockMode || ''))
     ? String(query.stockMode)
     : 'all';
+  const confidenceMode = ['all', 'high', 'medium', 'missing'].includes(String(query.confidenceMode || ''))
+    ? String(query.confidenceMode)
+    : 'all';
+  const managerFocus = ['all', 'risk', 'missing-cost', 'negative', 'high-value'].includes(String(query.managerFocus || ''))
+    ? String(query.managerFocus)
+    : 'all';
+  const valueBand = ['all', 'critical', 'high', 'medium', 'low', 'zero'].includes(String(query.valueBand || ''))
+    ? String(query.valueBand)
+    : 'all';
+  const valueMin = query.valueMin === undefined || query.valueMin === '' ? null : roundMoney(query.valueMin);
+  const valueMax = query.valueMax === undefined || query.valueMax === '' ? null : roundMoney(query.valueMax);
   const limit = Math.max(10, Math.min(1000, asNumber(query.limit, 250)));
-  return { from, to, itemId, locationId, valuationMode, stockMode, limit };
+  return { from, to, itemId, locationId, valuationMode, stockMode, confidenceMode, managerFocus, valueBand, valueMin, valueMax, limit };
 }
 
 function buildWhere(meta, filters, options = {}) {
@@ -401,6 +412,65 @@ function resolveRowCost(row, meta) {
   return { unitCost: 0, totalValue: 0, source: '', confidence: 'missing' };
 }
 
+
+function getCostConfidenceLevel(confidence, valuedMovements = 0, movements = 0) {
+  if (confidence === 'missing' || valuedMovements <= 0) {
+    return { level: 'missing', label: 'Липсва', score: 0 };
+  }
+  if (confidence === 'direct-unit') {
+    return { level: 'high', label: 'Висока', score: 100 };
+  }
+  const ratio = movements > 0 ? valuedMovements / movements : 0;
+  if (ratio >= 0.75) return { level: 'high', label: 'Висока', score: 90 };
+  return { level: 'medium', label: 'Средна', score: Math.max(45, Math.round(ratio * 100)) };
+}
+
+function getMovementConfidenceLevel(confidence) {
+  if (confidence === 'direct-unit') return { level: 'high', label: 'Висока', score: 100 };
+  if (confidence === 'derived-total') return { level: 'medium', label: 'Средна', score: 70 };
+  return { level: 'missing', label: 'Липсва', score: 0 };
+}
+
+function getValueBand(value) {
+  const absValue = Math.abs(asNumber(value, 0));
+  if (absValue === 0) return 'zero';
+  if (absValue >= 10000) return 'critical';
+  if (absValue >= 3000) return 'high';
+  if (absValue >= 500) return 'medium';
+  return 'low';
+}
+
+function getValueBandLabel(valueBand) {
+  const labels = {
+    critical: 'Критична стойност',
+    high: 'Висока стойност',
+    medium: 'Средна стойност',
+    low: 'Ниска стойност',
+    zero: 'Нулева стойност'
+  };
+  return labels[valueBand] || 'Всички стойности';
+}
+
+function buildManagerFlag(row) {
+  if (row.missingCost) return 'Липсва себестойност';
+  if (row.netQuantity < 0) return 'Отрицателна наличност';
+  if (row.valueBand === 'critical' || row.valueBand === 'high') return 'Висока стойност';
+  if (row.costConfidenceLevel === 'medium') return 'Средна увереност';
+  return 'OK';
+}
+
+function passesManagerFilters(row, filters) {
+  if (filters.confidenceMode !== 'all' && row.costConfidenceLevel !== filters.confidenceMode) return false;
+  if (filters.valueBand !== 'all' && row.valueBand !== filters.valueBand) return false;
+  if (filters.valueMin !== null && Math.abs(row.stockValue) < filters.valueMin) return false;
+  if (filters.valueMax !== null && Math.abs(row.stockValue) > filters.valueMax) return false;
+  if (filters.managerFocus === 'missing-cost') return row.missingCost;
+  if (filters.managerFocus === 'negative') return row.netQuantity < 0;
+  if (filters.managerFocus === 'high-value') return row.valueBand === 'critical' || row.valueBand === 'high';
+  if (filters.managerFocus === 'risk') return row.missingCost || row.netQuantity < 0 || row.valueBand === 'critical' || row.costConfidenceLevel !== 'high';
+  return true;
+}
+
 function buildSourceDocumentHref(row, meta) {
   const documentId = meta.movement.documentCol ? displayValue(row[meta.movement.documentCol], '') : '';
   const documentNo = meta.movement.documentNoCol ? displayValue(row[meta.movement.documentNoCol], '') : '';
@@ -432,6 +502,9 @@ async function prepareCostRows(meta, rawRows) {
       movementValue: cost.totalValue,
       costSource: cost.source,
       costConfidence: cost.confidence,
+      costConfidenceLevel: getMovementConfidenceLevel(cost.confidence).level,
+      costConfidenceLabel: getMovementConfidenceLevel(cost.confidence).label,
+      costConfidenceScore: getMovementConfidenceLevel(cost.confidence).score,
       documentId: meta.movement.documentCol ? displayValue(row[meta.movement.documentCol], '') : '',
       documentNo: meta.movement.documentNoCol ? displayValue(row[meta.movement.documentNoCol], '') : '',
       documentHref: buildSourceDocumentHref(row, meta),
@@ -490,7 +563,9 @@ function aggregateValuation(rows, filters) {
     if (!Number.isFinite(unitCost) || unitCost < 0) unitCost = Math.abs(unitCost) || 0;
     const stockValue = group.netQuantity * unitCost;
     const missingCost = group.valuedMovements === 0;
-    return {
+    const confidence = getCostConfidenceLevel(group.costConfidence, group.valuedMovements, group.movements);
+    const valueBand = getValueBand(stockValue);
+    const roundedRow = {
       ...group,
       incoming: roundMoney(group.incoming),
       outgoing: roundMoney(group.outgoing),
@@ -500,14 +575,22 @@ function aggregateValuation(rows, filters) {
       unitCost: roundMoney(unitCost),
       stockValue: roundMoney(stockValue),
       missingCost,
+      costConfidenceLevel: confidence.level,
+      costConfidenceLabel: confidence.label,
+      costConfidenceScore: confidence.score,
+      valueBand,
+      valueBandLabel: getValueBandLabel(valueBand),
       valuationMode: filters.valuationMode
     };
+    roundedRow.managerFlag = buildManagerFlag(roundedRow);
+    return roundedRow;
   }).filter((row) => {
-    if (filters.stockMode === 'positive') return row.netQuantity > 0;
-    if (filters.stockMode === 'negative') return row.netQuantity < 0;
-    if (filters.stockMode === 'zero') return row.netQuantity === 0;
-    if (filters.stockMode === 'missing-cost') return row.missingCost;
-    return true;
+    if (filters.stockMode === 'positive' && row.netQuantity <= 0) return false;
+    if (filters.stockMode === 'negative' && row.netQuantity >= 0) return false;
+    if (filters.stockMode === 'zero' && row.netQuantity !== 0) return false;
+    if (filters.stockMode === 'missing-cost' && !row.missingCost) return false;
+    if (filters.stockMode === 'high-value' && !(row.valueBand === 'critical' || row.valueBand === 'high')) return false;
+    return passesManagerFilters(row, filters);
   }).sort((a, b) => Math.abs(b.stockValue) - Math.abs(a.stockValue));
 }
 
@@ -524,7 +607,9 @@ function buildLocationSummary(valuationRows) {
         negativeValue: 0,
         netQuantity: 0,
         positions: 0,
-        missingCostPositions: 0
+        missingCostPositions: 0,
+        highValuePositions: 0,
+        riskPositions: 0
       });
     }
     const group = groups.get(key);
@@ -534,13 +619,16 @@ function buildLocationSummary(valuationRows) {
     group.netQuantity += row.netQuantity;
     group.positions += 1;
     if (row.missingCost) group.missingCostPositions += 1;
+    if (row.valueBand === 'critical' || row.valueBand === 'high') group.highValuePositions += 1;
+    if (row.managerFlag !== 'OK') group.riskPositions += 1;
   }
   return [...groups.values()].map((row) => ({
     ...row,
     stockValue: roundMoney(row.stockValue),
     positiveValue: roundMoney(row.positiveValue),
     negativeValue: roundMoney(row.negativeValue),
-    netQuantity: roundMoney(row.netQuantity)
+    netQuantity: roundMoney(row.netQuantity),
+    missingCostRate: row.positions ? Math.round((row.missingCostPositions / row.positions) * 100) : 0
   })).sort((a, b) => Math.abs(b.stockValue) - Math.abs(a.stockValue));
 }
 
@@ -551,6 +639,11 @@ function summarizeValuation(rows, meta, filters) {
   const missingCostPositions = rows.filter((row) => row.missingCost).length;
   const negativePositions = rows.filter((row) => row.netQuantity < 0).length;
   const zeroPositions = rows.filter((row) => row.netQuantity === 0).length;
+  const highValuePositions = rows.filter((row) => row.valueBand === 'critical' || row.valueBand === 'high').length;
+  const riskPositions = rows.filter((row) => row.managerFlag !== 'OK').length;
+  const highConfidencePositions = rows.filter((row) => row.costConfidenceLevel === 'high').length;
+  const mediumConfidencePositions = rows.filter((row) => row.costConfidenceLevel === 'medium').length;
+  const missingConfidencePositions = rows.filter((row) => row.costConfidenceLevel === 'missing').length;
   const costCoverage = rows.length ? Math.round(((rows.length - missingCostPositions) / rows.length) * 100) : 0;
   return {
     generatedAt: new Date().toISOString(),
@@ -564,6 +657,11 @@ function summarizeValuation(rows, meta, filters) {
     missingCostPositions,
     negativePositions,
     zeroPositions,
+    highValuePositions,
+    riskPositions,
+    highConfidencePositions,
+    mediumConfidencePositions,
+    missingConfidencePositions,
     costCoverage,
     safety: 'Read-only valuation view. No posting, reversal, correction or stock journal write operation is executed.',
     diagnostics: buildDiagnostics(meta)
@@ -650,7 +748,29 @@ export async function getStockValuationOptions(query = {}) {
       { id: 'positive', name: 'Само положителни' },
       { id: 'negative', name: 'Само отрицателни' },
       { id: 'zero', name: 'Нулеви наличности' },
-      { id: 'missing-cost', name: 'Липсва себестойност' }
+      { id: 'missing-cost', name: 'Липсва себестойност' },
+      { id: 'high-value', name: 'Висока стойност' }
+    ],
+    confidenceModes: [
+      { id: 'all', name: 'Всички нива' },
+      { id: 'high', name: 'Висока увереност' },
+      { id: 'medium', name: 'Средна увереност' },
+      { id: 'missing', name: 'Липсва себестойност' }
+    ],
+    managerFocusModes: [
+      { id: 'all', name: 'Всички позиции' },
+      { id: 'risk', name: 'Само рискови' },
+      { id: 'missing-cost', name: 'Липсва себестойност' },
+      { id: 'negative', name: 'Отрицателни наличности' },
+      { id: 'high-value', name: 'Висока стойност' }
+    ],
+    valueBands: [
+      { id: 'all', name: 'Всички стойности' },
+      { id: 'critical', name: 'Критична стойност' },
+      { id: 'high', name: 'Висока стойност' },
+      { id: 'medium', name: 'Средна стойност' },
+      { id: 'low', name: 'Ниска стойност' },
+      { id: 'zero', name: 'Нулева стойност' }
     ],
     diagnostics: buildDiagnostics(meta)
   };
@@ -688,6 +808,9 @@ export async function getStockValuationSnapshot(query = {}) {
       valuation.summary.negativePositions > 0
         ? `${valuation.summary.negativePositions} позиции са с отрицателна наличност.`
         : 'Няма отрицателни позиции в избраната справка.',
+      valuation.summary.riskPositions > 0
+        ? `${valuation.summary.riskPositions} позиции са маркирани за управителски контрол.`
+        : 'Няма позиции с управителски риск за избраните филтри.',
       'Справката е read-only и не променя складови движения, документи или journal записи.'
     ]
   };

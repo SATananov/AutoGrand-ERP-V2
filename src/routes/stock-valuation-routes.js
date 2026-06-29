@@ -11,6 +11,7 @@ const router = express.Router();
 
 router.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-AutoGrand-Read-Only', 'stock-valuation');
   next();
 });
 
@@ -25,7 +26,7 @@ function sendError(res, error) {
 
 router.get('/stock-valuation', (req, res) => {
   res.render('pages/stock-valuation', {
-    title: 'Стойност на склада',
+    title: 'Стойност на склада · Cost Confidence',
     activeModule: 'stock-valuation',
     pageClass: 'stock-valuation-page'
   });

@@ -292,3 +292,123 @@
     color: #111;
   }
 }
+
+
+/* Step 4.11.1 UI polish: cost confidence and manager filters */
+.stock-valuation-quick-periods {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stock-valuation-quick-periods button {
+  border: 1px solid rgba(15, 91, 56, 0.28);
+  background: rgba(231, 246, 237, 0.88);
+  color: #0f5b38;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stock-valuation-quick-periods button:hover {
+  background: rgba(15, 91, 56, 0.1);
+}
+
+.stock-valuation-manager-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.stock-valuation-manager-strip article {
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,249,244,0.96));
+  border: 1px solid rgba(15, 91, 56, 0.16);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(15, 91, 56, 0.08);
+  padding: 14px;
+}
+
+.stock-valuation-manager-strip span,
+.stock-valuation-manager-strip em {
+  display: block;
+  color: #537361;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.stock-valuation-manager-strip strong {
+  display: block;
+  color: #0f5b38;
+  font-size: 24px;
+  margin: 4px 0;
+}
+
+.valuation-badge,
+.valuation-band,
+.valuation-manager-flag {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(15, 91, 56, 0.18);
+}
+
+.valuation-badge-high,
+.valuation-manager-ok {
+  background: rgba(219, 244, 228, 0.95);
+  color: #0e6b3d;
+}
+
+.valuation-badge-medium,
+.valuation-band-medium,
+.valuation-band-high,
+.valuation-manager-warn {
+  background: rgba(255, 244, 204, 0.95);
+  color: #8a5b00;
+}
+
+.valuation-badge-missing,
+.valuation-band-critical {
+  background: rgba(255, 226, 226, 0.95);
+  color: #9a1f1f;
+}
+
+.valuation-band-low,
+.valuation-band-zero {
+  background: rgba(232, 238, 235, 0.95);
+  color: #385947;
+}
+
+@media print {
+  .stock-valuation-quick-periods,
+  .stock-valuation-filter-card,
+  .stock-valuation-tabs,
+  .stock-valuation-actions a,
+  .stock-valuation-actions button {
+    display: none !important;
+  }
+
+  .stock-valuation-manager-strip {
+    grid-template-columns: repeat(4, 1fr);
+    page-break-inside: avoid;
+  }
+}
+
+@media (max-width: 900px) {
+  .stock-valuation-manager-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .stock-valuation-manager-strip {
+    grid-template-columns: 1fr;
+  }
+}

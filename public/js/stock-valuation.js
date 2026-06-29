@@ -40,6 +40,24 @@
     return String(value);
   }
 
+  function confidenceBadge(row) {
+    const level = row.costConfidenceLevel || (row.missingCost ? 'missing' : 'medium');
+    const label = row.costConfidenceLabel || (level === 'high' ? 'Висока' : level === 'medium' ? 'Средна' : 'Липсва');
+    const score = Number(row.costConfidenceScore || 0);
+    return `<span class="valuation-badge valuation-badge-${level}">${text(label)}${score ? ` · ${score}%` : ''}</span>`;
+  }
+
+  function valueBandBadge(row) {
+    const band = row.valueBand || 'zero';
+    return `<span class="valuation-band valuation-band-${band}">${text(row.valueBandLabel || band)}</span>`;
+  }
+
+  function managerFlagBadge(row) {
+    const flag = row.managerFlag || 'OK';
+    const level = flag === 'OK' ? 'ok' : 'warn';
+    return `<span class="valuation-manager-flag valuation-manager-${level}">${text(flag)}</span>`;
+  }
+
   function setStatus(message, type = '') {
     if (!statusEl) return;
     statusEl.textContent = message;
@@ -91,7 +109,10 @@
       positiveStockValue: fmtNumber(summary.positiveStockValue),
       negativeStockValue: fmtNumber(summary.negativeStockValue),
       missingCostPositions: fmtQty(summary.missingCostPositions),
-      costCoverage: `${summary.costCoverage || 0}%`
+      costCoverage: `${summary.costCoverage || 0}%`,
+      highConfidencePositions: fmtQty(summary.highConfidencePositions),
+      mediumConfidencePositions: fmtQty(summary.mediumConfidencePositions),
+      riskPositions: fmtQty(summary.riskPositions)
     };
     Object.entries(map).forEach(([key, value]) => {
       const el = root.querySelector(`[data-kpi="${key}"]`);
@@ -122,13 +143,25 @@
     if (notes) {
       notes.innerHTML = (snapshot.notes || []).map((note) => `<article>${text(note)}</article>`).join('');
     }
+    const managerStrip = root.querySelector('[data-manager-strip]');
+    if (managerStrip) {
+      const summary = snapshot.summary || {};
+      managerStrip.innerHTML = [
+        ['Manager risk', fmtQty(summary.riskPositions), 'Позиции за контрол'],
+        ['High value', fmtQty(summary.highValuePositions), 'Висока/критична стойност'],
+        ['Missing cost', fmtQty(summary.missingCostPositions), 'Без себестойност'],
+        ['Coverage', `${summary.costCoverage || 0}%`, 'Покритие на себестойността']
+      ].map(([title, value, hint]) => `<article><span>${title}</span><strong>${value}</strong><em>${hint}</em></article>`).join('');
+    }
     renderTable('[data-high-value-table]', snapshot.highValue || [], (row) => [
       { value: row.itemLabel },
       { value: row.locationLabel },
       { value: fmtQty(row.netQuantity), className: 'num' },
       { value: fmtNumber(row.unitCost), className: 'num' },
       { value: fmtNumber(row.stockValue), className: 'num' },
-      { value: row.missingCost ? 'Липсва' : row.costConfidence }
+      { html: confidenceBadge(row) },
+      { html: valueBandBadge(row) },
+      { html: managerFlagBadge(row) }
     ]);
   }
 
@@ -145,7 +178,9 @@
       { value: fmtNumber(row.incomingValue), className: 'num' },
       { value: fmtNumber(row.outgoingValue), className: 'num' },
       { value: row.lastMovementDate },
-      { value: row.missingCost ? 'Липсва' : row.costConfidence }
+      { html: confidenceBadge(row) },
+      { html: valueBandBadge(row) },
+      { html: managerFlagBadge(row) }
     ]);
   }
 
@@ -160,7 +195,8 @@
       { value: fmtNumber(row.negativeValue), className: 'num' },
       { value: fmtQty(row.netQuantity), className: 'num' },
       { value: fmtQty(row.positions), className: 'num' },
-      { value: fmtQty(row.missingCostPositions), className: 'num' }
+      { value: fmtQty(row.missingCostPositions), className: 'num' },
+      { value: `${row.missingCostRate || 0}%`, className: 'num' }
     ]);
   }
 
@@ -176,7 +212,7 @@
       { value: fmtQty(row.signedQuantity), className: 'num' },
       { value: fmtNumber(row.unitCost), className: 'num' },
       { value: fmtNumber(row.movementValue), className: 'num' },
-      { value: row.costConfidence === 'missing' ? 'Липсва' : row.costSource || row.costConfidence }
+      { html: `${text(row.costSource || row.costConfidence)} ${confidenceBadge(row)}` }
     ]);
   }
 
@@ -215,7 +251,7 @@
     state.movements = movements;
     renderAll();
     if (!snapshot.ready) setStatus(snapshot.summary?.diagnostics?.reason || 'Не е открита read-only база за valuation.', 'warn');
-    else setStatus(`Готово · ${snapshot.summary.rows} позиции · стойност ${fmtNumber(snapshot.summary.totalStockValue)} BGN`, 'ok');
+    else setStatus(`Готово · ${snapshot.summary.rows} позиции · стойност ${fmtNumber(snapshot.summary.totalStockValue)} BGN · coverage ${snapshot.summary.costCoverage || 0}%`, 'ok');
   }
 
   function csvEscape(value) {
@@ -227,14 +263,14 @@
     let rows = [];
     let header = [];
     if (state.activeTab === 'locations') {
-      header = ['location', 'stock_value', 'positive_value', 'negative_value', 'net_quantity', 'positions', 'missing_cost'];
-      rows = collectRowsForSearch(state.snapshot?.locationSummary || []).map((row) => [row.locationLabel, row.stockValue, row.positiveValue, row.negativeValue, row.netQuantity, row.positions, row.missingCostPositions]);
+      header = ['location', 'stock_value', 'positive_value', 'negative_value', 'net_quantity', 'positions', 'missing_cost', 'missing_rate'];
+      rows = collectRowsForSearch(state.snapshot?.locationSummary || []).map((row) => [row.locationLabel, row.stockValue, row.positiveValue, row.negativeValue, row.netQuantity, row.positions, row.missingCostPositions, row.missingCostRate]);
     } else if (state.activeTab === 'movements') {
       header = ['date', 'item', 'location', 'document', 'signed_quantity', 'unit_cost', 'movement_value', 'confidence'];
       rows = collectRowsForSearch(state.movements?.rows || []).map((row) => [row.date, row.itemLabel, row.locationLabel, row.documentNo || row.documentId, row.signedQuantity, row.unitCost, row.movementValue, row.costConfidence]);
     } else {
-      header = ['item', 'location', 'quantity', 'unit_cost', 'stock_value', 'incoming_value', 'outgoing_value', 'confidence'];
-      rows = collectRowsForSearch(state.balance?.rows || state.snapshot?.highValue || []).map((row) => [row.itemLabel, row.locationLabel, row.netQuantity, row.unitCost, row.stockValue, row.incomingValue, row.outgoingValue, row.costConfidence]);
+      header = ['item', 'location', 'quantity', 'unit_cost', 'stock_value', 'incoming_value', 'outgoing_value', 'confidence', 'confidence_score', 'value_band', 'manager_flag'];
+      rows = collectRowsForSearch(state.balance?.rows || state.snapshot?.highValue || []).map((row) => [row.itemLabel, row.locationLabel, row.netQuantity, row.unitCost, row.stockValue, row.incomingValue, row.outgoingValue, row.costConfidenceLabel || row.costConfidence, row.costConfidenceScore, row.valueBandLabel || row.valueBand, row.managerFlag]);
     }
     const csv = [header, ...rows].map((line) => line.map(csvEscape).join(';')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -258,6 +294,16 @@
   root.querySelectorAll('[data-valuation-tab]').forEach((button) => button.addEventListener('click', () => setTab(button.dataset.valuationTab)));
   root.querySelector('[data-valuation-print]')?.addEventListener('click', () => window.print());
   root.querySelector('[data-valuation-export]')?.addEventListener('click', exportCsv);
+  root.querySelectorAll('[data-valuation-period]').forEach((button) => button.addEventListener('click', async () => {
+    const to = root.querySelector('[data-filter-to]');
+    const from = root.querySelector('[data-filter-from]');
+    if (to) to.value = today();
+    if (from) {
+      if (button.dataset.valuationPeriod === 'year') from.value = `${new Date().getFullYear()}-01-01`;
+      else from.value = daysAgo(Number(button.dataset.valuationPeriod || 365));
+    }
+    try { await loadReports(); } catch (error) { console.error(error); setStatus(error.message || 'Грешка при зареждане.', 'error'); }
+  }));
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();

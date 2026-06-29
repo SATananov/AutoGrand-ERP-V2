@@ -3,9 +3,9 @@
 <main class="stock-valuation-shell" data-stock-valuation-root>
   <header class="stock-valuation-hero">
     <div>
-      <p class="stock-valuation-eyebrow">Step 4.11 · Read-only</p>
+      <p class="stock-valuation-eyebrow">Step 4.11.1 · Read-only</p>
       <h1>Стойност на склада</h1>
-      <p>Inventory cost view за наличност, приблизителна себестойност и стойност по обекти. Справката не записва и не коригира складови движения.</p>
+      <p>Inventory cost view с cost confidence, manager filters и print/export polish. Справката не записва и не коригира складови движения.</p>
     </div>
     <div class="stock-valuation-actions">
       <a class="stock-valuation-button stock-valuation-button-muted" href="/stock-reports">Складови справки</a>
@@ -31,6 +31,12 @@
   </section>
 
   <form class="stock-valuation-filter-card" data-valuation-filters>
+    <div class="stock-valuation-quick-periods" aria-label="Бързи периоди">
+      <button type="button" data-valuation-period="30">30 дни</button>
+      <button type="button" data-valuation-period="90">90 дни</button>
+      <button type="button" data-valuation-period="365">12 месеца</button>
+      <button type="button" data-valuation-period="year">Текуща година</button>
+    </div>
     <label>
       <span>От дата</span>
       <input type="date" name="from" data-filter-from>
@@ -70,6 +76,44 @@
       </select>
     </label>
     <label>
+      <span>Confidence</span>
+      <select name="confidenceMode" data-filter-confidence>
+        <option value="all">Всички нива</option>
+        <option value="high">Висока увереност</option>
+        <option value="medium">Средна увереност</option>
+        <option value="missing">Липсва себестойност</option>
+      </select>
+    </label>
+    <label>
+      <span>Manager focus</span>
+      <select name="managerFocus" data-filter-manager-focus>
+        <option value="all">Всички позиции</option>
+        <option value="risk">Само рискови</option>
+        <option value="missing-cost">Липсва себестойност</option>
+        <option value="negative">Отрицателни наличности</option>
+        <option value="high-value">Висока стойност</option>
+      </select>
+    </label>
+    <label>
+      <span>Value band</span>
+      <select name="valueBand" data-filter-value-band>
+        <option value="all">Всички стойности</option>
+        <option value="critical">Критична стойност</option>
+        <option value="high">Висока стойност</option>
+        <option value="medium">Средна стойност</option>
+        <option value="low">Ниска стойност</option>
+        <option value="zero">Нулева стойност</option>
+      </select>
+    </label>
+    <label>
+      <span>Мин. стойност</span>
+      <input type="number" step="0.01" min="0" name="valueMin" placeholder="0.00" data-filter-value-min>
+    </label>
+    <label>
+      <span>Макс. стойност</span>
+      <input type="number" step="0.01" min="0" name="valueMax" placeholder="без лимит" data-filter-value-max>
+    </label>
+    <label>
       <span>Търсене</span>
       <input type="search" name="search" placeholder="Артикул, обект, документ..." data-filter-search>
     </label>
@@ -100,7 +144,12 @@
     <article class="danger"><span>Отрицателна стойност</span><strong data-kpi="negativeStockValue">0.00</strong><em>BGN</em></article>
     <article class="warn"><span>Без себестойност</span><strong data-kpi="missingCostPositions">0</strong><em>позиции</em></article>
     <article><span>Покритие</span><strong data-kpi="costCoverage">0%</strong><em>cost coverage</em></article>
+    <article><span>Висока увереност</span><strong data-kpi="highConfidencePositions">0</strong><em>позиции</em></article>
+    <article class="warn"><span>Средна увереност</span><strong data-kpi="mediumConfidencePositions">0</strong><em>позиции</em></article>
+    <article class="danger"><span>Manager risk</span><strong data-kpi="riskPositions">0</strong><em>позиции</em></article>
   </section>
+
+  <section class="stock-valuation-manager-strip" data-manager-strip></section>
 
   <section class="stock-valuation-workspace">
     <article class="stock-valuation-panel" data-tab-panel="snapshot">
@@ -122,6 +171,8 @@
               <th class="num">Ед. цена</th>
               <th class="num">Стойност</th>
               <th>Confidence</th>
+              <th>Value band</th>
+              <th>Manager</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -150,6 +201,8 @@
               <th class="num">Изход стойност</th>
               <th>Последно движение</th>
               <th>Confidence</th>
+              <th>Value band</th>
+              <th>Manager</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -176,6 +229,7 @@
               <th class="num">Нето количество</th>
               <th class="num">Позиции</th>
               <th class="num">Без себестойност</th>
+              <th class="num">Missing %</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -202,7 +256,7 @@
               <th class="num">Знак</th>
               <th class="num">Ед. цена</th>
               <th class="num">Стойност</th>
-              <th>Източник</th>
+              <th>Източник / Confidence</th>
             </tr>
           </thead>
           <tbody></tbody>
