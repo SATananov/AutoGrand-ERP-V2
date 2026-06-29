@@ -1,18 +1,18 @@
-<section class="ag-stock-adjustments-page" data-ag-step="4.8.2">
+<section class="ag-stock-adjustments-page" data-ag-step="4.8.3">
   <div class="ag-page-header ag-stock-adjustments-hero">
     <div>
-      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.2</div>
+      <div class="ag-kicker">AutoGrand ERP V2 · Step 4.8.3</div>
       <h1>Складови корекции</h1>
       <p>
-        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и реално binding движение в складовия журнал.
+        Постоянни документи за складова корекция: DRAFT → POSTED, заключване след POSTED и видим movement trace към реалния складов журнал.
       </p>
     </div>
-    <div class="ag-step-badge">Movement binding</div>
+    <div class="ag-step-badge">Movement trace</div>
   </div>
 
   <div class="ag-moneta-rules">
     <strong>Правило:</strong>
-    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ и ново bound stock movement движение.
+    не трием стари движения, не редактираме журнала ръчно, коригираме само чрез отделен документ, ново bound stock movement движение и видим trace.
   </div>
 
   <section class="ag-card ag-binding-card" id="agMovementBindingCard">
@@ -31,7 +31,7 @@
       <div class="ag-card-title-row">
         <div>
           <h2>Документи</h2>
-          <p>DRAFT документи могат да се редактират. POSTED документи са заключени и имат movement trace.</p>
+          <p>DRAFT документи могат да се редактират. POSTED документи са заключени и показват movement trace summary, таблица и line-to-movement връзки.</p>
         </div>
         <button type="button" class="ag-btn ag-btn-secondary" id="agReloadAdjustmentsBtn">Обнови</button>
       </div>
@@ -129,7 +129,7 @@
     listEl.innerHTML = documents.map((doc) => {
       const activeClass = activeDocument && activeDocument.id === doc.id ? " is-active" : "";
       const postedClass = doc.status === "POSTED" ? " is-posted" : "";
-      const movementMeta = doc.status === "POSTED" ? ` · Движения: ${formatNumber(doc.postedMovementCount)}` : "";
+      const movementMeta = doc.status === "POSTED" ? ` · Trace: ${formatNumber(doc.postedMovementCount)} движения` : "";
       return `
         <button type="button" class="ag-adjustment-row${activeClass}${postedClass}" data-doc-id="${escapeHtml(doc.id)}">
           <span class="ag-adjustment-number">${escapeHtml(doc.number)}</span>
@@ -150,6 +150,8 @@
     const locked = activeDocument.status === "POSTED";
     const lines = Array.isArray(activeDocument.lines) ? activeDocument.lines : [];
     const postingLog = Array.isArray(activeDocument.postingLog) ? activeDocument.postingLog : [];
+    const movementTrace = Array.isArray(activeDocument.movementTrace) ? activeDocument.movementTrace : [];
+    const traceSummary = activeDocument.traceSummary || {};
     detailsEl.className = "ag-adjustment-details" + (locked ? " is-locked" : "");
     detailsEl.innerHTML = `
       <div class="ag-document-panel">
@@ -161,6 +163,15 @@
           <button type="button" class="ag-btn ag-btn-danger" id="agPostAdjustmentBtn" ${locked ? "disabled" : ""}>POSTED / Осчетоводи</button>
         </div>
         <div class="ag-document-note">${escapeHtml(activeDocument.reason || "Складова корекция")}</div>
+        ${locked ? `
+          <div class="ag-posted-lock-panel">
+            <strong>POSTED · документът е заключен</strong>
+            <span>Осчетоводено: ${escapeHtml(activeDocument.postedAt || "-")} · От: ${escapeHtml(activeDocument.postedBy || "-")}</span>
+            <span>Trace движения: ${formatNumber(traceSummary.movementCount || activeDocument.postedMovementCount || 0)} · Таблица: ${escapeHtml((traceSummary.tables || [activeDocument.movementBindingTable || ""])[0] || "-")}</span>
+          </div>
+        ` : `
+          <div class="ag-draft-trace-note">Movement trace ще се появи след POSTED. DRAFT документът няма реален складов ефект.</div>
+        `}
       </div>
 
       <form id="agLineForm" class="ag-line-form" ${locked ? "data-locked=\"true\"" : ""}>
@@ -205,9 +216,55 @@
         </table>
       </div>
 
+      <div class="ag-movement-trace-panel ${movementTrace.length ? "has-trace" : "is-empty"}">
+        <div class="ag-card-title-row">
+          <div>
+            <h3>Movement trace visibility</h3>
+            <p>${movementTrace.length ? "Line-to-movement връзки от POSTED документа към реалния stock movement журнал." : "Все още няма movement trace. Той се създава само след POSTED."}</p>
+          </div>
+          <button type="button" class="ag-btn ag-btn-secondary" id="agReloadTraceBtn" ${!activeDocument ? "disabled" : ""}>Обнови trace</button>
+        </div>
+        <div class="ag-trace-summary-grid">
+          <div><strong>${formatNumber(traceSummary.movementCount || 0)}</strong><span>Движения</span></div>
+          <div><strong>${formatNumber(traceSummary.totalQuantityDelta || 0)}</strong><span>Обща разлика</span></div>
+          <div><strong>${formatNumber(traceSummary.positiveCount || 0)}</strong><span>IN</span></div>
+          <div><strong>${formatNumber(traceSummary.negativeCount || 0)}</strong><span>OUT</span></div>
+        </div>
+        ${movementTrace.length ? `
+          <div class="ag-trace-table-wrap">
+            <table class="ag-lines-table ag-trace-table">
+              <thead>
+                <tr>
+                  <th>Movement table</th>
+                  <th>Movement ID</th>
+                  <th>Ред</th>
+                  <th>Посока</th>
+                  <th>Разлика</th>
+                  <th>Binding</th>
+                  <th>Posted</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${movementTrace.map((row) => `
+                  <tr>
+                    <td><strong>${escapeHtml(row.movementTable)}</strong></td>
+                    <td><span class="ag-movement-chip">${escapeHtml(row.movementId)}</span></td>
+                    <td>${escapeHtml(row.itemName || row.itemId || row.lineId)}<br><small>${escapeHtml(row.lineId)}</small></td>
+                    <td>${escapeHtml(row.movementDirection || "-")}</td>
+                    <td class="${Number(row.quantityDelta) >= 0 ? "is-positive" : "is-negative"}">${formatNumber(row.quantityDelta)}</td>
+                    <td>${escapeHtml(row.bindingProfile || "-")}</td>
+                    <td>${escapeHtml(row.createdAt || "-")}<br><small>${escapeHtml(row.postedBy || "-")}</small></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        ` : ""}
+      </div>
+
       ${postingLog.length ? `
         <div class="ag-posting-log">
-          <h3>Movement trace</h3>
+          <h3>Posting log raw audit</h3>
           ${postingLog.map((row) => `
             <div class="ag-posting-log-row">
               <strong>${escapeHtml(row.movement_table)}</strong>
@@ -235,6 +292,14 @@
     const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(id));
     activeDocument = payload.document;
     renderList();
+    renderDetails();
+  }
+
+  async function loadTrace() {
+    if (!activeDocument) return;
+    const payload = await api("/api/stock/adjustments/documents/" + encodeURIComponent(activeDocument.id) + "/movement-trace");
+    activeDocument.movementTrace = payload.movementTrace || [];
+    activeDocument.traceSummary = payload.traceSummary || {};
     renderDetails();
   }
 
@@ -296,6 +361,15 @@
   });
 
   detailsEl.addEventListener("click", async (event) => {
+    if (event.target.id === "agReloadTraceBtn") {
+      try {
+        await loadTrace();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
+
     const deleteButton = event.target.closest("[data-delete-line]");
     if (deleteButton && activeDocument) {
       try {

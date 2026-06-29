@@ -8298,3 +8298,95 @@ AutoGrand compatibility markers for legacy checker:
 }
 /* AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Movement Binding END */
 
+
+/* AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Movement Trace Visibility START */
+.ag-posted-lock-panel,
+.ag-draft-trace-note {
+  border-radius: 10px;
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+
+.ag-posted-lock-panel {
+  background: #eef7e8;
+  border: 1px solid #b7d59f;
+  color: #2f4e18;
+}
+
+.ag-posted-lock-panel strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.ag-posted-lock-panel span,
+.ag-draft-trace-note {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ag-draft-trace-note {
+  background: #fff8e7;
+  border: 1px solid #e3c16b;
+  color: #6c4b07;
+}
+
+.ag-movement-trace-panel {
+  background: #fbfdf8;
+  border: 1px solid #d8e8ca;
+  border-radius: 10px;
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.ag-movement-trace-panel.is-empty {
+  background: #f8f8f4;
+  border-style: dashed;
+}
+
+.ag-trace-summary-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ag-trace-summary-grid > div {
+  background: #ffffff;
+  border: 1px solid #dfe8d6;
+  border-radius: 9px;
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+}
+
+.ag-trace-summary-grid strong {
+  color: #2f4e18;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.ag-trace-summary-grid span {
+  color: #5d6659;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ag-trace-table-wrap {
+  overflow-x: auto;
+}
+
+.ag-trace-table small {
+  color: #657060;
+}
+
+@media (max-width: 760px) {
+  .ag-trace-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Movement Trace Visibility END */
+

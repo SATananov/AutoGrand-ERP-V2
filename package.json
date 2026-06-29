@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Posting Integration / Movement Binding | Step 4.4 Global Grid Column Preferences | 4-4-global-grid-column-preferences | Step 4.4 grid preferences version label | grid preferences version label",
+  "description": "AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Posting UI / Movement Trace Visibility | Step 4.4 Global Grid Column Preferences | 4-4-global-grid-column-preferences | Step 4.4 grid preferences version label | grid preferences version label",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -103,6 +103,6 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.8.2",
-  "autograndHealthLabel": "4-8-2-real-stock-adjustment-movement-binding"
+  "autograndStep": "4.8.3",
+  "autograndHealthLabel": "4-8-3-stock-adjustment-movement-trace-visibility"
 }

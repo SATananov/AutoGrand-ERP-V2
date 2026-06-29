@@ -17,7 +17,7 @@ const LINE_TABLE = "ag_stock_adjustment_lines";
 const POSTING_LOG_TABLE = "ag_stock_adjustment_posting_log";
 const POSTED = "POSTED";
 const DRAFT = "DRAFT";
-const STEP = "4.8.2";
+const STEP = "4.8.3";
 
 function nowIso() {
   return new Date().toISOString();
@@ -89,6 +89,62 @@ function normalizeLine(row) {
     bindingProfile: row.binding_profile || null,
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null
+  };
+}
+
+function normalizeTraceRow(row) {
+  return {
+    logId: row.log_id || row.id,
+    documentId: row.document_id,
+    lineId: row.line_id,
+    movementTable: row.movement_table,
+    movementId: row.movement_id,
+    quantityDelta: Number(row.quantity_delta || 0),
+    movementDirection: row.movement_direction || (Number(row.quantity_delta || 0) >= 0 ? "IN" : "OUT"),
+    bindingProfile: row.binding_profile || "movement-table-bound",
+    bindingScore: row.binding_score === undefined || row.binding_score === null ? null : Number(row.binding_score),
+    sourceType: row.source_type || STOCK_ADJUSTMENT_SOURCE_TYPE,
+    postedBy: row.posted_by || "",
+    createdAt: row.created_at || null,
+    itemId: row.item_id || "",
+    itemCode: row.item_code || "",
+    itemName: row.item_name || "",
+    warehouseId: row.warehouse_id || "",
+    warehouseName: row.warehouse_name || "",
+    currentQuantity: Number(row.current_quantity || 0),
+    countedQuantity: Number(row.counted_quantity || 0),
+    lineDeltaQuantity: Number(row.delta_quantity || 0),
+    reason: row.reason || "",
+    note: row.note || ""
+  };
+}
+
+function buildTraceSummary(traceRows = []) {
+  const tables = Array.from(new Set(traceRows.map((row) => row.movementTable).filter(Boolean)));
+  const postedBy = Array.from(new Set(traceRows.map((row) => row.postedBy).filter(Boolean)));
+  const sourceTypes = Array.from(new Set(traceRows.map((row) => row.sourceType).filter(Boolean)));
+  const positiveCount = traceRows.filter((row) => Number(row.quantityDelta || 0) > 0).length;
+  const negativeCount = traceRows.filter((row) => Number(row.quantityDelta || 0) < 0).length;
+  const zeroCount = traceRows.filter((row) => Math.abs(Number(row.quantityDelta || 0)) <= 0.0000001).length;
+  const totalQuantityDelta = traceRows.reduce((sum, row) => sum + Number(row.quantityDelta || 0), 0);
+  const lastPostedAt = traceRows.reduce((latest, row) => {
+    if (!row.createdAt) return latest;
+    if (!latest || String(row.createdAt) > String(latest)) return row.createdAt;
+    return latest;
+  }, null);
+
+  return {
+    movementCount: traceRows.length,
+    positiveCount,
+    negativeCount,
+    zeroCount,
+    totalQuantityDelta,
+    tables,
+    postedBy,
+    sourceTypes,
+    lastPostedAt,
+    hasTrace: traceRows.length > 0,
+    lockProof: traceRows.length > 0 ? "POSTED document has movement trace rows and is locked." : "No movement trace rows yet."
   };
 }
 
@@ -243,6 +299,23 @@ async function getPostingLogRows(documentId, db = prisma) {
   );
 }
 
+async function getMovementTraceRows(documentId, db = prisma) {
+  await ensureStockAdjustmentPersistence(db);
+  const rows = await db.$queryRawUnsafe(
+    `SELECT pl.id AS log_id, pl.document_id, pl.line_id, pl.movement_table, pl.movement_id,
+            pl.quantity_delta, pl.created_at, pl.movement_direction, pl.binding_profile,
+            pl.binding_score, pl.source_type, pl.posted_by,
+            l.item_id, l.item_code, l.item_name, l.warehouse_id, l.warehouse_name,
+            l.current_quantity, l.counted_quantity, l.delta_quantity, l.reason, l.note
+     FROM ${quoteIdent(POSTING_LOG_TABLE)} pl
+     LEFT JOIN ${quoteIdent(LINE_TABLE)} l ON l.document_id = pl.document_id AND l.id = pl.line_id
+     WHERE pl.document_id = ?
+     ORDER BY pl.created_at ASC, pl.id ASC`,
+    documentId
+  );
+  return rows.map(normalizeTraceRow);
+}
+
 export async function getStockAdjustmentDocument(id) {
   await ensureStockAdjustmentPersistence();
   const docRow = await readDocumentRow(id);
@@ -257,10 +330,29 @@ export async function getStockAdjustmentDocument(id) {
     id
   );
   const postingLog = await getPostingLogRows(id);
+  const movementTrace = await getMovementTraceRows(id);
   return {
     ...normalizeDoc(docRow),
     lines: lineRows.map(normalizeLine),
-    postingLog
+    postingLog,
+    movementTrace,
+    traceSummary: buildTraceSummary(movementTrace)
+  };
+}
+
+export async function getStockAdjustmentMovementTrace(documentId) {
+  await ensureStockAdjustmentPersistence();
+  const docRow = await readDocumentRow(documentId);
+  if (!docRow) {
+    const err = new Error("Документът за складова корекция не е намерен.");
+    err.statusCode = 404;
+    throw err;
+  }
+  const movementTrace = await getMovementTraceRows(documentId);
+  return {
+    document: normalizeDoc(docRow),
+    traceSummary: buildTraceSummary(movementTrace),
+    movementTrace
   };
 }
 
@@ -555,7 +647,7 @@ export async function getStockAdjustmentPersistenceHealth() {
     movementTarget,
     movementBinding: bindingStatus,
     canPost: Boolean(movementTarget),
-    rule: "Осчетоводяването използва само реална таблица за складови движения. Ако binding липсва, POST се отказва безопасно."
+    rule: "Осчетоводяването използва реална таблица за складови движения и връща видим movement trace за POSTED документа."
   };
 }
 

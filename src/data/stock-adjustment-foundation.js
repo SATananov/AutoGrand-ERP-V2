@@ -1,8 +1,8 @@
-// AutoGrand ERP V2 — Step 4.8.2 Real Stock Adjustment Posting Integration / Movement Binding
+// AutoGrand ERP V2 — Step 4.8.3 Stock Adjustment Posting UI / Movement Trace Visibility
 // Foundation metadata for the stock correction / adjustment document workflow.
 
-export const STOCK_ADJUSTMENT_STEP = "4.8.2";
-export const STOCK_ADJUSTMENT_VERSION = "0.4.14";
+export const STOCK_ADJUSTMENT_STEP = "4.8.3";
+export const STOCK_ADJUSTMENT_VERSION = "0.4.15";
 
 export const STOCK_ADJUSTMENT_DOCUMENT_STATES = Object.freeze({
   DRAFT: "DRAFT",
@@ -16,7 +16,8 @@ export const STOCK_ADJUSTMENT_MONETA_RULES = Object.freeze([
   "Документът минава през DRAFT към POSTED.",
   "POSTED документ е заключен и не допуска промяна на редове.",
   "Складовият ефект се записва като ново коригиращо движение в реалния movement слой.",
-  "Повторен POST не създава второ движение за същия ред."
+  "Повторен POST не създава второ движение за същия ред.",
+  "POSTED документът показва видим movement trace към създадените движения."
 ]);
 
 export const STOCK_ADJUSTMENT_CAPABILITIES = Object.freeze({
@@ -27,6 +28,7 @@ export const STOCK_ADJUSTMENT_CAPABILITIES = Object.freeze({
   createsCorrectionMovement: true,
   realMovementBinding: true,
   idempotentPosting: true,
+  movementTraceVisibility: true,
   usesShadowTables: false,
   prismaSchemaChangeRequired: false
 });
@@ -36,8 +38,8 @@ export function getStockAdjustmentFoundation() {
     ok: true,
     step: STOCK_ADJUSTMENT_STEP,
     version: STOCK_ADJUSTMENT_VERSION,
-    title: "Real Stock Adjustment Posting Integration / Movement Binding",
-    bgTitle: "Реално осчетоводяване на складови корекции чрез stock movement binding",
+    title: "Stock Adjustment Posting UI / Movement Trace Visibility",
+    bgTitle: "Видим trace на осчетоводените складови корекции",
     route: "/stock-adjustments",
     api: {
       ping: "/api/stock/adjustments/ping",
@@ -46,6 +48,7 @@ export function getStockAdjustmentFoundation() {
       fromIssue: "/api/stock/adjustments/from-issue",
       documents: "/api/stock/adjustments/documents",
       movementBinding: "/api/stock/adjustments/movement-binding",
+      movementTrace: "/api/stock/adjustments/documents/:id/movement-trace",
       post: "/api/stock/adjustments/documents/:id/post"
     },
     states: STOCK_ADJUSTMENT_DOCUMENT_STATES,

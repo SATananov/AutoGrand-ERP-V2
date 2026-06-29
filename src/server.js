@@ -1189,3 +1189,7 @@ AutoGrand compatibility markers for legacy checker:
 // AutoGrand ERP V2 Step 4.8.2 Real Stock Adjustment Posting Integration / Movement Binding
 
 // 4-8-2-real-stock-adjustment-movement-binding
+
+// AutoGrand ERP V2 Step 4.8.3 Stock Adjustment Posting UI / Movement Trace Visibility
+
+// 4-8-3-stock-adjustment-movement-trace-visibility

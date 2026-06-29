@@ -7,6 +7,7 @@ import {
   getStockAdjustmentDocument,
   getStockAdjustmentFoundationStatus,
   getStockAdjustmentMovementBindingStatus,
+  getStockAdjustmentMovementTrace,
   listStockAdjustmentDocuments,
   pingStockAdjustments,
   postStockAdjustmentDocument,
@@ -120,6 +121,15 @@ router.get("/api/stock/adjustments/documents/:id", async (req, res) => {
     const document = await getStockAdjustmentDocument(req.params.id);
     if (!document) return res.status(404).json({ ok: false, error: "Документът не е намерен." });
     sendOk(res, { document });
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get("/api/stock/adjustments/documents/:id/movement-trace", async (req, res) => {
+  try {
+    const trace = await getStockAdjustmentMovementTrace(req.params.id);
+    sendOk(res, trace);
   } catch (error) {
     sendError(res, error);
   }

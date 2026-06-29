@@ -6,6 +6,7 @@ import {
   ensureStockAdjustmentPersistence,
   getStockAdjustmentDocument,
   getStockAdjustmentMovementBindingHealth,
+  getStockAdjustmentMovementTrace,
   getStockAdjustmentPersistenceHealth,
   listStockAdjustmentDocuments,
   listStockAdjustmentMovementBindingCandidates,
@@ -28,9 +29,9 @@ export async function pingStockAdjustments() {
   const health = await getStockAdjustmentPersistenceHealth();
   return {
     ok: true,
-    step: "4.8.2",
-    version: "0.4.14",
-    message: "Stock adjustment posting is bound to the real stock movement layer.",
+    step: "4.8.3",
+    version: "0.4.15",
+    message: "Stock adjustment posting movement trace is visible in the UI.",
     health
   };
 }
@@ -43,7 +44,13 @@ export async function getStockAdjustmentFoundationStatus() {
     ...getStockAdjustmentFoundation(),
     persistence,
     health,
-    movementBinding
+    movementBinding,
+    traceVisibility: {
+      ok: true,
+      step: "4.8.3",
+      api: "/api/stock/adjustments/documents/:id/movement-trace",
+      ui: "POSTED documents show movement trace summary and rows."
+    }
   };
 }
 
@@ -66,11 +73,11 @@ export function previewStockAdjustment(payload = {}) {
 
   return {
     ok: true,
-    step: "4.8.2",
+    step: "4.8.3",
     mode: "preview-only",
     itemId: cleanText(payload.itemId || payload.item_id),
     itemCode: cleanText(payload.itemCode || payload.item_code),
-    itemName: cleanText(payload.itemName || payload.item_name, "Артикул"),
+    itemName: cleanText(payload.itemName || payload.item_name, "РђСЂС‚РёРєСѓР»"),
     warehouseId: cleanText(payload.warehouseId || payload.warehouse_id || payload.locationId),
     currentQuantity,
     countedQuantity,
@@ -78,7 +85,7 @@ export function previewStockAdjustment(payload = {}) {
     direction: deltaQuantity >= 0 ? "IN" : "OUT",
     createsMovement: Math.abs(deltaQuantity) > 0.0000001,
     postingIntegration: "POSTED document writes one bound stock movement per non-zero line.",
-    monetaRule: "Preview не пипа склада. Реален ефект има само след DRAFT към POSTED."
+    monetaRule: "Preview РЅРµ РїРёРїР° СЃРєР»Р°РґР°. Р РµР°Р»РµРЅ РµС„РµРєС‚ РёРјР° СЃР°РјРѕ СЃР»РµРґ DRAFT РєСЉРј POSTED."
   };
 }
 
@@ -95,7 +102,7 @@ export function buildStockAdjustmentFromIssuePreview(issue = {}) {
 
   return {
     ok: true,
-    step: "4.8.2",
+    step: "4.8.3",
     mode: "issue-preview",
     issueKey: cleanText(issue.key || issue.issueKey || issue.id),
     issue,
