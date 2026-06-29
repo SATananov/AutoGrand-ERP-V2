@@ -1,0 +1,96 @@
+{{!-- AutoGrand ERP V2 - Step 4.9 Stock Transfer / Adjustment Consolidation & Inventory Control Center --}}
+<section class="ag-stock-control-center" data-step="4.9" data-module="stock-control-center">
+  <header class="ag-page-hero ag-stock-control-center__hero">
+    <div>
+      <p class="ag-eyebrow">Step 4.9</p>
+      <h1>&#1050;&#1086;&#1085;&#1090;&#1088;&#1086;&#1083;&#1077;&#1085; &#1094;&#1077;&#1085;&#1090;&#1098;&#1088; &#1085;&#1072; &#1089;&#1082;&#1083;&#1072;&#1076;&#1072;</h1>
+      <p class="ag-muted">
+        &#1054;&#1073;&#1077;&#1076;&#1080;&#1085;&#1103;&#1074;&#1072; &#1090;&#1088;&#1072;&#1085;&#1089;&#1092;&#1077;&#1088;&#1080;, &#1082;&#1086;&#1088;&#1077;&#1082;&#1094;&#1080;&#1080;, movement trace, audit &#1080; reversal safety &#1074; &#1077;&#1076;&#1080;&#1085; &#1086;&#1087;&#1077;&#1088;&#1072;&#1090;&#1086;&#1088;&#1089;&#1082;&#1080; &#1080;&#1079;&#1075;&#1083;&#1077;&#1076;.
+      </p>
+    </div>
+    <div class="ag-stock-control-center__actions">
+      <a class="ag-button" href="/stock-dashboard">&#1057;&#1082;&#1083;&#1072;&#1076;&#1086;&#1074; &#1087;&#1072;&#1085;&#1077;&#1083;</a>
+      <a class="ag-button ag-button--primary" href="/stock-adjustments">&#1050;&#1086;&#1088;&#1077;&#1082;&#1094;&#1080;&#1080;</a>
+      <a class="ag-button" href="/stock-transfer-center">&#1058;&#1088;&#1072;&#1085;&#1089;&#1092;&#1077;&#1088;&#1080;</a>
+    </div>
+  </header>
+
+  <section class="ag-stock-control-center__summary" aria-label="Inventory control summary">
+    <article class="ag-kpi-card">
+      <span class="ag-kpi-card__label">Modules</span>
+      <strong>{{summary.modules}}</strong>
+      <span>{{summary.currentState}}</span>
+    </article>
+    <article class="ag-kpi-card">
+      <span class="ag-kpi-card__label">Quality gates</span>
+      <strong>{{summary.qualityGates}}</strong>
+      <span>PASS expected</span>
+    </article>
+    <article class="ag-kpi-card">
+      <span class="ag-kpi-card__label">Operator rules</span>
+      <strong>{{summary.operatorRules}}</strong>
+      <span>Moneta safety</span>
+    </article>
+  </section>
+
+  <section class="ag-panel ag-stock-control-center__panel">
+    <div class="ag-panel__header">
+      <div>
+        <h2>&#1052;&#1086;&#1076;&#1091;&#1083;&#1080; &#1079;&#1072; &#1082;&#1086;&#1085;&#1090;&#1088;&#1086;&#1083;</h2>
+        <p>&#1042;&#1089;&#1077;&#1082;&#1080; &#1084;&#1086;&#1076;&#1091;&#1083; &#1087;&#1072;&#1079;&#1080; &#1087;&#1088;&#1072;&#1074;&#1080;&#1083;&#1086;&#1090;&#1086;: &#1085;&#1103;&#1084;&#1072; &#1088;&#1098;&#1095;&#1085;&#1086; &#1090;&#1088;&#1080;&#1077;&#1085;&#1077; &#1080; &#1088;&#1077;&#1076;&#1072;&#1082;&#1094;&#1080;&#1103; &#1085;&#1072; &#1078;&#1091;&#1088;&#1085;&#1072;&#1083;.</p>
+      </div>
+      <a class="ag-link" href="/api/stock/control-center/summary">API summary</a>
+    </div>
+    <div class="ag-stock-control-center__grid">
+      {{#each statusCards}}
+        <article class="ag-stock-control-center-card" data-control-module="{{key}}">
+          <div class="ag-stock-control-center-card__top">
+            <h3>{{label}}</h3>
+            <span class="ag-badge ag-badge--success">{{state}}</span>
+          </div>
+          <p>{{purpose}}</p>
+          <p class="ag-muted">{{monetaRule}}</p>
+          <div class="ag-stock-control-center-card__links">
+            <a href="{{route}}">Open</a>
+            <code>{{api}}</code>
+          </div>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag-panel ag-stock-control-center__panel">
+    <div class="ag-panel__header">
+      <div>
+        <h2>&#1054;&#1087;&#1077;&#1088;&#1072;&#1090;&#1086;&#1088;&#1089;&#1082;&#1080; safety checklist</h2>
+        <p>&#1058;&#1086;&#1079;&#1080; &#1089;&#1087;&#1080;&#1089;&#1098;&#1082; &#1079;&#1072;&#1090;&#1074;&#1072;&#1088;&#1103; &#1087;&#1086;&#1074;&#1077;&#1076;&#1077;&#1085;&#1080;&#1077;&#1090;&#1086; &#1085;&#1072; &#1089;&#1082;&#1083;&#1072;&#1076;&#1086;&#1074;&#1080;&#1090;&#1077; &#1082;&#1086;&#1088;&#1077;&#1082;&#1094;&#1080;&#1080; &#1080; &#1090;&#1088;&#1072;&#1085;&#1089;&#1092;&#1077;&#1088;&#1080;.</p>
+      </div>
+    </div>
+    <ol class="ag-stock-control-center__checklist">
+      {{#each operatorChecklist}}
+        <li>
+          <strong>{{title}}</strong>
+          <span>{{description}}</span>
+        </li>
+      {{/each}}
+    </ol>
+  </section>
+
+  <section class="ag-panel ag-stock-control-center__panel">
+    <div class="ag-panel__header">
+      <div>
+        <h2>Step timeline</h2>
+        <p>4.8 block closed, 4.9 control center active.</p>
+      </div>
+    </div>
+    <div class="ag-stock-control-center__timeline">
+      {{#each timeline}}
+        <a href="{{route}}" class="ag-stock-control-center-step ag-stock-control-center-step--{{state}}">
+          <span>{{step}}</span>
+          <strong>{{label}}</strong>
+          <em>{{state}}</em>
+        </a>
+      {{/each}}
+    </div>
+  </section>
+</section>

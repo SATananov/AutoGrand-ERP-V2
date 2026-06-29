@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.18",
+  "version": "0.4.19",
   "private": true,
   "type": "module",
-  "description": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening | Step 4.8.6 Stock Adjustment Final QA / Clean Export Checkpoint | 4-8-6-stock-adjustment-final-qa-clean-export-checkpoint | stock adjustment final qa clean export checkpoint",
+  "description": "AutoGrand ERP V2 Step 4.9 Stock Transfer / Adjustment Consolidation & Inventory Control Center",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -106,8 +106,8 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.8.4",
-  "autograndHealthLabel": "4-8-4-stock-adjustment-audit-reversal-safety",
+  "autograndStep": "4.9",
+  "autograndHealthLabel": "4-9-stock-control-center",
   "autogrand": {
     "version": "0.4.17",
     "step": "4.8.6",

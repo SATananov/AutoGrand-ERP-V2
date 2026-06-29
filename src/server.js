@@ -1,3 +1,4 @@
+app.use('/', stockControlCenterRouter);
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -71,7 +72,7 @@ import {
   updatePurchaseDocumentStatus
 } from './services/purchase-actions-service.js';
 import {
-  getStockAdjustmentFormData,
+getStockAdjustmentFormData,
   getStockAdjustmentCardData,
   getStockDashboardData,
   getStockItemCardData,
@@ -97,6 +98,7 @@ import {
   updateStockTransferDocumentStatus,
   stockActionMessage
 } from './services/stock-actions-service.js';
+import stockControlCenterRouter from './routes/stock-control-center-routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -121,12 +123,12 @@ function statusDateTimeText(date = new Date()) {
   }).format(date).replace(',', '');
 }
 
-function baseViewData({ title, currentScreen = '', statusText = 'Отворен екран: Начало' } = {}) {
+function baseViewData({ title, currentScreen = '', statusText = 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎСљР В Р’В°Р РЋРІР‚РЋР В Р’В°Р В Р’В»Р В РЎвЂў' } = {}) {
   return {
     title: title || 'AutoGrand ERP V2',
     appVersion: 'v0.4.10',
-    companyName: 'КЪРДЖАЛИ · Автогранд ООД',
-    userName: 'СТЕФАН ТАНАНОВ',
+    companyName: 'Р В РЎв„ўР В Р вЂћР В Р’В Р В РІР‚СњР В РІР‚вЂњР В РЎвЂ™Р В РІР‚С”Р В Р’В Р вЂ™Р’В· Р В РЎвЂ™Р В Р вЂ Р РЋРІР‚С™Р В РЎвЂўР В РЎвЂ“Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РўвЂ Р В РЎвЂєР В РЎвЂєР В РІР‚Сњ',
+    userName: 'Р В Р Р‹Р В РЎС›Р В РІР‚СћР В Р’В¤Р В РЎвЂ™Р В РЎСљ Р В РЎС›Р В РЎвЂ™Р В РЎСљР В РЎвЂ™Р В РЎСљР В РЎвЂєР В РІР‚в„ў',
     databaseName: 'Local SQLite',
     statusDate: todayText(),
     statusDateTime: statusDateTimeText(),
@@ -164,9 +166,9 @@ function renderForbidden(req, res, decision = {}) {
   res.status(403);
   return renderPage(req, res, 'forbidden', {
     ...baseViewData({
-      title: 'Достъпът е ограничен — AutoGrand ERP V2',
+      title: 'Р В РІР‚СњР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋР вЂ°Р В РЎвЂ”Р РЋР вЂ°Р РЋРІР‚С™ Р В Р’Вµ Р В РЎвЂўР В РЎвЂ“Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РЎвЂР РЋРІР‚РЋР В Р’ВµР В Р вЂ¦ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'forbidden',
-      statusText: 'Достъпът е ограничен за активната роля'
+      statusText: 'Р В РІР‚СњР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р РЋР вЂ°Р В РЎвЂ”Р РЋР вЂ°Р РЋРІР‚С™ Р В Р’Вµ Р В РЎвЂўР В РЎвЂ“Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РЎвЂР РЋРІР‚РЋР В Р’ВµР В Р вЂ¦ Р В Р’В·Р В Р’В° Р В Р’В°Р В РЎвЂќР РЋРІР‚С™Р В РЎвЂР В Р вЂ Р В Р вЂ¦Р В Р’В°Р РЋРІР‚С™Р В Р’В° Р РЋР вЂљР В РЎвЂўР В Р’В»Р РЋР РЏ'
     }),
     forbidden: forbiddenViewData(req.agContext, decision, req)
   });
@@ -360,7 +362,7 @@ app.get('/login', async (req, res) => {
   const options = await getLoginOptions(req, req.query || {});
   res.render('login', {
     layout: false,
-    title: 'Вход — AutoGrand ERP',
+    title: 'Р В РІР‚в„ўР РЋРІР‚В¦Р В РЎвЂўР В РўвЂ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP',
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
@@ -374,7 +376,7 @@ app.post('/login', async (req, res) => {
 
   if (!result.ok) {
     const query = new URLSearchParams({
-      error: result.message || 'Входът не е успешен.',
+      error: result.message || 'Р В РІР‚в„ўР РЋРІР‚В¦Р В РЎвЂўР В РўвЂР РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р РЋРЎвЂњР РЋР С“Р В РЎвЂ”Р В Р’ВµР РЋРІвЂљВ¬Р В Р’ВµР В Р вЂ¦.',
       companyId: req.body?.companyId || '',
       locationId: req.body?.locationId || '',
       username: req.body?.username || '',
@@ -398,8 +400,8 @@ app.get('/', async (req, res) => {
 
   renderPage(req, res, 'moneta-home', {
     ...baseViewData({
-      title: 'AutoGrand ERP V2 — Начало',
-      statusText: 'Отворен екран: Начало'
+      title: 'AutoGrand ERP V2 Р Р†Р вЂљРІР‚Сњ Р В РЎСљР В Р’В°Р РЋРІР‚РЋР В Р’В°Р В Р’В»Р В РЎвЂў',
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎСљР В Р’В°Р РЋРІР‚РЋР В Р’В°Р В Р’В»Р В РЎвЂў'
     }),
     dashboard
   });
@@ -410,9 +412,9 @@ app.get('/price-list', async (req, res) => {
 
   renderPage(req, res, 'price-list-workbench', {
     ...baseViewData({
-      title: 'Артикули, цени и наличности — AutoGrand ERP V2',
+      title: 'Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р В РЎвЂ, Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р В РЎвЂ Р В РЎвЂ Р В Р вЂ¦Р В Р’В°Р В Р’В»Р В РЎвЂР РЋРІР‚РЋР В Р вЂ¦Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'price-list',
-      statusText: 'Отворен екран: Артикули, цени и наличности'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р В РЎвЂ, Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р В РЎвЂ Р В РЎвЂ Р В Р вЂ¦Р В Р’В°Р В Р’В»Р В РЎвЂР РЋРІР‚РЋР В Р вЂ¦Р В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В РЎвЂ'
     }),
     priceList
   });
@@ -423,9 +425,9 @@ app.get('/catalog/foundation', async (req, res) => {
 
   renderPage(req, res, 'catalog-foundation', {
     ...baseViewData({
-      title: 'Номенклатурна основа — AutoGrand ERP V2',
+      title: 'Р В РЎСљР В РЎвЂўР В РЎВР В Р’ВµР В Р вЂ¦Р В РЎвЂќР В Р’В»Р В Р’В°Р РЋРІР‚С™Р РЋРЎвЂњР РЋР вЂљР В Р вЂ¦Р В Р’В° Р В РЎвЂўР РЋР С“Р В Р вЂ¦Р В РЎвЂўР В Р вЂ Р В Р’В° Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'catalog-foundation',
-      statusText: 'Отворен екран: Артикули, мерни единици, ДДС, цени и доставчици'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р В РЎвЂ, Р В РЎВР В Р’ВµР РЋР вЂљР В Р вЂ¦Р В РЎвЂ Р В Р’ВµР В РўвЂР В РЎвЂР В Р вЂ¦Р В РЎвЂР РЋРІР‚В Р В РЎвЂ, Р В РІР‚СњР В РІР‚СњР В Р Р‹, Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р В РЎвЂ Р В РЎвЂ Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р РЋРІР‚РЋР В РЎвЂР РЋРІР‚В Р В РЎвЂ'
     }),
     catalog
   });
@@ -440,9 +442,9 @@ app.get('/grid/preferences', (req, res) => {
 
   renderPage(req, res, 'grid-column-preferences', {
     ...baseViewData({
-      title: 'Глобални настройки на колони — AutoGrand ERP V2',
+      title: 'Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р вЂ¦Р В РЎвЂ Р В Р вЂ¦Р В Р’В°Р РЋР С“Р РЋРІР‚С™Р РЋР вЂљР В РЎвЂўР В РІвЂћвЂ“Р В РЎвЂќР В РЎвЂ Р В Р вЂ¦Р В Р’В° Р В РЎвЂќР В РЎвЂўР В Р’В»Р В РЎвЂўР В Р вЂ¦Р В РЎвЂ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'grid-column-preferences',
-      statusText: 'Отворен екран: Глобални настройки на колони'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р вЂ¦Р В РЎвЂ Р В Р вЂ¦Р В Р’В°Р РЋР С“Р РЋРІР‚С™Р РЋР вЂљР В РЎвЂўР В РІвЂћвЂ“Р В РЎвЂќР В РЎвЂ Р В Р вЂ¦Р В Р’В° Р В РЎвЂќР В РЎвЂўР В Р’В»Р В РЎвЂўР В Р вЂ¦Р В РЎвЂ'
     }),
     gridPrefs
   });
@@ -457,9 +459,9 @@ app.get('/document-engine', (req, res) => {
 
   renderPage(req, res, 'document-engine', {
     ...baseViewData({
-      title: 'Глобален документен engine — AutoGrand ERP V2',
+      title: 'Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р В Р’ВµР В Р вЂ¦ engine Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'document-engine',
-      statusText: 'Отворен екран: Глобален документен engine'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р В Р’ВµР В Р вЂ¦ engine'
     }),
     documentEngine
   });
@@ -475,9 +477,9 @@ app.get('/print-engine', (req, res) => {
 
   renderPage(req, res, 'print-engine', {
     ...baseViewData({
-      title: 'Глобален print engine — AutoGrand ERP V2',
+      title: 'Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ print engine Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'print-engine',
-      statusText: 'Отворен екран: Глобален print engine'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РІР‚СљР В Р’В»Р В РЎвЂўР В Р’В±Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ print engine'
     }),
     printEngine
   });
@@ -590,8 +592,8 @@ app.get('/screen/:screenId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Екранът не е намерен',
-        statusText: 'Екранът не е намерен'
+        title: 'Р В РІР‚СћР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
+        statusText: 'Р В РІР‚СћР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
@@ -619,9 +621,9 @@ app.get('/screen/:screenId', async (req, res) => {
 
   renderPage(req, res, 'screen-browse', {
     ...baseViewData({
-      title: `${screen.title} — AutoGrand ERP V2`,
+      title: `${screen.title} Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2`,
       currentScreen: screen.id,
-      statusText: `Отворен generated screen: ${screen.title}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ generated screen: ${screen.title}`
     }),
     screen
   });
@@ -632,9 +634,9 @@ app.get('/document/sales/new/:docType', async (req, res) => {
 
   renderPage(req, res, 'sales-document-new', {
     ...baseViewData({
-      title: `Нов документ — ${formData.title}`,
+      title: `Р В РЎСљР В РЎвЂўР В Р вЂ  Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™ Р Р†Р вЂљРІР‚Сњ ${formData.title}`,
       currentScreen: 'sales',
-      statusText: `Нов продажбен документ: ${formData.title}`
+      statusText: `Р В РЎСљР В РЎвЂўР В Р вЂ  Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР В РўвЂР В Р’В°Р В Р’В¶Р В Р’В±Р В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™: ${formData.title}`
     }),
     formData
   });
@@ -652,18 +654,18 @@ app.get('/document/sales/:documentId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Документът не е намерен',
+        title: 'Р В РІР‚СњР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'sales',
-        statusText: 'Документът не е намерен'
+        statusText: 'Р В РІР‚СњР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'sales-document-card', {
     ...baseViewData({
-      title: `${documentCard.title} ${documentCard.number} — AutoGrand ERP V2`,
+      title: `${documentCard.title} ${documentCard.number} Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2`,
       currentScreen: documentCard.sourceScreenId || 'sales',
-      statusText: `Отворена документна карта: ${documentCard.title} ${documentCard.number}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В° Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р В Р вЂ¦Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В°: ${documentCard.title} ${documentCard.number}`
     }),
     documentCard
   });
@@ -705,9 +707,9 @@ app.get('/document/purchase/new/:docType', async (req, res) => {
 
   renderPage(req, res, 'purchase-document-new', {
     ...baseViewData({
-      title: `Нов доставен документ — ${formData.title}`,
+      title: `Р В РЎСљР В РЎвЂўР В Р вЂ  Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™ Р Р†Р вЂљРІР‚Сњ ${formData.title}`,
       currentScreen: formData.docType === 'PURCHASE_ORDER' ? 'purchase-orders' : formData.docType === 'SUPPLIER_INVOICE' ? 'supplier-invoices' : 'deliveries',
-      statusText: `Нов доставен документ: ${formData.title}`
+      statusText: `Р В РЎСљР В РЎвЂўР В Р вЂ  Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™: ${formData.title}`
     }),
     formData
   });
@@ -725,18 +727,18 @@ app.get('/document/purchase/:documentId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Доставният документ не е намерен',
+        title: 'Р В РІР‚СњР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р вЂ¦Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'deliveries',
-        statusText: 'Доставният документ не е намерен'
+        statusText: 'Р В РІР‚СњР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р вЂ¦Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'purchase-document-card', {
     ...baseViewData({
-      title: `${documentCard.title} ${documentCard.number} — AutoGrand ERP V2`,
+      title: `${documentCard.title} ${documentCard.number} Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2`,
       currentScreen: documentCard.sourceScreenId || 'deliveries',
-      statusText: `Отворена доставна карта: ${documentCard.title} ${documentCard.number}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В° Р В РўвЂР В РЎвЂўР РЋР С“Р РЋРІР‚С™Р В Р’В°Р В Р вЂ Р В Р вЂ¦Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В°: ${documentCard.title} ${documentCard.number}`
     }),
     documentCard
   });
@@ -807,15 +809,14 @@ app.post('/tools/snapshot/open-folder', async (req, res) => {
 });
 
 
-
 app.get('/locations', async (req, res) => {
   const locations = await getCompanyLocationsData();
 
   renderPage(req, res, 'company-locations', {
     ...baseViewData({
-      title: 'Обекти и складове — AutoGrand ERP V2',
+      title: 'Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р В РЎвЂ Р В РЎвЂ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’Вµ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'company-locations',
-      statusText: 'Отворен екран: Обекти и складове'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р В РЎвЂ Р В РЎвЂ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’Вµ'
     }),
     locations
   });
@@ -828,18 +829,18 @@ app.get('/locations/:locationId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Обектът не е намерен',
+        title: 'Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'company-locations',
-        statusText: 'Обектът не е намерен'
+        statusText: 'Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'company-location-card', {
     ...baseViewData({
-      title: `${location.location.code} · ${location.location.name} — AutoGrand ERP V2`,
+      title: `${location.location.code} Р вЂ™Р’В· ${location.location.name} Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2`,
       currentScreen: 'company-locations',
-      statusText: `Отворена карта на обект: ${location.location.name}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’В° Р В РЎвЂўР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™: ${location.location.name}`
     }),
     location
   });
@@ -850,9 +851,9 @@ app.get('/stock/dashboard', async (req, res) => {
 
   renderPage(req, res, 'stock-dashboard', {
     ...baseViewData({
-      title: 'Складов център — AutoGrand ERP V2',
+      title: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂ°Р РЋР вЂљ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'stock-dashboard',
-      statusText: 'Отворен складов център'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚В Р В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂ°Р РЋР вЂљ'
     }),
     stock
   });
@@ -863,9 +864,9 @@ app.get('/stock/transfers', async (req, res) => {
 
   renderPage(req, res, 'stock-transfer-center', {
     ...baseViewData({
-      title: 'Трансфери и заявки — AutoGrand ERP V2',
+      title: 'Р В РЎС›Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљР В РЎвЂ Р В РЎвЂ Р В Р’В·Р В Р’В°Р РЋР РЏР В Р вЂ Р В РЎвЂќР В РЎвЂ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'stock-transfers',
-      statusText: 'Отворен екран: Трансфери и заявки'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎС›Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљР В РЎвЂ Р В РЎвЂ Р В Р’В·Р В Р’В°Р РЋР РЏР В Р вЂ Р В РЎвЂќР В РЎвЂ'
     }),
     transferCenter
   });
@@ -876,9 +877,9 @@ app.get('/stock/adjustment/new', async (req, res) => {
 
   renderPage(req, res, 'stock-adjustment-new', {
     ...baseViewData({
-      title: 'Нова складова корекция — AutoGrand ERP V2',
+      title: 'Р В РЎСљР В РЎвЂўР В Р вЂ Р В Р’В° Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'stock-adjustment-new',
-      statusText: 'Нов документ за складова корекция'
+      statusText: 'Р В РЎСљР В РЎвЂўР В Р вЂ  Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™ Р В Р’В·Р В Р’В° Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ'
     }),
     formData,
     actionMessage: stockActionMessage(req.query.action || '')
@@ -902,18 +903,18 @@ app.get('/stock/adjustment/:documentId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Складовата корекция не е намерена',
+        title: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В°Р РЋРІР‚С™Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В°',
         currentScreen: 'stock-adjustments',
-        statusText: 'Складовата корекция не е намерена'
+        statusText: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В°Р РЋРІР‚С™Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В°'
       })
     });
   }
 
   renderPage(req, res, 'stock-adjustment-card', {
     ...baseViewData({
-      title: `${adjustmentCard.number} — складова корекция`,
+      title: `${adjustmentCard.number} Р Р†Р вЂљРІР‚Сњ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ`,
       currentScreen: 'stock-adjustments',
-      statusText: `Отворена карта на корекция: ${adjustmentCard.number}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’В° Р В РЎвЂќР В РЎвЂўР РЋР вЂљР В Р’ВµР В РЎвЂќР РЋРІР‚В Р В РЎвЂР РЋР РЏ: ${adjustmentCard.number}`
     }),
     adjustmentCard
   });
@@ -944,9 +945,9 @@ app.get('/stock/transfer/new', async (req, res) => {
 
   renderPage(req, res, 'stock-transfer-new', {
     ...baseViewData({
-      title: 'Складов трансфер — AutoGrand ERP V2',
+      title: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'stock-transfer-new',
-      statusText: 'Нов складов трансфер'
+      statusText: 'Р В РЎСљР В РЎвЂўР В Р вЂ  Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ'
     }),
     formData,
     actionMessage: stockActionMessage(req.query.action || '')
@@ -971,16 +972,16 @@ app.get('/stock/transfer/:documentId/print', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Печатният трансфер не е намерен',
+        title: 'Р В РЎСџР В Р’ВµР РЋРІР‚РЋР В Р’В°Р РЋРІР‚С™Р В Р вЂ¦Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'stock-transfers',
-        statusText: 'Печатният трансфер не е намерен'
+        statusText: 'Р В РЎСџР В Р’ВµР РЋРІР‚РЋР В Р’В°Р РЋРІР‚С™Р В Р вЂ¦Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   res.render('stock-transfer-print', {
     layout: false,
-    title: `${transferPrint.number} — печатен трансферен документ`,
+    title: `${transferPrint.number} Р Р†Р вЂљРІР‚Сњ Р В РЎвЂ”Р В Р’ВµР РЋРІР‚РЋР В Р’В°Р РЋРІР‚С™Р В Р’ВµР В Р вЂ¦ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В РўвЂР В РЎвЂўР В РЎвЂќР РЋРЎвЂњР В РЎВР В Р’ВµР В Р вЂ¦Р РЋРІР‚С™`,
     transferPrint
   });
 });
@@ -992,18 +993,18 @@ app.get('/stock/transfer/:documentId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Складовият трансфер не е намерен',
+        title: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'stock-transfers',
-        statusText: 'Складовият трансфер не е намерен'
+        statusText: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В РЎвЂР РЋР РЏР РЋРІР‚С™ Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'stock-transfer-card', {
     ...baseViewData({
-      title: `${transferCard.number} — складов трансфер`,
+      title: `${transferCard.number} Р Р†Р вЂљРІР‚Сњ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ  Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ`,
       currentScreen: 'stock-transfers',
-      statusText: `Отворена карта на трансфер: ${transferCard.number}`
+      statusText: `Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’В° Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р РЋР С“Р РЋРІР‚С›Р В Р’ВµР РЋР вЂљ: ${transferCard.number}`
     }),
     transferCard
   });
@@ -1036,18 +1037,18 @@ app.get('/stock/item/:itemId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Артикулът не е намерен',
+        title: 'Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'stock',
-        statusText: 'Артикулът не е намерен'
+        statusText: 'Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'stock-item-card', {
     ...baseViewData({
-      title: `${stock.item.code} · ${stock.item.name} — складова карта`,
+      title: `${stock.item.code} Р вЂ™Р’В· ${stock.item.name} Р Р†Р вЂљРІР‚Сњ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В°`,
       currentScreen: 'stock',
-      statusText: `Складова карта на артикул: ${stock.item.code}`
+      statusText: `Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’В° Р В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»: ${stock.item.code}`
     }),
     stock
   });
@@ -1060,18 +1061,18 @@ app.get('/stock/warehouse/:warehouseId', async (req, res) => {
     res.status(404);
     return renderPage(req, res, 'not-found', {
       ...baseViewData({
-        title: 'Складът не е намерен',
+        title: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦',
         currentScreen: 'stock',
-        statusText: 'Складът не е намерен'
+        statusText: 'Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦'
       })
     });
   }
 
   renderPage(req, res, 'stock-warehouse-card', {
     ...baseViewData({
-      title: `${stock.warehouse.code} · ${stock.warehouse.name} — складова карта`,
+      title: `${stock.warehouse.code} Р вЂ™Р’В· ${stock.warehouse.name} Р Р†Р вЂљРІР‚Сњ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В°`,
       currentScreen: 'warehouses',
-      statusText: `Складова карта: ${stock.warehouse.code}`
+      statusText: `Р В Р Р‹Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂР В РЎвЂўР В Р вЂ Р В Р’В° Р В РЎвЂќР В Р’В°Р РЋР вЂљР РЋРІР‚С™Р В Р’В°: ${stock.warehouse.code}`
     }),
     stock
   });
@@ -1080,9 +1081,9 @@ app.get('/stock/warehouse/:warehouseId', async (req, res) => {
 app.get('/reference', (req, res) => {
   renderPage(req, res, 'reference-local', {
     ...baseViewData({
-      title: 'Client Reference Map — AutoGrand ERP V2',
+      title: 'Client Reference Map Р Р†Р вЂљРІР‚Сњ AutoGrand ERP V2',
       currentScreen: 'reference-map',
-      statusText: 'Отворен reference екран'
+      statusText: 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ reference Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦'
     })
   });
 });
@@ -1099,8 +1100,8 @@ app.use((req, res) => {
   res.status(404);
     return renderPage(req, res, 'not-found', {
     ...baseViewData({
-      title: 'Страницата не е намерена',
-      statusText: 'Страницата не е намерена'
+      title: 'Р В Р Р‹Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РЎвЂР РЋРІР‚В Р В Р’В°Р РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В°',
+      statusText: 'Р В Р Р‹Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РЎвЂР РЋРІР‚В Р В Р’В°Р РЋРІР‚С™Р В Р’В° Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р В Р вЂ¦Р В Р’В°Р В РЎВР В Р’ВµР РЋР вЂљР В Р’ВµР В Р вЂ¦Р В Р’В°'
     })
   });
 });
@@ -1120,8 +1121,8 @@ AutoGrand compatibility markers for legacy checker:
 - Step 4.4 grid preferences version label
 - appVersion: 'v0.4.8'
 - 0.4.8
-- Централен склад
-- Регионален склад Стара Загора
+- Р В Р’В¦Р В Р’ВµР В Р вЂ¦Р РЋРІР‚С™Р РЋР вЂљР В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂ
+- Р В Р’В Р В Р’ВµР В РЎвЂ“Р В РЎвЂР В РЎвЂўР В Р вЂ¦Р В Р’В°Р В Р’В»Р В Р’ВµР В Р вЂ¦ Р РЋР С“Р В РЎвЂќР В Р’В»Р В Р’В°Р В РўвЂ Р В Р Р‹Р РЋРІР‚С™Р В Р’В°Р РЋР вЂљР В Р’В° Р В РІР‚вЂќР В Р’В°Р В РЎвЂ“Р В РЎвЂўР РЋР вЂљР В Р’В°
 - Step 4.1 Stara Zagora separate central/regional objects
 - canSell: false
 - canTransfer: false
@@ -1134,7 +1135,7 @@ AutoGrand compatibility markers for legacy checker:
 - canDispatchTransferText
 - canReceiveTransferText
 - Step 4.1 transfer capability labels
-- Фирма → Обект → Потребител → Парола
+- Р В Р’В¤Р В РЎвЂР РЋР вЂљР В РЎВР В Р’В° Р Р†РІР‚В РІР‚в„ў Р В РЎвЂєР В Р’В±Р В Р’ВµР В РЎвЂќР РЋРІР‚С™ Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В РЎвЂўР РЋРІР‚С™Р РЋР вЂљР В Р’ВµР В Р’В±Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В Р’В» Р Р†РІР‚В РІР‚в„ў Р В РЎСџР В Р’В°Р РЋР вЂљР В РЎвЂўР В Р’В»Р В Р’В°
 - 0.4.1
 - Step 4.1 docs and checkpoint
 - AUTOGRAND_ROLE_TEMPLATES
@@ -1159,15 +1160,15 @@ AutoGrand compatibility markers for legacy checker:
 - InventoryPackage.bpl
 - DevicePackage.bpl
 - Step 4.0 Moneta reference module audit
-- Артикули
-- Потребители
-- Принтер профили
-- Номератори
+- Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚С™Р В РЎвЂР В РЎвЂќР РЋРЎвЂњР В Р’В»Р В РЎвЂ
+- Р В РЎСџР В РЎвЂўР РЋРІР‚С™Р РЋР вЂљР В Р’ВµР В Р’В±Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В Р’В»Р В РЎвЂ
+- Р В РЎСџР РЋР вЂљР В РЎвЂР В Р вЂ¦Р РЋРІР‚С™Р В Р’ВµР РЋР вЂљ Р В РЎвЂ”Р РЋР вЂљР В РЎвЂўР РЋРІР‚С›Р В РЎвЂР В Р’В»Р В РЎвЂ
+- Р В РЎСљР В РЎвЂўР В РЎВР В Р’ВµР РЋР вЂљР В Р’В°Р РЋРІР‚С™Р В РЎвЂўР РЋР вЂљР В РЎвЂ
 - Step 4.0 foundation data plan
 - Step 4.1
 - Step 4.8
-- Архитектурен checkpoint
-- архитектурен checkpoint
+- Р В РЎвЂ™Р РЋР вЂљР РЋРІР‚В¦Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋРЎвЂњР РЋР вЂљР В Р’ВµР В Р вЂ¦ checkpoint
+- Р В Р’В°Р РЋР вЂљР РЋРІР‚В¦Р В РЎвЂР РЋРІР‚С™Р В Р’ВµР В РЎвЂќР РЋРІР‚С™Р РЋРЎвЂњР РЋР вЂљР В Р’ВµР В Р вЂ¦ checkpoint
 - Step 4.0 implementation sequence and checkpoint
 - screen.hasDocumentCard
 - generic document browse flag
@@ -1205,3 +1206,6 @@ AUTOGRAND_STEP_4_8_6_STOCK_ADJUSTMENT_FINAL_QA_CLEAN_EXPORT_CHECKPOINT
 Step 4.8.6 - Stock Adjustment Final QA / Clean Export Checkpoint
 This is a non-runtime compatibility marker for the stock adjustment final QA clean export checkpoint.
 */
+// STEP_4_9_STOCK_CONTROL_CENTER_SERVER_MARKER
+
+// Step 4.9 stock control center server route registration

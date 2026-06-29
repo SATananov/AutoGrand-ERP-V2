@@ -581,7 +581,7 @@ textarea {
   }
 }
 
-/* Step 1.1 — Moneta Sales Screens Applied */
+/* Step 1.1 вЂ” Moneta Sales Screens Applied */
 .sales-screen {
   min-height: 100%;
   display: grid;
@@ -850,7 +850,7 @@ textarea {
   }
 }
 
-/* Step 1.2 — Sales Document Card Foundation */
+/* Step 1.2 вЂ” Sales Document Card Foundation */
 .preview-open-link {
   min-height: 30px;
   padding: 6px 11px;
@@ -1155,7 +1155,7 @@ textarea {
   }
 }
 
-/* Step 1.3 — Sales Document Card Polish + Real Tabs */
+/* Step 1.3 вЂ” Sales Document Card Polish + Real Tabs */
 .polished-document-header {
   border-left: 5px solid #6ea238;
 }
@@ -1324,7 +1324,7 @@ textarea {
   }
 }
 
-/* Step 2 — Sales Real CRUD Foundation */
+/* Step 2 вЂ” Sales Real CRUD Foundation */
 .command-link {
   min-height: 30px;
   padding: 7px 11px;
@@ -1445,7 +1445,7 @@ textarea {
   }
 }
 
-/* Step 2.1 — Sales Line Edit/Delete + Document Safety */
+/* Step 2.1 вЂ” Sales Line Edit/Delete + Document Safety */
 .document-lock-banner {
   display: grid;
   gap: 3px;
@@ -1575,7 +1575,7 @@ textarea {
   }
 }
 
-/* Step 2.2 — Sales Posting + Stock Movement */
+/* Step 2.2 вЂ” Sales Posting + Stock Movement */
 .document-action-message {
   display: grid;
   gap: 3px;
@@ -1663,7 +1663,7 @@ textarea {
   }
 }
 
-/* Step 2.3 — Sales Payments + Cash Register */
+/* Step 2.3 вЂ” Sales Payments + Cash Register */
 .payment-summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));
@@ -1785,7 +1785,7 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
-/* Step 2.5 — Desktop Workspace Behavior Layer
+/* Step 2.5 вЂ” Desktop Workspace Behavior Layer
    Structural behavior only: MDI windows, tabs, menu collapse, drag/resize handles. */
 .erp-workspace {
   overflow: hidden;
@@ -2108,7 +2108,7 @@ textarea {
   }
 }
 
-/* Step 2.5.1 — Step1-like main module tree + sidebar behavior */
+/* Step 2.5.1 вЂ” Step1-like main module tree + sidebar behavior */
 :root {
   --ag-v2-sidebar-width: 505px;
 }
@@ -2447,7 +2447,7 @@ body > .sidebar-dock-button {
 }
 
 .ag-quick-links-list.ag-empty-quick-links::before {
-  content: "Няма добавени бързи връзки";
+  content: "РќСЏРјР° РґРѕР±Р°РІРµРЅРё Р±СЉСЂР·Рё РІСЂСЉР·РєРё";
   display: block;
   padding: 8px 0;
   color: #73806f;
@@ -2586,7 +2586,7 @@ body > .sidebar-dock-button {
   font-size: 20px;
 }
 
-/* Step 2.5.2 — Moneta-like quick links context menu and richer menu icons */
+/* Step 2.5.2 вЂ” Moneta-like quick links context menu and richer menu icons */
 .ag-quick-link-item .tree-icon {
   color: #0a0f0a;
   font-weight: 900;
@@ -2632,7 +2632,7 @@ body > .sidebar-dock-button {
   background: #d4dce5;
 }
 
-/* Step 2.5.3 — robust visible menu icons and quick-link fix polish */
+/* Step 2.5.3 вЂ” robust visible menu icons and quick-link fix polish */
 .tree-icon[data-ag-glyph]::before {
   content: attr(data-ag-glyph) !important;
 }
@@ -2669,7 +2669,7 @@ body > .sidebar-dock-button {
   min-width: 304px;
 }
 
-/* Step 2.5.4 — cleaner, user-friendly menu icon polish + floating restore menu tab */
+/* Step 2.5.4 вЂ” cleaner, user-friendly menu icon polish + floating restore menu tab */
 .ag-top-module-summary > .tree-icon,
 .module-group > summary > .tree-icon,
 .tree-leaf > .tree-icon {
@@ -2774,7 +2774,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 2.5.5 — compact logical bottom statusbar with live clock */
+/* Step 2.5.5 вЂ” compact logical bottom statusbar with live clock */
 .erp-statusbar {
   grid-template-columns: minmax(190px, 0.62fr) minmax(155px, 0.48fr) minmax(170px, 0.52fr) minmax(215px, 0.66fr) minmax(170px, 0.5fr) minmax(175px, 0.5fr) minmax(230px, 0.72fr) !important;
   min-height: 28px !important;
@@ -2877,7 +2877,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 2.5.6 — Ribbon command layout + Snapshot button */
+/* Step 2.5.6 вЂ” Ribbon command layout + Snapshot button */
 .erp-ribbon {
   height: 116px !important;
   align-items: stretch !important;
@@ -3047,7 +3047,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.5.7 — Snapshot tools + ribbon button alignment polish */
+/* Step 2.5.7 вЂ” Snapshot tools + ribbon button alignment polish */
 .ribbon-button {
   grid-template-rows: 46px 30px !important;
   align-content: start !important;
@@ -3101,7 +3101,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .ribbon-button[data-ribbon-command="snapshot"]::after {
-  content: "▾";
+  content: "в–ѕ";
   position: absolute;
   right: 10px;
   bottom: 22px;
@@ -3183,7 +3183,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6 — Stock Module Foundation */
+/* Step 2.6 вЂ” Stock Module Foundation */
 .stock-screen,
 .stock-card-screen,
 .stock-form-screen {
@@ -3433,7 +3433,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6.1 — Company locations / trade objects polish */
+/* Step 2.6.1 вЂ” Company locations / trade objects polish */
 .location-groups-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
@@ -3522,7 +3522,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.6.2 — Shell/menu sync and ribbon layout guard */
+/* Step 2.6.2 вЂ” Shell/menu sync and ribbon layout guard */
 .erp-ribbon {
   height: 116px !important;
   min-height: 116px !important;
@@ -3563,18 +3563,18 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   max-height: 96px !important;
 }
 
-.tree-leaf[data-module-title="Обекти и складове"] .tree-icon,
-.tree-leaf[data-module-title="Складов център"] .tree-icon,
-.tree-leaf[data-module-title="Наличности"] .tree-icon,
-.tree-leaf[data-module-title="Нова складова корекция"] .tree-icon,
-.tree-leaf[data-module-title="Складова корекция"] .tree-icon,
-.tree-leaf[data-module-title="Нов трансфер"] .tree-icon,
-.tree-leaf[data-module-title="Трансфери и заявки"] .tree-icon,
-.tree-leaf[data-module-title="История трансфери"] .tree-icon {
+.tree-leaf[data-module-title="РћР±РµРєС‚Рё Рё СЃРєР»Р°РґРѕРІРµ"] .tree-icon,
+.tree-leaf[data-module-title="РЎРєР»Р°РґРѕРІ С†РµРЅС‚СЉСЂ"] .tree-icon,
+.tree-leaf[data-module-title="РќР°Р»РёС‡РЅРѕСЃС‚Рё"] .tree-icon,
+.tree-leaf[data-module-title="РќРѕРІР° СЃРєР»Р°РґРѕРІР° РєРѕСЂРµРєС†РёСЏ"] .tree-icon,
+.tree-leaf[data-module-title="РЎРєР»Р°РґРѕРІР° РєРѕСЂРµРєС†РёСЏ"] .tree-icon,
+.tree-leaf[data-module-title="РќРѕРІ С‚СЂР°РЅСЃС„РµСЂ"] .tree-icon,
+.tree-leaf[data-module-title="РўСЂР°РЅСЃС„РµСЂРё Рё Р·Р°СЏРІРєРё"] .tree-icon,
+.tree-leaf[data-module-title="РСЃС‚РѕСЂРёСЏ С‚СЂР°РЅСЃС„РµСЂРё"] .tree-icon {
   color: #184a2f !important;
 }
 
-/* Step 2.7 — stock transfer document card polish */
+/* Step 2.7 вЂ” stock transfer document card polish */
 .stock-transfer-card .stock-transfer-route-box {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -3609,7 +3609,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.9 — Price list working screen */
+/* Step 2.9 вЂ” Price list working screen */
 .price-workbench {
   display: grid;
   gap: 12px;
@@ -4084,7 +4084,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 2.9.1 — Price list availability panel polish */
+/* Step 2.9.1 вЂ” Price list availability panel polish */
 .price-workbench {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
@@ -4254,7 +4254,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .availability-table .current-location td:first-child strong::after {
-  content: ' · текущ';
+  content: ' В· С‚РµРєСѓС‰';
   color: #51813a;
   font-size: 11px;
 }
@@ -4401,7 +4401,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.0 — Transfer request basket and shelf confirmation workflow */
+/* Step 3.0 вЂ” Transfer request basket and shelf confirmation workflow */
 .price-detail-zone {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -4580,13 +4580,13 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .request-row.needs-action td:first-child::before {
-  content: '●';
+  content: 'в—Џ';
   color: #c76b5d;
   margin-right: 5px;
 }
 
 .request-row.missing td:first-child::before {
-  content: 'ЛИПСА';
+  content: 'Р›РРџРЎРђ';
   display: inline-flex;
   margin-right: 8px;
   padding: 2px 6px;
@@ -4620,7 +4620,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.1 — Transfer requests center */
+/* Step 3.1 вЂ” Transfer requests center */
 .transfer-center-screen {
   display: grid;
   gap: 14px;
@@ -4993,7 +4993,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.2 — Transfer receiving actions and object-based labels */
+/* Step 3.2 вЂ” Transfer receiving actions and object-based labels */
 .transfer-center-cards {
   grid-template-columns: repeat(6, minmax(145px, 1fr));
 }
@@ -5050,12 +5050,12 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .transfer-row-actions .ag-transfer-receive-print::before {
-  content: '🖨️';
+  content: 'рџ–ЁпёЏ';
   margin-right: 5px;
 }
 
 .transfer-row-actions .ag-transfer-receive::before {
-  content: '✓';
+  content: 'вњ“';
   margin-right: 5px;
 }
 
@@ -5083,7 +5083,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.3 — Transfer in transit status and request comments */
+/* Step 3.3 вЂ” Transfer in transit status and request comments */
 .transfer-request-note-field {
   display: grid;
   gap: 5px;
@@ -5141,7 +5141,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 
 .transfer-center-row.tone-in-transit td:first-child::before,
 .transfer-center-row.tone-receive td:first-child::before {
-  content: 'В ПЪТ';
+  content: 'Р’ РџРЄРў';
   display: inline-flex;
   margin-right: 8px;
   padding: 2px 7px;
@@ -5154,11 +5154,11 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .transfer-row-actions .ag-transfer-send::before {
-  content: '↗';
+  content: 'в†—';
   margin-right: 5px;
 }
 
-/* Step 3.4 — Transfer center polish + status counters */
+/* Step 3.4 вЂ” Transfer center polish + status counters */
 .stock-transfer-alerts-shell {
   display: grid;
   gap: 10px;
@@ -5400,7 +5400,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.5 — Transfer Print Document / Transfer Slip */
+/* Step 3.5 вЂ” Transfer Print Document / Transfer Slip */
 .transfer-print-body {
   min-height: 100vh;
   margin: 0;
@@ -5916,8 +5916,8 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 3.5.3 — Transfer Print Forms and Preview Dialog */
-/* Step 3.5.4 — Transfer Print Compact Picking Polish */
+/* Step 3.5.3 вЂ” Transfer Print Forms and Preview Dialog */
+/* Step 3.5.4 вЂ” Transfer Print Compact Picking Polish */
 .transfer-print-profile-bar {
   display: flex;
   flex-wrap: wrap;
@@ -6359,7 +6359,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3 — Login Context like Moneta */
+/* Step 4.3 вЂ” Login Context like Moneta */
 .ag-login-body {
   min-height: 100vh;
   margin: 0;
@@ -6621,7 +6621,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3.1 — Login Context Role Visibility Polish */
+/* Step 4.3.1 вЂ” Login Context Role Visibility Polish */
 .titlebar-context {
   display: grid;
   justify-items: end;
@@ -6659,7 +6659,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 .titlebar-context .titlebar-role::before {
-  content: "Роля: ";
+  content: "Р РѕР»СЏ: ";
   color: #6b7d68;
   font-weight: 800;
 }
@@ -6677,7 +6677,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 
 .erp-statusbar .statusbar-user { min-width: 240px; }
 
-/* Step 4.2.4 — role permission guard polish */
+/* Step 4.2.4 вЂ” role permission guard polish */
 .titlebar-permission-scope {
   display: inline-flex;
   align-items: center;
@@ -6821,7 +6821,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.3 — catalog foundation screen */
+/* Step 4.3 вЂ” catalog foundation screen */
 .ag-catalog-page {
   display: grid;
   gap: 18px;
@@ -7400,7 +7400,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
   }
 }
 
-/* Step 4.5 — Global Document Engine */
+/* Step 4.5 вЂ” Global Document Engine */
 .document-engine-page {
   display: grid;
   gap: 18px;
@@ -7521,7 +7521,7 @@ body.is-v2-sidebar-minimized .erp-statusbar .statusbar-message {
 }
 
 
-/* Step 4.6 — Global Print Engine */
+/* Step 4.6 вЂ” Global Print Engine */
 .ag-print-engine-page .ag-engine-status {
   margin: 12px 0 18px;
   padding: 10px 12px;
@@ -8154,8 +8154,8 @@ AutoGrand compatibility markers for legacy checker:
 - Step 4.4 grid preferences version label
 - appVersion: 'v0.4.8'
 - 0.4.8
-- Централен склад
-- Регионален склад Стара Загора
+- Р¦РµРЅС‚СЂР°Р»РµРЅ СЃРєР»Р°Рґ
+- Р РµРіРёРѕРЅР°Р»РµРЅ СЃРєР»Р°Рґ РЎС‚Р°СЂР° Р—Р°РіРѕСЂР°
 - Step 4.1 Stara Zagora separate central/regional objects
 - canSell: false
 - canTransfer: false
@@ -8168,7 +8168,7 @@ AutoGrand compatibility markers for legacy checker:
 - canDispatchTransferText
 - canReceiveTransferText
 - Step 4.1 transfer capability labels
-- Фирма → Обект → Потребител → Парола
+- Р¤РёСЂРјР° в†’ РћР±РµРєС‚ в†’ РџРѕС‚СЂРµР±РёС‚РµР» в†’ РџР°СЂРѕР»Р°
 - 0.4.1
 - Step 4.1 docs and checkpoint
 - AUTOGRAND_ROLE_TEMPLATES
@@ -8193,15 +8193,15 @@ AutoGrand compatibility markers for legacy checker:
 - InventoryPackage.bpl
 - DevicePackage.bpl
 - Step 4.0 Moneta reference module audit
-- Артикули
-- Потребители
-- Принтер профили
-- Номератори
+- РђСЂС‚РёРєСѓР»Рё
+- РџРѕС‚СЂРµР±РёС‚РµР»Рё
+- РџСЂРёРЅС‚РµСЂ РїСЂРѕС„РёР»Рё
+- РќРѕРјРµСЂР°С‚РѕСЂРё
 - Step 4.0 foundation data plan
 - Step 4.1
 - Step 4.8
-- Архитектурен checkpoint
-- архитектурен checkpoint
+- РђСЂС…РёС‚РµРєС‚СѓСЂРµРЅ checkpoint
+- Р°СЂС…РёС‚РµРєС‚СѓСЂРµРЅ checkpoint
 - Step 4.0 implementation sequence and checkpoint
 - screen.hasDocumentCard
 - generic document browse flag
@@ -8577,5 +8577,164 @@ AutoGrand compatibility markers for legacy checker:
 
   .stock-adjustment-operator-workflow-hardening__header {
     flex-direction: column;
+  }
+}
+
+/* AutoGrand ERP V2 - Step 4.9 Stock Control Center */
+.ag-stock-control-center {
+  display: grid;
+  gap: 18px;
+}
+
+.ag-stock-control-center__hero {
+  align-items: flex-start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.ag-stock-control-center__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ag-stock-control-center__summary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ag-kpi-card {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(49, 99, 74, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(25, 64, 48, 0.08);
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.ag-kpi-card strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.ag-kpi-card__label {
+  color: #4c6b5a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ag-stock-control-center__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ag-stock-control-center-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(241,248,243,.92));
+  border: 1px solid rgba(39, 92, 65, 0.18);
+  border-radius: 14px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.ag-stock-control-center-card__top {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ag-stock-control-center-card__links {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.ag-stock-control-center-card code {
+  background: rgba(33, 71, 52, 0.08);
+  border-radius: 8px;
+  color: #24513b;
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+.ag-stock-control-center__checklist {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+}
+
+.ag-stock-control-center__checklist li {
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(39, 92, 65, 0.14);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.ag-stock-control-center__checklist strong,
+.ag-stock-control-center__checklist span {
+  display: block;
+}
+
+.ag-stock-control-center__timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.ag-stock-control-center-step {
+  align-items: center;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(39, 92, 65, 0.16);
+  border-radius: 12px;
+  color: inherit;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 70px 1fr 92px;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.ag-stock-control-center-step--active {
+  border-color: rgba(32, 114, 74, 0.44);
+  box-shadow: 0 8px 22px rgba(32, 114, 74, 0.10);
+}
+
+.ag-stock-control-center-step em {
+  color: #3d6b51;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .ag-stock-control-center__hero,
+  .ag-stock-control-center__actions {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .ag-stock-control-center__summary,
+  .ag-stock-control-center__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-stock-control-center-step {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-stock-control-center-step em {
+    text-align: left;
   }
 }
