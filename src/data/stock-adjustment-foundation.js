@@ -88,3 +88,14 @@ export function getStockAdjustmentFoundation() {
 }
 
 export default getStockAdjustmentFoundation;
+
+// Step 4.8.5 - Stock Adjustment Final Polish / Operator Workflow Hardening
+export {
+  STOCK_ADJUSTMENT_OPERATOR_ACTIONS,
+  STOCK_ADJUSTMENT_OPERATOR_REASON_GUIDE,
+  STOCK_ADJUSTMENT_OPERATOR_WORKFLOW_MARKER,
+  STOCK_ADJUSTMENT_OPERATOR_WORKFLOW_STEP,
+  buildStockAdjustmentOperatorWorkflowSummary,
+  getStockAdjustmentOperatorActionProfile,
+  normalizeStockAdjustmentOperatorStatus
+} from './stock-adjustment-operator-workflow-foundation.js';

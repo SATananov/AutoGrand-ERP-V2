@@ -205,3 +205,6 @@ router.post("/api/stock/adjustments/documents/:id/post", async (req, res) => {
 });
 
 export default router;
+
+// Step 4.8.5 compatibility marker: stock adjustment operator workflow hardening UI is active.
+// STEP_4_8_5_OPERATOR_WORKFLOW_HARDENING

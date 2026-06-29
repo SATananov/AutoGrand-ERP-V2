@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.16",
+  "version": "0.4.17",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.8.4 Stock Adjustment Audit / Reversal Safety Layer | Step 4.4 Global Grid Column Preferences | 4-4-global-grid-column-preferences | Step 4.4 grid preferences version label | grid preferences version label",
+  "description": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -104,5 +104,13 @@
     "grid-column-preferences"
   ],
   "autograndStep": "4.8.4",
-  "autograndHealthLabel": "4-8-4-stock-adjustment-audit-reversal-safety"
+  "autograndHealthLabel": "4-8-4-stock-adjustment-audit-reversal-safety",
+  "autogrand": {
+    "version": "0.4.17",
+    "step": "4.8.5",
+    "healthLabel": "4-8-5-stock-adjustment-operator-workflow-hardening",
+    "lastCompletedStep": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening",
+    "stockAdjustmentOperatorWorkflowHardening": true,
+    "step485OperatorWorkflowHardening": "STEP_4_8_5_OPERATOR_WORKFLOW_HARDENING"
+  }
 }

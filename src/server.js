@@ -1197,3 +1197,6 @@ AutoGrand compatibility markers for legacy checker:
 // AutoGrand ERP V2 Step 4.8.4 Stock Adjustment Audit / Reversal Safety Layer
 
 // 4-8-4-stock-adjustment-audit-reversal-safety
+
+// Step 4.8.5 compatibility marker: Stock Adjustment Final Polish / Operator Workflow Hardening.
+// Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening

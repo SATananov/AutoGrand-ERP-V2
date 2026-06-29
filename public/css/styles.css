@@ -8498,3 +8498,84 @@ AutoGrand compatibility markers for legacy checker:
 }
 /* Step 4.8.4 Stock Adjustment Audit / Reversal Safety Layer END */
 
+
+/* STEP 4.8.5 STOCK ADJUSTMENT OPERATOR WORKFLOW HARDENING */
+.stock-adjustment-operator-workflow-hardening {
+  margin-top: 1rem;
+  border: 1px solid rgba(54, 94, 73, 0.22);
+  background: linear-gradient(180deg, rgba(246, 250, 247, 0.98), rgba(235, 244, 239, 0.96));
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__title {
+  font-weight: 800;
+  color: #173f2a;
+  letter-spacing: 0.01em;
+}
+
+.stock-adjustment-operator-workflow-hardening__subtitle {
+  margin-top: 0.25rem;
+  color: #49685a;
+  font-size: 0.92rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  background: #174a31;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__card {
+  border: 1px solid rgba(54, 94, 73, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 0.8rem;
+}
+
+.stock-adjustment-operator-workflow-hardening__card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #1c4f35;
+}
+
+.stock-adjustment-operator-workflow-hardening__card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #3c5d4e;
+}
+
+.stock-adjustment-operator-workflow-hardening__card li + li {
+  margin-top: 0.28rem;
+}
+
+@media (max-width: 900px) {
+  .stock-adjustment-operator-workflow-hardening__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-adjustment-operator-workflow-hardening__header {
+    flex-direction: column;
+  }
+}

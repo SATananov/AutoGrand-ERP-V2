@@ -143,3 +143,13 @@ export {
   postStockAdjustmentDocument,
   upsertStockAdjustmentLine
 };
+
+// Step 4.8.5 - Stock Adjustment Final Polish / Operator Workflow Hardening
+export {
+  STOCK_ADJUSTMENT_OPERATOR_WORKFLOW_MARKER,
+  STOCK_ADJUSTMENT_OPERATOR_WORKFLOW_STEP,
+  buildStockAdjustmentOperatorErrorMessage,
+  buildStockAdjustmentSafetyChecklist,
+  buildStockAdjustmentOperatorWorkflowSummary,
+  getStockAdjustmentOperatorWorkflowPanel
+} from './stock-adjustment-operator-workflow-service.js';
