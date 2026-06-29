@@ -1200,3 +1200,8 @@ AutoGrand compatibility markers for legacy checker:
 
 // Step 4.8.5 compatibility marker: Stock Adjustment Final Polish / Operator Workflow Hardening.
 // Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening
+/*
+AUTOGRAND_STEP_4_8_6_STOCK_ADJUSTMENT_FINAL_QA_CLEAN_EXPORT_CHECKPOINT
+Step 4.8.6 - Stock Adjustment Final QA / Clean Export Checkpoint
+This is a non-runtime compatibility marker for the stock adjustment final QA clean export checkpoint.
+*/

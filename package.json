@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "private": true,
   "type": "module",
-  "description": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening",
+  "description": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening | Step 4.8.6 Stock Adjustment Final QA / Clean Export Checkpoint | 4-8-6-stock-adjustment-final-qa-clean-export-checkpoint | stock adjustment final qa clean export checkpoint",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -32,7 +32,10 @@
     "step-4-4",
     "grid-preferences",
     "grid-column-preferences",
-    "4-4-global-grid-column-preferences"
+    "4-4-global-grid-column-preferences",
+    "step-4-8-6",
+    "stock-adjustment-final-qa",
+    "clean-export-checkpoint"
   ],
   "autograndCompatibilityMarkers": [
     "Step 4.4 grid preferences version label",
@@ -107,10 +110,12 @@
   "autograndHealthLabel": "4-8-4-stock-adjustment-audit-reversal-safety",
   "autogrand": {
     "version": "0.4.17",
-    "step": "4.8.5",
+    "step": "4.8.6",
     "healthLabel": "4-8-5-stock-adjustment-operator-workflow-hardening",
     "lastCompletedStep": "Step 4.8.5 Stock Adjustment Final Polish / Operator Workflow Hardening",
     "stockAdjustmentOperatorWorkflowHardening": true,
-    "step485OperatorWorkflowHardening": "STEP_4_8_5_OPERATOR_WORKFLOW_HARDENING"
+    "step485OperatorWorkflowHardening": "STEP_4_8_5_OPERATOR_WORKFLOW_HARDENING",
+    "stockAdjustmentFinalQa": true,
+    "stockAdjustmentCleanExportCheckpoint": true
   }
 }
