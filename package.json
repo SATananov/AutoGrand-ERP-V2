@@ -1,6 +1,6 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.24",
+  "version": "0.4.25",
   "private": true,
   "type": "module",
   "description": "AutoGrand ERP V2 Step 4.9.3 Stock Control Center Drilldown Detail Inspector",

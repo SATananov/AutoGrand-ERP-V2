@@ -9501,3 +9501,120 @@ button.ag-inspector-polish-action {
   }
 }
 /* END AG STEP 4.9.4 STOCK CONTROL INSPECTOR POLISH */
+
+/* AG STEP 4.9.5 STOCK CONTROL FINAL QA CLOSURE */
+.ag-stock-closure-panel {
+  border: 1px solid rgba(13, 85, 48, 0.22);
+  background: linear-gradient(180deg, rgba(236, 250, 243, 0.98), rgba(221, 241, 230, 0.98));
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(12, 71, 42, 0.10);
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ag-stock-closure-text h2 {
+  margin: 0 0 4px;
+  color: #0b492d;
+  font-size: 1.08rem;
+  letter-spacing: 0.01em;
+}
+
+.ag-stock-closure-text p {
+  margin: 0;
+  color: #3b6751;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.ag-stock-closure-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ag-stock-closure-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(13, 85, 48, 0.18);
+  background: rgba(255, 255, 255, 0.78);
+  color: #174b34;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+}
+
+.ag-stock-closure-chip-safe,
+.ag-stock-closure-chip-ready {
+  color: #0d5b36;
+}
+
+.ag-stock-closure-chip-locked,
+.ag-stock-closure-chip-posted,
+.ag-stock-closure-chip-flow {
+  color: #6b4a08;
+  border-color: rgba(136, 94, 12, 0.26);
+}
+
+.ag-stock-closure-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ag-stock-closure-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(13, 85, 48, 0.24);
+  background: rgba(255, 255, 255, 0.78);
+  color: #0b492d;
+  font-weight: 800;
+  padding: 6px 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button.ag-stock-closure-action {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.ag-stock-closure-action:hover {
+  background: #ffffff;
+  border-color: rgba(13, 85, 48, 0.42);
+  text-decoration: none;
+}
+
+@media (max-width: 860px) {
+  .ag-stock-closure-panel {
+    flex-direction: column;
+  }
+
+  .ag-stock-closure-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media print {
+  .ag-stock-closure-panel {
+    page-break-inside: avoid;
+    border: 1px solid #b8c9bf !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .ag-stock-closure-actions {
+    display: none !important;
+  }
+}
+/* END AG STEP 4.9.5 STOCK CONTROL FINAL QA CLOSURE */

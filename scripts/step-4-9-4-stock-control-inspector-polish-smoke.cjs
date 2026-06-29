@@ -42,8 +42,9 @@ function mustRegex(rel, regexes, label) {
 });
 
 const packageJson = JSON.parse(read('package.json'));
-if (packageJson.version !== '0.4.24') {
-  throw new Error(`PACKAGE VERSION: expected 0.4.24, got ${packageJson.version}`);
+const versionMatch = /^0\.4\.(\d+)$/.exec(packageJson.version);
+if (!versionMatch || Number(versionMatch[1]) < 24) {
+  throw new Error(`PACKAGE VERSION: expected 0.4.24 or newer, got ${packageJson.version}`);
 }
 
 must('views/layouts/main.hbs', [
