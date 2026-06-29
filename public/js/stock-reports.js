@@ -16,7 +16,12 @@
     locationInspectorRows: [],
     locationInspectorItems: [],
     locationInspectorSummary: {},
-    locationInspectorContext: {}
+    locationInspectorContext: {},
+    managerSnapshot: {},
+    managerCards: [],
+    managerActions: [],
+    managerTopLocations: [],
+    managerRecentDocuments: []
   };
 
   const $ = (selector) => root.querySelector(selector);
@@ -408,12 +413,125 @@
     setStatus('Инспекторът по обект е зареден. Режимът е само за преглед.', 'ok');
   }
 
+
+  function toneClass(tone) {
+    if (tone === 'danger') return 'danger';
+    if (tone === 'warn') return 'warn';
+    if (tone === 'good') return 'good';
+    return 'neutral';
+  }
+
+  function renderManagerCards(cards) {
+    const el = $('[data-manager-cards]');
+    if (!el) return;
+    el.innerHTML = '';
+    (cards || []).forEach((card) => {
+      const item = document.createElement('article');
+      item.className = `stock-report-manager-card ${toneClass(card.tone)}`;
+      item.innerHTML = `
+        <span>${escapeHtml(card.label)}</span>
+        <strong>${formatNumber(card.value)}</strong>
+        <em>${escapeHtml(card.note || '')}</em>
+      `;
+      el.appendChild(item);
+    });
+  }
+
+  function renderManagerActions(actions) {
+    const el = $('[data-manager-actions]');
+    if (!el) return;
+    el.innerHTML = '';
+    if (!actions?.length) {
+      el.innerHTML = '<p class="empty-list">Няма управителски бележки за избрания филтър.</p>';
+      return;
+    }
+    actions.forEach((action) => {
+      const item = document.createElement('div');
+      item.className = `stock-report-manager-action ${toneClass(action.tone)}`;
+      item.innerHTML = `
+        <strong>${escapeHtml(action.title)}</strong>
+        <span>${escapeHtml(action.text)}</span>
+      `;
+      el.appendChild(item);
+    });
+  }
+
+  function renderManagerLocations(rows) {
+    const tbody = $('[data-manager-locations] tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!rows?.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Няма данни по обекти за избрания период.</td></tr>';
+      return;
+    }
+    rows.forEach((row) => {
+      const tr = document.createElement('tr');
+      if (Number(row.netQuantity) < 0) tr.classList.add('danger-row');
+      tr.innerHTML = `
+        <td>${escapeHtml(row.locationLabel)}</td>
+        <td class="num">${formatNumber(row.incoming)}</td>
+        <td class="num">${formatNumber(row.outgoing)}</td>
+        <td class="num strong">${formatNumber(row.netQuantity)}</td>
+        <td class="num">${formatNumber(row.movements)}</td>
+        <td class="num">${formatNumber(row.documents)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderManagerDocuments(rows) {
+    const tbody = $('[data-manager-documents] tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!rows?.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Няма документи за snapshot преглед.</td></tr>';
+      return;
+    }
+    rows.forEach((row) => {
+      const tr = document.createElement('tr');
+      if (Number(row.signedQuantity) < 0) tr.classList.add('warn-row');
+      tr.innerHTML = `
+        <td>${escapeHtml(formatDate(row.date))}</td>
+        <td>${escapeHtml(row.itemLabel)}</td>
+        <td>${escapeHtml(row.locationLabel)}</td>
+        <td>${sourceDocumentCell(row)}</td>
+        <td>${escapeHtml(row.movementType || row.status)}</td>
+        <td class="num strong">${formatNumber(row.signedQuantity)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderManagerSnapshot() {
+    const snapshot = state.managerSnapshot || {};
+    const print = snapshot.print || {};
+    const risk = snapshot.risk || {};
+    setText('[data-manager-generated]', formatDate(print.generatedAt));
+    setText('[data-manager-period]', print.period || '-');
+    setText('[data-manager-risk]', risk.label || '-');
+    setText('[data-manager-source]', print.source || '-');
+    setText('[data-manager-safety]', print.safety || 'Само преглед.');
+    renderManagerCards(state.managerCards || []);
+    renderManagerActions(state.managerActions || []);
+    renderManagerLocations(state.managerTopLocations || []);
+    renderManagerDocuments(state.managerRecentDocuments || []);
+  }
+
+  function updatePrintSummary() {
+    const snapshot = state.managerSnapshot || {};
+    const print = snapshot.print || {};
+    root.dataset.printGeneratedAt = print.generatedAt ? formatDate(print.generatedAt) : formatDate(new Date().toISOString());
+    root.dataset.printPeriod = print.period || `${$('[data-filter-from]')?.value || ''} — ${$('[data-filter-to]')?.value || ''}`;
+    root.dataset.printMode = state.activeTab || 'overview';
+  }
+
   function renderAll() {
     setKpis(state.summary || {});
     renderBalance(state.balanceRows || []);
     renderMovements(state.movementRows || []);
     renderItemLedger();
     renderLocationInspector();
+    renderManagerSnapshot();
     renderList('[data-stock-report-negative]', state.topNegative || [], 'Няма отрицателни наличности в избрания период.', 'netQuantity');
     renderList('[data-stock-report-active]', state.topMovement || [], 'Няма активност в избрания период.', 'movements');
   }
@@ -454,10 +572,11 @@
   async function loadReports() {
     const params = buildQuery();
     setStatus('Зареждане на складовите справки...', 'info');
-    const [summary, balance, movements] = await Promise.all([
+    const [summary, balance, movements, snapshot] = await Promise.all([
       fetchJson(`/api/stock/reports/summary?${params.toString()}`),
       fetchJson(`/api/stock/reports/balance?${params.toString()}`),
-      fetchJson(`/api/stock/reports/movements?${params.toString()}`)
+      fetchJson(`/api/stock/reports/movements?${params.toString()}`),
+      fetchJson(`/api/stock/reports/manager-snapshot?${params.toString()}`)
     ]);
     state.summary = summary.summary || {};
     state.diagnostics = summary.diagnostics || balance.diagnostics || movements.diagnostics || {};
@@ -465,7 +584,13 @@
     state.topMovement = summary.topMovement || [];
     state.balanceRows = balance.rows || [];
     state.movementRows = movements.rows || [];
+    state.managerSnapshot = snapshot || {};
+    state.managerCards = snapshot.cards || [];
+    state.managerActions = snapshot.actions || [];
+    state.managerTopLocations = snapshot.topLocations || [];
+    state.managerRecentDocuments = snapshot.recentDocuments || [];
     setSummaryPanel(summary.filters || balance.filters || movements.filters || {}, state.diagnostics);
+    updatePrintSummary();
     renderAll();
     setStatus('Справките са заредени. Режимът е само за преглед.', 'ok');
   }
@@ -529,6 +654,16 @@
         { key: 'movements', label: 'movements' },
         { key: 'documents', label: 'documents' }
       ];
+    } else if (state.activeTab === 'manager-snapshot' || state.activeTab === 'overview') {
+      rows = state.managerTopLocations || [];
+      header = [
+        { key: 'locationLabel', label: 'location' },
+        { key: 'incoming', label: 'incoming' },
+        { key: 'outgoing', label: 'outgoing' },
+        { key: 'netQuantity', label: 'netQuantity' },
+        { key: 'movements', label: 'movements' },
+        { key: 'documents', label: 'documents' }
+      ];
     }
 
     const blob = new Blob([toCsv(rows, header)], { type: 'text/csv;charset=utf-8' });
@@ -556,6 +691,11 @@
     state.locationInspectorItems = [];
     state.locationInspectorSummary = {};
     state.locationInspectorContext = {};
+    state.managerSnapshot = {};
+    state.managerCards = [];
+    state.managerActions = [];
+    state.managerTopLocations = [];
+    state.managerRecentDocuments = [];
   }
 
   async function init() {
@@ -620,8 +760,9 @@
       }
     });
 
-    $('[data-stock-report-print]').addEventListener('click', () => window.print());
+    $('[data-stock-report-print]').addEventListener('click', () => { updatePrintSummary(); window.print(); });
     $('[data-stock-report-export]').addEventListener('click', downloadCsv);
+    window.addEventListener('beforeprint', updatePrintSummary);
 
     try {
       await loadOptions();

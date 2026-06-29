@@ -3,6 +3,7 @@ import {
   getStockReportsBalance,
   getStockReportsItemLedger,
   getStockReportsLocationMovements,
+  getStockReportsManagerSnapshot,
   getStockReportsMovements,
   getStockReportsOptions,
   getStockReportsSummary
@@ -75,6 +76,14 @@ router.get('/api/stock/reports/item-ledger', async (req, res) => {
 router.get('/api/stock/reports/location-movements', async (req, res) => {
   try {
     res.json(await getStockReportsLocationMovements(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get('/api/stock/reports/manager-snapshot', async (req, res) => {
+  try {
+    res.json(await getStockReportsManagerSnapshot(req.query));
   } catch (error) {
     sendError(res, error);
   }

@@ -635,3 +635,157 @@
     display: none !important;
   }
 }
+
+/* Step 4.10.3 manager snapshot / print-export QA */
+.stock-report-manager-panel {
+  border-left: 5px solid rgba(13, 61, 32, 0.72);
+}
+
+.stock-report-print-meta,
+.stock-report-manager-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-report-print-meta > div,
+.stock-report-manager-card,
+.stock-report-manager-action,
+.stock-report-manager-table-card {
+  border: 1px solid rgba(27, 104, 54, 0.15);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f3fbf2 100%);
+  padding: 12px;
+}
+
+.stock-report-print-meta span,
+.stock-report-manager-card span {
+  display: block;
+  color: #607461;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stock-report-print-meta strong,
+.stock-report-manager-card strong {
+  color: #0d3d20;
+  display: block;
+  font-size: 18px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.stock-report-manager-card em {
+  color: #627563;
+  display: block;
+  font-size: 12px;
+  font-style: normal;
+  margin-top: 4px;
+}
+
+.stock-report-manager-card.good {
+  background: linear-gradient(180deg, #ffffff 0%, #eaf8ec 100%);
+}
+
+.stock-report-manager-card.warn {
+  background: linear-gradient(180deg, #ffffff 0%, #fff8df 100%);
+}
+
+.stock-report-manager-card.danger {
+  background: linear-gradient(180deg, #ffffff 0%, #fff0ea 100%);
+}
+
+.stock-report-manager-safety {
+  border-left: 4px solid #147238;
+  color: #244f31;
+  font-weight: 800;
+  margin: 0 0 14px;
+  padding: 8px 12px;
+}
+
+.stock-report-manager-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.stock-report-manager-actions h3,
+.stock-report-manager-table-card h3 {
+  color: #0d3d20;
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
+.stock-report-manager-actions > div {
+  display: grid;
+  gap: 10px;
+}
+
+.stock-report-manager-action {
+  display: grid;
+  gap: 5px;
+}
+
+.stock-report-manager-action strong {
+  color: #0d3d20;
+}
+
+.stock-report-manager-action span {
+  color: #435d48;
+  font-size: 13px;
+}
+
+.stock-report-manager-action.danger {
+  border-left: 4px solid #a63a1f;
+}
+
+.stock-report-manager-action.warn {
+  border-left: 4px solid #b88700;
+}
+
+.stock-report-manager-action.good {
+  border-left: 4px solid #147238;
+}
+
+@media (max-width: 1180px) {
+  .stock-report-print-meta,
+  .stock-report-manager-cards,
+  .stock-report-manager-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .stock-report-print-meta,
+  .stock-report-manager-cards,
+  .stock-report-manager-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .stock-report-tabs,
+  .stock-report-operator-strip,
+  .stock-report-manager-actions,
+  .stock-report-mini-action {
+    display: none !important;
+  }
+
+  .stock-reports-shell::before {
+    content: "Печат: " attr(data-print-period) " · " attr(data-print-mode) " · " attr(data-print-generated-at);
+    display: block;
+    color: #0d3d20;
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+
+  .stock-report-print-meta,
+  .stock-report-manager-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

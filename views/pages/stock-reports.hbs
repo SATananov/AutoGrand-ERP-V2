@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/stock-reports.css?v=4102">
+<link rel="stylesheet" href="/css/stock-reports.css?v=4103">
 
 <section class="stock-reports-shell stock-reports-shell-polished" data-stock-reports-root>
   <header class="stock-reports-hero">
@@ -6,7 +6,7 @@
       <p class="stock-reports-eyebrow">Склад · справки · анализ · само преглед</p>
       <h1>Складови справки</h1>
       <p class="stock-reports-subtitle">
-        Read-only аналитичен екран с табове, операторски филтри, артикулна складова карта и инспектор по обект. Не редактира журнал, сторно, корекции или posted документи.
+        Read-only аналитичен екран с табове, операторски филтри, артикулна складова карта, инспектор по обект и управителски snapshot за печат/експорт. Не редактира журнал, сторно, корекции или posted документи.
       </p>
     </div>
     <div class="stock-reports-hero-actions" aria-label="Действия">
@@ -99,6 +99,7 @@
 
   <nav class="stock-report-tabs" aria-label="Складови справки">
     <button type="button" class="active" data-report-tab="overview">Преглед</button>
+    <button type="button" data-report-tab="manager-snapshot">Snapshot</button>
     <button type="button" data-report-tab="balance">Наличности</button>
     <button type="button" data-report-tab="movements">Движения</button>
     <button type="button" data-report-tab="risks">Рискове</button>
@@ -156,6 +157,67 @@
         <div><span>Статус</span><strong data-summary-ready>-</strong></div>
       </div>
     </article>
+
+    <article class="stock-report-panel stock-report-manager-panel" data-tab-panel="manager-snapshot">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Управителски snapshot</h2>
+          <p>Печатен и експортен read-only преглед за бързо управленско решение. Snapshot-ът не прави никакви промени по складовите данни.</p>
+        </div>
+        <span class="stock-report-table-counter">Print-ready QA</span>
+      </div>
+      <div class="stock-report-print-meta" aria-label="Данни за печат">
+        <div><span>Генерирано</span><strong data-manager-generated>-</strong></div>
+        <div><span>Период</span><strong data-manager-period>-</strong></div>
+        <div><span>Риск</span><strong data-manager-risk>-</strong></div>
+        <div><span>Източник</span><strong data-manager-source>-</strong></div>
+      </div>
+      <p class="stock-report-manager-safety" data-manager-safety>Само преглед.</p>
+      <div class="stock-report-manager-cards" data-manager-cards></div>
+      <div class="stock-report-manager-layout">
+        <section class="stock-report-manager-actions" aria-label="Управителски бележки">
+          <h3>Контролни бележки</h3>
+          <div data-manager-actions></div>
+        </section>
+        <section class="stock-report-manager-table-card" aria-label="Обекти">
+          <h3>Snapshot по обекти</h3>
+          <div class="stock-report-table-wrap">
+            <table class="stock-report-table" data-manager-locations>
+              <thead>
+                <tr>
+                  <th>Обект</th>
+                  <th class="num">Вход</th>
+                  <th class="num">Изход</th>
+                  <th class="num">Нето</th>
+                  <th class="num">Движения</th>
+                  <th class="num">Документи</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <section class="stock-report-manager-table-card" aria-label="Последни документи">
+        <h3>Последни документи за контрол</h3>
+        <div class="stock-report-table-wrap">
+          <table class="stock-report-table" data-manager-documents>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Артикул</th>
+                <th>Обект</th>
+                <th>Документ</th>
+                <th>Тип</th>
+                <th class="num">Знак</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </article>
+
 
     <article class="stock-report-panel" data-tab-panel="balance">
       <div class="stock-report-panel-head">
@@ -319,4 +381,4 @@
   </section>
 </section>
 
-<script src="/js/stock-reports.js?v=4102" defer></script>
+<script src="/js/stock-reports.js?v=4103" defer></script>

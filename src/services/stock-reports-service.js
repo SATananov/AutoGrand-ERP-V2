@@ -662,3 +662,144 @@ export async function getStockReportsLocationMovements(query = {}) {
   };
 }
 
+function buildManagerRisk(summary, balanceRows) {
+  const negativeRows = (balanceRows || []).filter((row) => Number(row.netQuantity || 0) < 0);
+  const zeroRows = (balanceRows || []).filter((row) => Number(row.netQuantity || 0) === 0);
+  const activeRows = (balanceRows || []).filter((row) => Number(row.movements || 0) >= 3);
+  const score = Math.min(100, (negativeRows.length * 18) + (zeroRows.length * 3) + Math.min(25, activeRows.length * 2));
+  let level = 'LOW';
+  let label = 'Нисък риск';
+  if (score >= 65) {
+    level = 'HIGH';
+    label = 'Висок риск';
+  } else if (score >= 30) {
+    level = 'MEDIUM';
+    label = 'Среден риск';
+  }
+  return {
+    score,
+    level,
+    label,
+    negativeSkuLocations: negativeRows.length,
+    zeroSkuLocations: zeroRows.length,
+    activeSkuLocations: activeRows.length
+  };
+}
+
+function buildManagerCards(summary, risk) {
+  return [
+    { key: 'movementRows', label: 'Движения', value: summary.movementRows || 0, tone: 'neutral', note: 'операции в периода' },
+    { key: 'skuLocations', label: 'Артикул/обект', value: summary.skuLocations || 0, tone: 'neutral', note: 'комбинации с активност' },
+    { key: 'incoming', label: 'Общ вход', value: summary.incoming || 0, tone: 'good', note: 'положителни количества' },
+    { key: 'outgoing', label: 'Общ изход', value: summary.outgoing || 0, tone: 'warn', note: 'изписани количества' },
+    { key: 'netQuantity', label: 'Нето', value: summary.netQuantity || 0, tone: Number(summary.netQuantity || 0) < 0 ? 'danger' : 'good', note: 'баланс вход-изход' },
+    { key: 'riskScore', label: 'Риск', value: risk.score || 0, tone: risk.level === 'HIGH' ? 'danger' : risk.level === 'MEDIUM' ? 'warn' : 'good', note: risk.label }
+  ];
+}
+
+function buildManagerActions(summary, risk, balanceRows) {
+  const actions = [];
+  if (risk.negativeSkuLocations > 0) {
+    actions.push({ tone: 'danger', title: 'Провери отрицателните наличности', text: 'Има артикул/обект позиции с нето количество под нула. Прегледай картата преди нови документи.' });
+  }
+  if (risk.zeroSkuLocations > 0) {
+    actions.push({ tone: 'warn', title: 'Прегледай нулевите позиции', text: 'Нулевите наличности може да са нормално затворени, но са полезни за контрол на оборота.' });
+  }
+  if (Number(summary.movementRows || 0) === 0) {
+    actions.push({ tone: 'neutral', title: 'Няма движения в периода', text: 'Промени периода или филтрите, ако очакваш складова активност.' });
+  }
+  const highActivity = (balanceRows || []).filter((row) => Number(row.movements || 0) >= 3).slice(0, 3);
+  if (highActivity.length) {
+    actions.push({ tone: 'good', title: 'Следи най-активните позиции', text: highActivity.map((row) => row.itemLabel || row.itemId || '-').join(' · ') });
+  }
+  if (!actions.length) {
+    actions.push({ tone: 'good', title: 'Справката е спокойна', text: 'Не са засечени силни рискови сигнали за избрания период.' });
+  }
+  return actions.slice(0, 4);
+}
+
+function aggregateManagerLocations(rows) {
+  const groups = new Map();
+  for (const row of rows || []) {
+    const key = row.locationId || '-';
+    if (!groups.has(key)) {
+      groups.set(key, {
+        locationId: row.locationId || '',
+        locationLabel: row.locationLabel || '-',
+        incoming: 0,
+        outgoing: 0,
+        netQuantity: 0,
+        movements: 0,
+        documents: new Set()
+      });
+    }
+    const group = groups.get(key);
+    group.incoming += Number(row.incoming || 0);
+    group.outgoing += Number(row.outgoing || 0);
+    group.netQuantity += Number(row.signedQuantity || 0);
+    group.movements += 1;
+    if (row.documentId || row.documentNo) group.documents.add(`${row.documentId || ''}|${row.documentNo || ''}`);
+  }
+  return [...groups.values()].map((row) => ({
+    ...row,
+    documents: row.documents.size
+  })).sort((a, b) => Math.abs(b.netQuantity) - Math.abs(a.netQuantity) || b.movements - a.movements);
+}
+
+function buildManagerPrintMeta(filters, diagnostics) {
+  return {
+    title: 'Управителска складова справка',
+    subtitle: 'Read-only snapshot от складовите движения',
+    generatedAt: new Date().toISOString(),
+    period: `${filters.from} — ${filters.to}`,
+    source: diagnostics?.movementTable || '-',
+    safety: 'Само преглед. Няма промяна на складов журнал, сторно, корекции или posted документи.'
+  };
+}
+
+export async function getStockReportsManagerSnapshot(query = {}) {
+  const meta = await buildMeta();
+  const filters = normalizeFilters(query);
+  if (!meta.ready) {
+    return {
+      ok: true,
+      filters,
+      diagnostics: buildDiagnostics(meta),
+      print: buildManagerPrintMeta(filters, buildDiagnostics(meta)),
+      summary: summarizeRows([]),
+      risk: buildManagerRisk(summarizeRows([]), []),
+      cards: buildManagerCards(summarizeRows([]), buildManagerRisk(summarizeRows([]), [])),
+      actions: [{ tone: 'warn', title: 'Липсва складова таблица', text: meta.reason || 'Не са открити складови движения.' }],
+      topNegative: [],
+      topMovement: [],
+      topLocations: [],
+      recentDocuments: []
+    };
+  }
+
+  const rows = await prepareRows(meta, await queryMovementRows(meta, filters, { limit: 50000 }));
+  const balanceRows = aggregateBalance(rows);
+  const summary = summarizeRows(rows);
+  const risk = buildManagerRisk(summary, balanceRows);
+  const diagnostics = buildDiagnostics(meta);
+  const recentDocuments = [...rows]
+    .sort((a, b) => -compareMovementRowsAsc(a, b))
+    .filter((row) => row.documentId || row.documentNo)
+    .slice(0, 12);
+
+  return {
+    ok: true,
+    filters,
+    diagnostics,
+    print: buildManagerPrintMeta(filters, diagnostics),
+    summary,
+    risk,
+    cards: buildManagerCards(summary, risk),
+    actions: buildManagerActions(summary, risk, balanceRows),
+    topNegative: balanceRows.filter((row) => Number(row.netQuantity || 0) < 0).slice(0, 8),
+    topMovement: [...balanceRows].sort((a, b) => Number(b.movements || 0) - Number(a.movements || 0)).slice(0, 8),
+    topLocations: aggregateManagerLocations(rows).slice(0, 8),
+    recentDocuments
+  };
+}
+
