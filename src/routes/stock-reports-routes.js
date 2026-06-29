@@ -8,6 +8,11 @@ import {
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
 function sendError(res, error) {
   console.error('[stock-reports]', error);
   res.status(500).json({

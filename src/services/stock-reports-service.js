@@ -248,8 +248,9 @@ function normalizeFilters(query = {}) {
   const to = normalizeToDate(query.to);
   const itemId = String(query.itemId || '').trim();
   const locationId = String(query.locationId || '').trim();
+  const operatorId = String(query.operatorId || '').trim();
   const limit = Math.max(10, Math.min(500, asNumber(query.limit, 100)));
-  return { from, to, itemId, locationId, limit };
+  return { from, to, itemId, locationId, operatorId, limit };
 }
 
 function buildWhere(meta, filters, options = {}) {
@@ -270,6 +271,10 @@ function buildWhere(meta, filters, options = {}) {
   if (movement.locationCol && filters.locationId) {
     where.push(`${quoteIdent(movement.locationCol)} = ?`);
     params.push(filters.locationId);
+  }
+  if (movement.userCol && filters.operatorId) {
+    where.push(`${quoteIdent(movement.userCol)} = ?`);
+    params.push(filters.operatorId);
   }
 
   return { clause: where.length ? `WHERE ${where.join(' AND ')}` : '', params };
@@ -353,6 +358,7 @@ async function prepareRows(meta, rows) {
     const signedQuantity = getSignedQuantity(row, meta);
     const itemId = meta.movement.itemCol ? row[meta.movement.itemCol] : null;
     const locationId = meta.movement.locationCol ? row[meta.movement.locationCol] : null;
+    const operatorId = meta.movement.userCol ? row[meta.movement.userCol] : null;
     return {
       id: meta.movement.idCol ? displayValue(row[meta.movement.idCol]) : '',
       date: meta.movement.dateCol ? displayValue(row[meta.movement.dateCol]) : '',
@@ -360,6 +366,8 @@ async function prepareRows(meta, rows) {
       itemLabel: labelFromLookup(itemMap, itemId, 'Артикул'),
       locationId: displayValue(locationId, ''),
       locationLabel: labelFromLookup(locationMap, locationId, 'Обект'),
+      operatorId: displayValue(operatorId, ''),
+      operatorLabel: operatorId ? `Оператор ${displayValue(operatorId)}` : '-',
       quantity: asNumber(row[meta.movement.quantityCol]),
       signedQuantity,
       incoming: signedQuantity > 0 ? signedQuantity : 0,
@@ -434,17 +442,33 @@ function buildDiagnostics(meta) {
       quantity: meta.movement.quantityCol,
       type: meta.movement.typeCol,
       document: meta.movement.documentCol,
-      documentNo: meta.movement.documentNoCol
+      documentNo: meta.movement.documentNoCol,
+      operator: meta.movement.userCol
     },
     itemTable: meta.item?.name || null,
     locationTable: meta.location?.name || null
   };
 }
 
+function buildOperatorOptions(rows) {
+  const map = new Map();
+  for (const row of rows || []) {
+    if (!row.operatorId) continue;
+    if (!map.has(row.operatorId)) {
+      map.set(row.operatorId, {
+        id: row.operatorId,
+        code: '',
+        name: row.operatorLabel || `Оператор ${row.operatorId}`
+      });
+    }
+  }
+  return [...map.values()].sort((a, b) => String(a.name).localeCompare(String(b.name), 'bg'));
+}
+
 export async function getStockReportsOptions(query = {}) {
   const meta = await buildMeta();
   const filters = normalizeFilters(query);
-  if (!meta.ready) return { ok: true, filters, diagnostics: buildDiagnostics(meta), items: [], locations: [] };
+  if (!meta.ready) return { ok: true, filters, diagnostics: buildDiagnostics(meta), items: [], locations: [], operators: [] };
 
   const itemMap = await fetchLookupRows(meta, meta.item, 500);
   const locationMap = await fetchLookupRows(meta, meta.location, 500);
@@ -462,7 +486,8 @@ export async function getStockReportsOptions(query = {}) {
     filters,
     diagnostics: buildDiagnostics(meta),
     items: [...(itemMap.size ? itemMap : itemFallback).values()],
-    locations: [...(locationMap.size ? locationMap : locationFallback).values()]
+    locations: [...(locationMap.size ? locationMap : locationFallback).values()],
+    operators: buildOperatorOptions(rows)
   };
 }
 

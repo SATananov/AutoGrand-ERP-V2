@@ -1,22 +1,49 @@
-<link rel="stylesheet" href="/css/stock-reports.css?v=4100">
+<link rel="stylesheet" href="/css/stock-reports.css?v=4101">
 
-<section class="stock-reports-shell" data-stock-reports-root>
+<section class="stock-reports-shell stock-reports-shell-polished" data-stock-reports-root>
   <header class="stock-reports-hero">
     <div>
-      <p class="stock-reports-eyebrow">Склад · справки · анализ</p>
+      <p class="stock-reports-eyebrow">Склад · справки · анализ · само преглед</p>
       <h1>Складови справки</h1>
       <p class="stock-reports-subtitle">
-        Read-only аналитичен слой върху съществуващите складови движения. Няма директна редакция на журнал, сторно или posted документи.
+        Read-only аналитичен екран с табове, операторски филтри и бързи периоди върху съществуващите складови движения. Не редактира журнал, сторно, корекции или posted документи.
       </p>
     </div>
     <div class="stock-reports-hero-actions" aria-label="Действия">
       <a class="stock-report-button stock-report-button-muted" href="/stock-control-center">Контролен център</a>
+      <button class="stock-report-button stock-report-button-muted" type="button" data-stock-report-reset>Изчисти</button>
       <button class="stock-report-button" type="button" data-stock-report-print>Печат</button>
       <button class="stock-report-button" type="button" data-stock-report-export>CSV</button>
     </div>
   </header>
 
-  <form class="stock-report-filter-card" data-stock-report-filters>
+  <section class="stock-report-operator-strip" aria-label="Операторски режим">
+    <article>
+      <strong>Оперативна справка</strong>
+      <span>Филтрирай по период, обект, артикул и оператор без промяна на данни.</span>
+    </article>
+    <article>
+      <strong>ERP read-only</strong>
+      <span>Всички actions са GET/print/export. Няма директна редакция на складов журнал.</span>
+    </article>
+    <article>
+      <strong>Moneta-like browse</strong>
+      <span>Табове, компактни grids и бърза инспекция за складов контрол.</span>
+    </article>
+  </section>
+
+  <form class="stock-report-filter-card stock-report-filter-card-polished" data-stock-report-filters>
+    <div class="stock-report-filter-section stock-report-filter-section-wide">
+      <span class="stock-report-filter-title">Бърз период</span>
+      <div class="stock-report-period-buttons" role="group" aria-label="Бърз период">
+        <button type="button" data-period-preset="7">7 дни</button>
+        <button type="button" data-period-preset="30" class="active">30 дни</button>
+        <button type="button" data-period-preset="90">90 дни</button>
+        <button type="button" data-period-preset="month">Текущ месец</button>
+        <button type="button" data-period-preset="year">Текуща година</button>
+      </div>
+    </div>
+
     <label>
       <span>От дата</span>
       <input type="date" name="from" data-filter-from>
@@ -38,6 +65,25 @@
       </select>
     </label>
     <label>
+      <span>Оператор</span>
+      <select name="operatorId" data-filter-operator>
+        <option value="">Всички оператори</option>
+      </select>
+    </label>
+    <label>
+      <span>Режим</span>
+      <select name="reportMode" data-filter-report-mode>
+        <option value="all">Всички редове</option>
+        <option value="negative">Само отрицателни</option>
+        <option value="zero">Нулеви наличности</option>
+        <option value="active">Най-активни</option>
+      </select>
+    </label>
+    <label>
+      <span>Търсене</span>
+      <input type="search" name="search" placeholder="Артикул, обект, документ..." data-filter-search>
+    </label>
+    <label>
       <span>Редове</span>
       <select name="limit" data-filter-limit>
         <option value="50">50</option>
@@ -51,7 +97,14 @@
 
   <div class="stock-report-status" data-stock-report-status>Зареждане на справките...</div>
 
-  <section class="stock-report-kpi-grid" aria-label="Ключови показатели">
+  <nav class="stock-report-tabs" aria-label="Складови справки">
+    <button type="button" class="active" data-report-tab="overview">Преглед</button>
+    <button type="button" data-report-tab="balance">Наличности</button>
+    <button type="button" data-report-tab="movements">Движения</button>
+    <button type="button" data-report-tab="risks">Рискове</button>
+  </nav>
+
+  <section class="stock-report-kpi-grid" aria-label="Ключови показатели" data-tab-panel="overview">
     <article class="stock-report-kpi">
       <span>Движения</span>
       <strong data-kpi="movementRows">0</strong>
@@ -77,15 +130,38 @@
       <strong data-kpi="negativeSkuLocations">0</strong>
       <em>рискови наличности</em>
     </article>
+    <article class="stock-report-kpi neutral">
+      <span>Нулеви</span>
+      <strong data-kpi="zeroSkuLocations">0</strong>
+      <em>затворени позиции</em>
+    </article>
   </section>
 
-  <section class="stock-report-panels">
-    <article class="stock-report-panel">
+  <section class="stock-report-workspace">
+    <article class="stock-report-panel stock-report-panel-overview" data-tab-panel="overview">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Операторски преглед</h2>
+          <p>Обобщение на избраните филтри и последната диагностика на read-only справката.</p>
+        </div>
+      </div>
+      <div class="stock-report-summary-grid">
+        <div><span>Период</span><strong data-summary-period>-</strong></div>
+        <div><span>Обект</span><strong data-summary-location>Всички</strong></div>
+        <div><span>Артикул</span><strong data-summary-item>Всички</strong></div>
+        <div><span>Оператор</span><strong data-summary-operator>Всички</strong></div>
+        <div><span>Таблица движение</span><strong data-summary-table>-</strong></div>
+        <div><span>Статус</span><strong data-summary-ready>-</strong></div>
+      </div>
+    </article>
+
+    <article class="stock-report-panel" data-tab-panel="balance">
       <div class="stock-report-panel-head">
         <div>
           <h2>Наличности по артикул и обект</h2>
           <p>Агрегирани вход/изход/нето количества от read-only движенията.</p>
         </div>
+        <span class="stock-report-table-counter" data-balance-counter>0 реда</span>
       </div>
       <div class="stock-report-table-wrap">
         <table class="stock-report-table" data-stock-report-balance>
@@ -105,12 +181,13 @@
       </div>
     </article>
 
-    <article class="stock-report-panel">
+    <article class="stock-report-panel" data-tab-panel="movements">
       <div class="stock-report-panel-head">
         <div>
           <h2>Последни складови движения</h2>
           <p>Само преглед. Директна промяна на складов журнал не е позволена.</p>
         </div>
+        <span class="stock-report-table-counter" data-movement-counter>0 реда</span>
       </div>
       <div class="stock-report-table-wrap">
         <table class="stock-report-table" data-stock-report-movements>
@@ -119,6 +196,7 @@
               <th>Дата</th>
               <th>Артикул</th>
               <th>Обект</th>
+              <th>Оператор</th>
               <th>Документ</th>
               <th>Тип</th>
               <th class="num">Количество</th>
@@ -129,18 +207,20 @@
         </table>
       </div>
     </article>
-  </section>
 
-  <section class="stock-report-risk-grid">
-    <article class="stock-report-panel compact">
-      <h2>Отрицателни наличности</h2>
-      <div data-stock-report-negative class="stock-report-list"></div>
-    </article>
-    <article class="stock-report-panel compact">
-      <h2>Най-активни позиции</h2>
-      <div data-stock-report-active class="stock-report-list"></div>
-    </article>
+    <section class="stock-report-risk-grid" data-tab-panel="risks">
+      <article class="stock-report-panel compact">
+        <h2>Отрицателни наличности</h2>
+        <p>Позиции, които заслужават контролна проверка.</p>
+        <div data-stock-report-negative class="stock-report-list"></div>
+      </article>
+      <article class="stock-report-panel compact">
+        <h2>Най-активни позиции</h2>
+        <p>Най-често движещи се артикул/обект комбинации.</p>
+        <div data-stock-report-active class="stock-report-list"></div>
+      </article>
+    </section>
   </section>
 </section>
 
-<script src="/js/stock-reports.js?v=4100" defer></script>
+<script src="/js/stock-reports.js?v=4101" defer></script>
