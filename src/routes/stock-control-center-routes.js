@@ -1,35 +1,66 @@
-import express from 'express';
+import { Router } from 'express';
 import {
-  getStockControlCenterPing,
+  getStockControlCenterFoundation,
   getStockControlCenterSummary,
-  getStockControlCenterViewModel,
+  getStockControlCenterOperatorChecklist,
+  getStockControlCenterFilters,
+  getStockControlCenterRiskPanels,
+  getStockControlCenterQuickActions,
+  getStockControlCenterOperationalDashboard
 } from '../services/stock-control-center-service.js';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/stock-control-center', (req, res, next) => {
-  try {
-    res.render('pages/stock-control-center', getStockControlCenterViewModel());
-  } catch (error) {
-    next(error);
-  }
+function getFilter(req) {
+  return req.query?.filter || 'all';
+}
+
+router.get('/stock-control-center', (req, res) => {
+  const dashboard = getStockControlCenterOperationalDashboard({ filter: getFilter(req) });
+  res.render('pages/stock-control-center', {
+    title: 'Stock Control Center',
+    pageTitle: 'Stock Control Center',
+    currentPath: '/stock-control-center',
+    dashboard,
+    summary: dashboard.summary,
+    filters: dashboard.filters,
+    riskPanels: dashboard.riskPanels,
+    quickActions: dashboard.quickActions,
+    operatorChecklist: dashboard.operatorChecklist,
+    checkpointTimeline: dashboard.checkpointTimeline
+  });
 });
 
-router.get('/api/stock/control-center/ping', (req, res) => {
-  res.json(getStockControlCenterPing());
+router.get('/api/stock/control-center/ping', (_req, res) => {
+  res.json({ ok: true, module: 'stock-control-center', stage: '4.9.2' });
 });
 
-router.get('/api/stock/control-center/foundation', (req, res) => {
-  res.json(getStockControlCenterSummary().foundation);
+router.get('/api/stock/control-center/foundation', (_req, res) => {
+  res.json({ ok: true, foundation: getStockControlCenterFoundation() });
 });
 
 router.get('/api/stock/control-center/summary', (req, res) => {
-  res.json(getStockControlCenterSummary());
+  res.json({ ok: true, summary: getStockControlCenterSummary({ filter: getFilter(req) }) });
 });
 
-router.get('/api/stock/control-center/operator-checklist', (req, res) => {
-  const summary = getStockControlCenterSummary();
-  res.json({ ok: true, step: summary.step, checklist: summary.checklist });
+router.get('/api/stock/control-center/operator-checklist', (_req, res) => {
+  res.json({ ok: true, checklist: getStockControlCenterOperatorChecklist() });
+});
+
+router.get('/api/stock/control-center/filters', (_req, res) => {
+  res.json({ ok: true, filters: getStockControlCenterFilters() });
+});
+
+router.get('/api/stock/control-center/risk-panels', (req, res) => {
+  res.json({ ok: true, riskPanels: getStockControlCenterRiskPanels({ filter: getFilter(req) }) });
+});
+
+router.get('/api/stock/control-center/quick-actions', (_req, res) => {
+  res.json({ ok: true, quickActions: getStockControlCenterQuickActions() });
+});
+
+router.get('/api/stock/control-center/operational-dashboard', (req, res) => {
+  res.json({ ok: true, dashboard: getStockControlCenterOperationalDashboard({ filter: getFilter(req) }) });
 });
 
 export default router;

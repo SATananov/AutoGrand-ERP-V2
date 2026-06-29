@@ -115,7 +115,7 @@ requireSurface('src/data/stock-adjustment-operator-workflow-foundation.js', 'ope
   ['POSTED'],
   ['reversal']
 ]);
-requireAny('package.json', 'package version surface', ['0.4.18', '0.4.19', '0.4.20']);
+requireAny('package.json', 'package version surface', ['0.4.18', '0.4.19', '0.4.20', '0.4.21']);
 
 const activeEncodingFiles = [
   'src/data/stock-adjustment-foundation.js',

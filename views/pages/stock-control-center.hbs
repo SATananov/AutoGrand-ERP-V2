@@ -1,123 +1,119 @@
-<section class="stock-control-center stock-control-center-v491" data-module="stock-control-center" data-step="4.9.1">
-  <header class="stock-control-center__hero">
+<section class="ag-stock-control-page ag-stock-control-page--v492">
+  <header class="ag-stock-control-hero">
     <div>
-      <p class="stock-control-center__eyebrow">AutoGrand ERP · Step 4.9.1</p>
-      <h1>{{pageTitle}}</h1>
-      <p>{{pageSubtitle}}</p>
+      <p class="ag-stock-control-kicker">Складов контрол · Step 4.9.2</p>
+      <h1>Stock Control Center</h1>
+      <p>
+        Консолидиран операторски център за трансфери, корекции, movement trace,
+        audit safety и quick actions. Екранът е read-only и не променя stock journal.
+      </p>
     </div>
-    <div class="stock-control-center__hero-badge">
-      <span>STATUS</span>
-      <strong>CONTROL READY</strong>
-      <small>Read-only consolidation layer</small>
+    <div class="ag-stock-control-status-card">
+      <span>Режим</span>
+      <strong>{{summary.mode}}</strong>
+      <small>{{summary.status.controlMode}} · {{summary.status.reversalSafety}}</small>
     </div>
   </header>
 
-  <section class="stock-control-center__metrics" aria-label="Stock control center metrics">
-    {{#each metrics}}
-      <article class="stock-control-center__metric stock-control-center__metric--{{tone}}">
-        <span>{{bgLabel}}</span>
-        <strong>{{value}}</strong>
-        <small>{{label}} · {{state}}</small>
-      </article>
+  <nav class="ag-stock-filter-strip" aria-label="Stock Control Center filters">
+    {{#each filters}}
+      <a class="ag-stock-filter-chip {{#if isActive}}is-active{{/if}}" href="/stock-control-center?filter={{key}}">
+        <strong>{{label}}</strong>
+        <span>{{description}}</span>
+      </a>
     {{/each}}
+  </nav>
+
+  <section class="ag-stock-operator-dashboard">
+    <article class="ag-stock-dashboard-card ag-stock-dashboard-card--primary">
+      <span>Активен филтър</span>
+      <strong>{{summary.activeFilter}}</strong>
+      <small>{{summary.subtitle}}</small>
+    </article>
+    <article class="ag-stock-dashboard-card">
+      <span>Risk panels</span>
+      <strong>{{summary.counters.riskPanels}}</strong>
+      <small>High/Critical: {{summary.counters.highRiskPanels}}</small>
+    </article>
+    <article class="ag-stock-dashboard-card">
+      <span>Quick actions</span>
+      <strong>{{summary.counters.quickActions}}</strong>
+      <small>Само safe navigation</small>
+    </article>
+    <article class="ag-stock-dashboard-card">
+      <span>Checkpoints</span>
+      <strong>{{summary.counters.checkpoints}}</strong>
+      <small>4.8 → 4.9.2</small>
+    </article>
   </section>
 
-  <section class="stock-control-center__grid">
-    <article class="stock-control-center__panel stock-control-center__panel--wide">
-      <div class="stock-control-center__panel-head">
-        <div>
-          <p class="stock-control-center__eyebrow">Control lanes</p>
-          <h2>Основни складови направления</h2>
-        </div>
-        <span class="stock-control-center__tag">Read-only</span>
+  <section class="ag-stock-control-grid ag-stock-control-grid--v492">
+    <div class="ag-stock-control-column">
+      <div class="ag-stock-section-heading">
+        <h2>Operational risk panels</h2>
+        <p>Панели за риск и безопасно операторско решение.</p>
       </div>
 
-      <div class="stock-control-center__lanes">
-        {{#each controlCards}}
-          <section class="stock-control-center__lane {{#if isActive}}is-active{{/if}} {{#if isPlanned}}is-planned{{/if}}">
-            <span class="stock-control-center__lane-number">{{number}}</span>
-            <div>
-              <h3>{{bgLabel}}</h3>
-              <p>{{intent}}</p>
-              <small>{{operatorNote}}</small>
+      <div class="ag-stock-risk-panel-list">
+        {{#each riskPanels}}
+          <article class="ag-stock-risk-panel ag-stock-risk-panel--{{severity}}">
+            <div class="ag-stock-risk-panel__head">
+              <span>{{severity}}</span>
+              <strong>{{label}}</strong>
             </div>
-            <strong>{{status}}</strong>
-          </section>
+            <p>{{description}}</p>
+            <div class="ag-stock-risk-panel__meta">
+              <span>{{state}}</span>
+              <b>{{metric}}</b>
+            </div>
+            <small>{{operatorHint}}</small>
+          </article>
         {{/each}}
       </div>
-    </article>
+    </div>
 
-    <aside class="stock-control-center__panel">
-      <div class="stock-control-center__panel-head">
-        <div>
-          <p class="stock-control-center__eyebrow">Operator checklist</p>
-          <h2>Преди действие</h2>
-        </div>
+    <aside class="ag-stock-control-column ag-stock-control-column--side">
+      <div class="ag-stock-section-heading">
+        <h2>Quick actions</h2>
+        <p>Бързи safe navigation действия.</p>
       </div>
-      <ul class="stock-control-center__checklist">
-        {{#each checklist}}
+
+      <div class="ag-stock-quick-action-list">
+        {{#each quickActions}}
+          <a class="ag-stock-quick-action" href="{{href}}">
+            <strong>{{label}}</strong>
+            <span>{{description}}</span>
+          </a>
+        {{/each}}
+      </div>
+
+      <div class="ag-stock-section-heading ag-stock-section-heading--compact">
+        <h2>Operator checklist</h2>
+      </div>
+      <ol class="ag-stock-operator-checklist">
+        {{#each operatorChecklist}}
           <li>
-            <strong>{{bgTitle}}</strong>
+            <strong>{{label}}</strong>
             <span>{{description}}</span>
           </li>
         {{/each}}
-      </ul>
+      </ol>
     </aside>
   </section>
 
-  <section class="stock-control-center__grid stock-control-center__grid--bottom">
-    <article class="stock-control-center__panel">
-      <div class="stock-control-center__panel-head">
-        <div>
-          <p class="stock-control-center__eyebrow">QA gates</p>
-          <h2>Контролни индикатори</h2>
-        </div>
-      </div>
-      <div class="stock-control-center__qa-list">
-        {{#each qaPanels}}
-          <div class="stock-control-center__qa-item">
-            <span>{{status}}</span>
-            <div>
-              <strong>{{bgTitle}}</strong>
-              <small>{{detail}}</small>
-            </div>
-          </div>
-        {{/each}}
-      </div>
-    </article>
-
-    <article class="stock-control-center__panel">
-      <div class="stock-control-center__panel-head">
-        <div>
-          <p class="stock-control-center__eyebrow">Safety rules</p>
-          <h2>Moneta-safe правила</h2>
-        </div>
-      </div>
-      <ul class="stock-control-center__rules">
-        {{#each safetyRules}}
-          <li>{{this}}</li>
-        {{/each}}
-      </ul>
-    </article>
-
-    <article class="stock-control-center__panel stock-control-center__panel--timeline">
-      <div class="stock-control-center__panel-head">
-        <div>
-          <p class="stock-control-center__eyebrow">Checkpoint chain</p>
-          <h2>Stock chain</h2>
-        </div>
-      </div>
-      <div class="stock-control-center__timeline">
-        {{#each stepSummary}}
-          <div class="stock-control-center__timeline-row">
-            <strong>{{step}}</strong>
-            <div>
-              <span>{{title}}</span>
-              <small>{{note}}</small>
-            </div>
-          </div>
-        {{/each}}
-      </div>
-    </article>
+  <section class="ag-stock-checkpoint-timeline">
+    <div class="ag-stock-section-heading">
+      <h2>Stock checkpoint timeline</h2>
+      <p>Затворената линия от correction до control center.</p>
+    </div>
+    <div class="ag-stock-timeline-row">
+      {{#each checkpointTimeline}}
+        <article class="ag-stock-timeline-item ag-stock-timeline-item--{{state}}">
+          <span>{{step}}</span>
+          <strong>{{label}}</strong>
+          <small>{{state}}</small>
+        </article>
+      {{/each}}
+    </div>
   </section>
 </section>

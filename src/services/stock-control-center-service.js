@@ -1,129 +1,136 @@
 import {
+  STOCK_CONTROL_CENTER_STAGE,
+  STOCK_CONTROL_CENTER_VERSION,
   getStockControlCenterFoundation,
-  STOCK_CONTROL_CENTER_STEP,
+  stockControlCenterFilterDefinitions,
+  stockControlCenterRiskPanels,
+  stockControlCenterQuickActions,
+  stockControlCenterCheckpointTimeline
 } from '../data/stock-control-center-foundation.js';
 
-function buildStepSummary() {
-  return [
-    {
-      step: '4.8.1',
-      title: 'Persistent adjustment documents',
-      status: 'complete',
-      note: 'Draft and posted adjustment documents are persistent and auditable.',
-    },
-    {
-      step: '4.8.2',
-      title: 'Movement binding',
-      status: 'complete',
-      note: 'Posted adjustment documents create traceable stock movement effects.',
-    },
-    {
-      step: '4.8.3',
-      title: 'Movement trace visibility',
-      status: 'complete',
-      note: 'Operators can inspect stock movement trace from the adjustment UI.',
-    },
-    {
-      step: '4.8.4',
-      title: 'Audit and reversal safety',
-      status: 'complete',
-      note: 'Reversal creates safe draft documents instead of mutating posted history.',
-    },
-    {
-      step: '4.8.5',
-      title: 'Operator workflow hardening',
-      status: 'complete',
-      note: 'UI and API surfaces reinforce the safe correction workflow.',
-    },
-    {
-      step: '4.9',
-      title: 'Stock control center foundation',
-      status: 'complete',
-      note: 'Control center consolidates transfer, adjustment, trace and QA concepts.',
-    },
-    {
-      step: STOCK_CONTROL_CENTER_STEP,
-      title: 'Control center UI polish',
-      status: 'active',
-      note: 'Dashboard cards, operator checklist and QA indicators are polished.',
-    },
-  ];
+function normalizeFilter(filter) {
+  const requested = String(filter || 'all').trim().toLowerCase();
+  const allowed = new Set(stockControlCenterFilterDefinitions.map((item) => item.key));
+  return allowed.has(requested) ? requested : 'all';
 }
 
-function buildControlCards(foundation) {
-  return foundation.lanes.map((lane, index) => ({
-    ...lane,
-    number: String(index + 1).padStart(2, '0'),
-    isActive: lane.status === 'active',
-    isPlanned: lane.status === 'planned',
+function filterRiskPanels(filterKey) {
+  if (filterKey === 'risk') {
+    return stockControlCenterRiskPanels;
+  }
+
+  if (filterKey === 'adjustments') {
+    return stockControlCenterRiskPanels.filter((panel) => [
+      'posted-unlocked',
+      'missing-movement-trace',
+      'manual-journal-edit'
+    ].includes(panel.key));
+  }
+
+  if (filterKey === 'transfers') {
+    return stockControlCenterRiskPanels.filter((panel) => [
+      'negative-stock',
+      'missing-movement-trace'
+    ].includes(panel.key));
+  }
+
+  return stockControlCenterRiskPanels;
+}
+
+export function getStockControlCenterFilters() {
+  return stockControlCenterFilterDefinitions.map((filter) => ({
+    ...filter,
+    isDefault: filter.key === 'all'
   }));
 }
 
-function buildQaPanels(foundation) {
-  return [
-    {
-      key: 'routeSurface',
-      title: 'Route and API surface',
-      bgTitle: 'Route и API повърхност',
-      status: 'OK',
-      detail: 'The control center keeps a visible page and JSON summary endpoints.',
-    },
-    {
-      key: 'operatorSurface',
-      title: 'Operator surface',
-      bgTitle: 'Операторска повърхност',
-      status: 'OK',
-      detail: 'Workflow cards explain what the operator can safely do next.',
-    },
-    {
-      key: 'safetySurface',
-      title: 'Safety rules',
-      bgTitle: 'Правила за безопасност',
-      status: 'OK',
-      detail: `${foundation.safetyRules.length} non-destructive stock rules are visible.`,
-    },
-  ];
+export function getStockControlCenterRiskPanels(options = {}) {
+  const activeFilter = normalizeFilter(options.filter);
+  return filterRiskPanels(activeFilter).map((panel) => ({
+    ...panel,
+    activeFilter
+  }));
+}
+
+export function getStockControlCenterQuickActions() {
+  return stockControlCenterQuickActions.map((action, index) => ({
+    ...action,
+    order: index + 1,
+    readOnlySafe: true
+  }));
 }
 
 export function getStockControlCenterSummary(options = {}) {
-  const generatedAt = options.generatedAt ?? new Date();
+  const activeFilter = normalizeFilter(options.filter);
+  const riskPanels = getStockControlCenterRiskPanels({ filter: activeFilter });
+  const highRiskCount = riskPanels.filter((panel) => ['high', 'critical'].includes(panel.severity)).length;
+
+  return {
+    stage: STOCK_CONTROL_CENTER_STAGE,
+    version: STOCK_CONTROL_CENTER_VERSION,
+    activeFilter,
+    title: 'Stock Control Center',
+    subtitle: 'Transfer, Adjustment, Movement Trace and Audit Safety consolidation',
+    mode: 'read-only',
+    counters: {
+      filters: stockControlCenterFilterDefinitions.length,
+      riskPanels: riskPanels.length,
+      highRiskPanels: highRiskCount,
+      quickActions: stockControlCenterQuickActions.length,
+      checkpoints: stockControlCenterCheckpointTimeline.length
+    },
+    status: {
+      postingLock: 'active',
+      movementTrace: 'visible',
+      reversalSafety: 'document-driven',
+      journalEditPolicy: 'blocked',
+      controlMode: 'read-only'
+    }
+  };
+}
+
+export function getStockControlCenterOperatorChecklist() {
+  return [
+    {
+      key: 'choose-filter',
+      label: 'Избери operational filter',
+      description: 'Операторът започва от all / transfers / adjustments / risk.'
+    },
+    {
+      key: 'review-risk-panels',
+      label: 'Прегледай risk panels',
+      description: 'Провери high и critical панели преди действие.'
+    },
+    {
+      key: 'open-source-document',
+      label: 'Отвори source документ',
+      description: 'Всяко действие трябва да започне от документ, не от journal.'
+    },
+    {
+      key: 'use-quick-action',
+      label: 'Използвай safe quick action',
+      description: 'Quick actions водят към read-only или документно-безопасни екрани.'
+    }
+  ];
+}
+
+export function getStockControlCenterOperationalDashboard(options = {}) {
+  const activeFilter = normalizeFilter(options.filter);
   const foundation = getStockControlCenterFoundation();
-  const controlCards = buildControlCards(foundation);
-  const qaPanels = buildQaPanels(foundation);
-  const stepSummary = buildStepSummary();
 
   return {
-    ok: true,
-    step: STOCK_CONTROL_CENTER_STEP,
-    module: foundation.module,
-    generatedAtIso: generatedAt.toISOString(),
-    pageTitle: 'Център за складов контрол',
-    pageSubtitle: 'Консолидиран контрол върху трансфери, корекции, движения и безопасност.',
     foundation,
-    metrics: foundation.metrics,
-    controlCards,
-    checklist: foundation.checklist,
-    safetyRules: foundation.safetyRules,
-    qaPanels,
-    stepSummary,
+    summary: getStockControlCenterSummary({ filter: activeFilter }),
+    filters: getStockControlCenterFilters().map((filter) => ({
+      ...filter,
+      isActive: filter.key === activeFilter
+    })),
+    riskPanels: getStockControlCenterRiskPanels({ filter: activeFilter }),
+    quickActions: getStockControlCenterQuickActions(),
+    operatorChecklist: getStockControlCenterOperatorChecklist(),
+    checkpointTimeline: stockControlCenterCheckpointTimeline,
+    activeFilter
   };
 }
 
-export function getStockControlCenterViewModel(options = {}) {
-  const summary = getStockControlCenterSummary(options);
-
-  return {
-    title: 'Складов контрол',
-    bodyClass: 'page-stock-control-center',
-    ...summary,
-  };
-}
-
-export function getStockControlCenterPing() {
-  return {
-    ok: true,
-    step: STOCK_CONTROL_CENTER_STEP,
-    module: 'stock-control-center',
-    status: 'ready',
-  };
-}
+export { getStockControlCenterFoundation };
