@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/stock-reports.css?v=4101">
+<link rel="stylesheet" href="/css/stock-reports.css?v=4102">
 
 <section class="stock-reports-shell stock-reports-shell-polished" data-stock-reports-root>
   <header class="stock-reports-hero">
@@ -6,7 +6,7 @@
       <p class="stock-reports-eyebrow">Склад · справки · анализ · само преглед</p>
       <h1>Складови справки</h1>
       <p class="stock-reports-subtitle">
-        Read-only аналитичен екран с табове, операторски филтри и бързи периоди върху съществуващите складови движения. Не редактира журнал, сторно, корекции или posted документи.
+        Read-only аналитичен екран с табове, операторски филтри, артикулна складова карта и инспектор по обект. Не редактира журнал, сторно, корекции или posted документи.
       </p>
     </div>
     <div class="stock-reports-hero-actions" aria-label="Действия">
@@ -102,6 +102,8 @@
     <button type="button" data-report-tab="balance">Наличности</button>
     <button type="button" data-report-tab="movements">Движения</button>
     <button type="button" data-report-tab="risks">Рискове</button>
+    <button type="button" data-report-tab="item-ledger">Артикулна карта</button>
+    <button type="button" data-report-tab="location-inspector">Инспектор обект</button>
   </nav>
 
   <section class="stock-report-kpi-grid" aria-label="Ключови показатели" data-tab-panel="overview">
@@ -174,6 +176,7 @@
               <th class="num">Нето</th>
               <th class="num">Движения</th>
               <th>Последно движение</th>
+              <th>Инспекция</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -201,12 +204,105 @@
               <th>Тип</th>
               <th class="num">Количество</th>
               <th class="num">Знак</th>
+              <th>Инспекция</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
     </article>
+
+
+    <article class="stock-report-panel stock-report-drilldown-panel" data-tab-panel="item-ledger">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Артикулна складова карта</h2>
+          <p>Running balance по избрания артикул и период. Кликни „Карта“ от наличности или движение за автоматичен drilldown.</p>
+        </div>
+        <span class="stock-report-table-counter" data-ledger-counter>0 реда</span>
+      </div>
+      <div class="stock-report-drilldown-summary" data-ledger-summary>
+        <div><span>Артикул</span><strong data-ledger-item>Избери артикул</strong></div>
+        <div><span>Обект</span><strong data-ledger-location>Всички</strong></div>
+        <div><span>Начало</span><strong data-ledger-first>-</strong></div>
+        <div><span>Край</span><strong data-ledger-last>-</strong></div>
+        <div><span>Вход</span><strong data-ledger-incoming>0</strong></div>
+        <div><span>Изход</span><strong data-ledger-outgoing>0</strong></div>
+        <div><span>Нето</span><strong data-ledger-net>0</strong></div>
+        <div><span>Документи</span><strong data-ledger-documents>0</strong></div>
+      </div>
+      <div class="stock-report-table-wrap">
+        <table class="stock-report-table stock-report-ledger-table" data-stock-report-ledger>
+          <thead>
+            <tr>
+              <th class="num">#</th>
+              <th>Дата</th>
+              <th>Документ</th>
+              <th>Тип</th>
+              <th>Обект</th>
+              <th>Оператор</th>
+              <th class="num">Вход</th>
+              <th class="num">Изход</th>
+              <th class="num">Баланс преди</th>
+              <th class="num">Баланс след</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="stock-report-panel stock-report-drilldown-panel" data-tab-panel="location-inspector">
+      <div class="stock-report-panel-head">
+        <div>
+          <h2>Инспектор по обект и движения</h2>
+          <p>Read-only поглед към движенията в избрания обект: активни артикули, документи, вход/изход и последни операции.</p>
+        </div>
+        <span class="stock-report-table-counter" data-location-counter>0 реда</span>
+      </div>
+      <div class="stock-report-drilldown-summary" data-location-summary>
+        <div><span>Обект</span><strong data-inspector-location>Избери обект</strong></div>
+        <div><span>Артикул</span><strong data-inspector-item>Всички</strong></div>
+        <div><span>Движения</span><strong data-inspector-movements>0</strong></div>
+        <div><span>Артикул/обект</span><strong data-inspector-sku-locations>0</strong></div>
+        <div><span>Вход</span><strong data-inspector-incoming>0</strong></div>
+        <div><span>Изход</span><strong data-inspector-outgoing>0</strong></div>
+        <div><span>Нето</span><strong data-inspector-net>0</strong></div>
+        <div><span>Отрицателни</span><strong data-inspector-negative>0</strong></div>
+      </div>
+      <div class="stock-report-inspector-grid">
+        <div class="stock-report-table-wrap">
+          <table class="stock-report-table" data-stock-report-location-items>
+            <thead>
+              <tr>
+                <th>Артикул</th>
+                <th class="num">Вход</th>
+                <th class="num">Изход</th>
+                <th class="num">Нето</th>
+                <th class="num">Движения</th>
+                <th class="num">Документи</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="stock-report-table-wrap">
+          <table class="stock-report-table" data-stock-report-location-movements>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Артикул</th>
+                <th>Документ</th>
+                <th>Тип</th>
+                <th class="num">Знак</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
 
     <section class="stock-report-risk-grid" data-tab-panel="risks">
       <article class="stock-report-panel compact">
@@ -223,4 +319,4 @@
   </section>
 </section>
 
-<script src="/js/stock-reports.js?v=4101" defer></script>
+<script src="/js/stock-reports.js?v=4102" defer></script>

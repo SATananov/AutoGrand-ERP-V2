@@ -323,6 +323,14 @@ function displayValue(value, fallback = '-') {
   return String(value);
 }
 
+function buildSourceDocumentHref(row, meta) {
+  const documentId = meta.movement.documentCol ? displayValue(row[meta.movement.documentCol], '') : '';
+  const documentNo = meta.movement.documentNoCol ? displayValue(row[meta.movement.documentNoCol], '') : '';
+  if (documentId) return `/stock-control-center?documentId=${encodeURIComponent(documentId)}`;
+  if (documentNo) return `/stock-control-center?documentNo=${encodeURIComponent(documentNo)}`;
+  return '';
+}
+
 async function fetchLookupRows(meta, lookup, max = 1000) {
   if (!lookup?.idCol) return new Map();
   const cols = [lookup.idCol, lookup.codeCol, lookup.nameCol].filter(Boolean);
@@ -374,6 +382,7 @@ async function prepareRows(meta, rows) {
       outgoing: signedQuantity < 0 ? Math.abs(signedQuantity) : 0,
       documentId: meta.movement.documentCol ? displayValue(row[meta.movement.documentCol], '') : '',
       documentNo: meta.movement.documentNoCol ? displayValue(row[meta.movement.documentNoCol], '') : '',
+      documentHref: buildSourceDocumentHref(row, meta),
       movementType: meta.movement.typeCol ? displayValue(row[meta.movement.typeCol], '') : '',
       status: meta.movement.statusCol ? displayValue(row[meta.movement.statusCol], '') : '',
       note: meta.movement.noteCol ? displayValue(row[meta.movement.noteCol], '') : ''
@@ -527,3 +536,129 @@ export async function getStockReportsMovements(query = {}) {
   const rows = await prepareRows(meta, await queryMovementRows(meta, filters, { limit: filters.limit }));
   return { ok: true, filters, diagnostics: buildDiagnostics(meta), rows };
 }
+
+function compareMovementRowsAsc(a, b) {
+  const byDate = String(a.date || '').localeCompare(String(b.date || ''));
+  if (byDate !== 0) return byDate;
+  return String(a.id || '').localeCompare(String(b.id || ''));
+}
+
+function withRunningBalance(rows) {
+  let runningBalance = 0;
+  return [...rows].sort(compareMovementRowsAsc).map((row, index) => {
+    const balanceBefore = runningBalance;
+    runningBalance += Number(row.signedQuantity || 0);
+    return {
+      ...row,
+      ledgerNo: index + 1,
+      balanceBefore,
+      runningBalance,
+      balanceAfter: runningBalance
+    };
+  });
+}
+
+function summarizeLedger(rows) {
+  const documentKeys = new Set();
+  let firstMovementDate = '';
+  let lastMovementDate = '';
+  const incoming = rows.reduce((sum, row) => sum + Number(row.incoming || 0), 0);
+  const outgoing = rows.reduce((sum, row) => sum + Number(row.outgoing || 0), 0);
+  for (const row of rows) {
+    if (row.documentId || row.documentNo) documentKeys.add(`${row.documentId || ''}|${row.documentNo || ''}`);
+    if (!firstMovementDate || String(row.date) < String(firstMovementDate)) firstMovementDate = row.date;
+    if (!lastMovementDate || String(row.date) > String(lastMovementDate)) lastMovementDate = row.date;
+  }
+  return {
+    movementRows: rows.length,
+    incoming,
+    outgoing,
+    netQuantity: incoming - outgoing,
+    documents: documentKeys.size,
+    firstMovementDate,
+    lastMovementDate,
+    negativeMovements: rows.filter((row) => Number(row.signedQuantity || 0) < 0).length,
+    positiveMovements: rows.filter((row) => Number(row.signedQuantity || 0) > 0).length
+  };
+}
+
+function summarizeLocationMovements(rows) {
+  const groups = new Map();
+  for (const row of rows) {
+    const key = row.itemId || '-';
+    if (!groups.has(key)) {
+      groups.set(key, {
+        itemId: row.itemId,
+        itemLabel: row.itemLabel,
+        incoming: 0,
+        outgoing: 0,
+        netQuantity: 0,
+        movements: 0,
+        documents: new Set(),
+        lastMovementDate: ''
+      });
+    }
+    const group = groups.get(key);
+    group.incoming += Number(row.incoming || 0);
+    group.outgoing += Number(row.outgoing || 0);
+    group.netQuantity += Number(row.signedQuantity || 0);
+    group.movements += 1;
+    if (row.documentId || row.documentNo) group.documents.add(`${row.documentId || ''}|${row.documentNo || ''}`);
+    if (!group.lastMovementDate || String(row.date) > String(group.lastMovementDate)) group.lastMovementDate = row.date;
+  }
+  return [...groups.values()].map((row) => ({
+    ...row,
+    documents: row.documents.size
+  })).sort((a, b) => b.movements - a.movements || Math.abs(b.netQuantity) - Math.abs(a.netQuantity));
+}
+
+function pickLedgerContext(rows, filters) {
+  const first = rows[0] || {};
+  return {
+    itemId: filters.itemId || first.itemId || '',
+    itemLabel: first.itemLabel || (filters.itemId ? `Артикул ${filters.itemId}` : 'Всички артикули'),
+    locationId: filters.locationId || first.locationId || '',
+    locationLabel: first.locationLabel || (filters.locationId ? `Обект ${filters.locationId}` : 'Всички обекти')
+  };
+}
+
+export async function getStockReportsItemLedger(query = {}) {
+  const meta = await buildMeta();
+  const filters = normalizeFilters(query);
+  if (!meta.ready) {
+    return { ok: true, filters, diagnostics: buildDiagnostics(meta), context: pickLedgerContext([], filters), summary: summarizeLedger([]), rows: [] };
+  }
+
+  const rows = await prepareRows(meta, await queryMovementRows(meta, filters, { limit: 50000 }));
+  const ledgerRows = withRunningBalance(rows);
+  const limitedRows = ledgerRows.slice(-filters.limit);
+  return {
+    ok: true,
+    filters,
+    diagnostics: buildDiagnostics(meta),
+    context: pickLedgerContext(ledgerRows, filters),
+    summary: summarizeLedger(ledgerRows),
+    rows: limitedRows
+  };
+}
+
+export async function getStockReportsLocationMovements(query = {}) {
+  const meta = await buildMeta();
+  const filters = normalizeFilters(query);
+  if (!meta.ready) {
+    return { ok: true, filters, diagnostics: buildDiagnostics(meta), context: pickLedgerContext([], filters), summary: summarizeRows([]), itemSummary: [], rows: [] };
+  }
+
+  const rows = await prepareRows(meta, await queryMovementRows(meta, filters, { limit: 50000 }));
+  const orderedRows = [...rows].sort((a, b) => -compareMovementRowsAsc(a, b)).slice(0, filters.limit);
+  return {
+    ok: true,
+    filters,
+    diagnostics: buildDiagnostics(meta),
+    context: pickLedgerContext(rows, filters),
+    summary: summarizeRows(rows),
+    itemSummary: summarizeLocationMovements(rows).slice(0, filters.limit),
+    rows: orderedRows
+  };
+}
+

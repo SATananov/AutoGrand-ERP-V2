@@ -531,3 +531,107 @@
     display: grid !important;
   }
 }
+
+
+/* Step 4.10.2 drilldown / inspector polish */
+.stock-report-mini-action {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(20, 114, 56, 0.25);
+  border-radius: 999px;
+  background: #147238;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 9px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.stock-report-mini-action.muted {
+  background: #eef8ef;
+  color: #13582d;
+}
+
+.stock-report-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stock-report-source-link {
+  color: #0f6532;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.stock-report-source-link:hover {
+  text-decoration: underline;
+}
+
+.stock-report-drilldown-panel {
+  border-left: 5px solid rgba(20, 114, 56, 0.55);
+}
+
+.stock-report-drilldown-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-report-drilldown-summary > div {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(27, 104, 54, 0.15);
+  border-radius: 14px;
+  background: #f7fcf6;
+  padding: 11px 12px;
+}
+
+.stock-report-drilldown-summary span {
+  color: #607461;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stock-report-drilldown-summary strong {
+  color: #0d3d20;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.stock-report-inspector-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 14px;
+}
+
+.stock-report-ledger-table {
+  min-width: 1120px;
+}
+
+@media (max-width: 1180px) {
+  .stock-report-drilldown-summary,
+  .stock-report-inspector-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .stock-report-drilldown-summary,
+  .stock-report-inspector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .stock-report-mini-action {
+    display: none !important;
+  }
+}

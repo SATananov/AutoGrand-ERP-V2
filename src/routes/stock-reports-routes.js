@@ -1,6 +1,8 @@
 import express from 'express';
 import {
   getStockReportsBalance,
+  getStockReportsItemLedger,
+  getStockReportsLocationMovements,
   getStockReportsMovements,
   getStockReportsOptions,
   getStockReportsSummary
@@ -57,6 +59,22 @@ router.get('/api/stock/reports/balance', async (req, res) => {
 router.get('/api/stock/reports/movements', async (req, res) => {
   try {
     res.json(await getStockReportsMovements(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get('/api/stock/reports/item-ledger', async (req, res) => {
+  try {
+    res.json(await getStockReportsItemLedger(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get('/api/stock/reports/location-movements', async (req, res) => {
+  try {
+    res.json(await getStockReportsLocationMovements(req.query));
   } catch (error) {
     sendError(res, error);
   }

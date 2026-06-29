@@ -9,7 +9,14 @@
     summary: {},
     diagnostics: {},
     topNegative: [],
-    topMovement: []
+    topMovement: [],
+    itemLedgerRows: [],
+    itemLedgerSummary: {},
+    itemLedgerContext: {},
+    locationInspectorRows: [],
+    locationInspectorItems: [],
+    locationInspectorSummary: {},
+    locationInspectorContext: {}
   };
 
   const $ = (selector) => root.querySelector(selector);
@@ -115,6 +122,19 @@
     ]));
   }
 
+  function buildDrilldownQuery(itemId, locationId) {
+    const params = buildQuery();
+    if (itemId) params.set('itemId', itemId);
+    if (locationId) params.set('locationId', locationId);
+    return params;
+  }
+
+  function sourceDocumentCell(row) {
+    const label = escapeHtml(row.documentNo || row.documentId || '-');
+    if (!row.documentHref) return label;
+    return `<a class="stock-report-source-link" href="${escapeHtml(row.documentHref)}">${label}</a>`;
+  }
+
   async function fetchJson(url) {
     const response = await fetch(url, { headers: { Accept: 'application/json' } });
     const json = await response.json();
@@ -178,7 +198,7 @@
     if (counter) counter.textContent = `${formatNumber(filtered.length)} реда`;
     tbody.innerHTML = '';
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">Няма данни за избрания филтър.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="empty">Няма данни за избрания филтър.</td></tr>';
       return;
     }
     filtered.forEach((row) => {
@@ -192,6 +212,7 @@
         <td class="num strong">${formatNumber(row.netQuantity)}</td>
         <td class="num">${formatNumber(row.movements)}</td>
         <td>${escapeHtml(formatDate(row.lastMovementDate))}</td>
+        <td><button class="stock-report-mini-action" type="button" data-ledger-item="${escapeHtml(row.itemId)}" data-ledger-location="${escapeHtml(row.locationId)}">Карта</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -204,7 +225,7 @@
     if (counter) counter.textContent = `${formatNumber(filtered.length)} реда`;
     tbody.innerHTML = '';
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty">Няма движения за избрания филтър.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">Няма движения за избрания филтър.</td></tr>';
       return;
     }
     filtered.forEach((row) => {
@@ -215,10 +236,14 @@
         <td>${escapeHtml(row.itemLabel)}</td>
         <td>${escapeHtml(row.locationLabel)}</td>
         <td>${escapeHtml(row.operatorLabel)}</td>
-        <td>${escapeHtml(row.documentNo || row.documentId)}</td>
+        <td>${sourceDocumentCell(row)}</td>
         <td>${escapeHtml(row.movementType || row.status)}</td>
         <td class="num">${formatNumber(row.quantity)}</td>
         <td class="num strong">${formatNumber(row.signedQuantity)}</td>
+        <td class="stock-report-row-actions">
+          <button class="stock-report-mini-action" type="button" data-ledger-item="${escapeHtml(row.itemId)}" data-ledger-location="${escapeHtml(row.locationId)}">Карта</button>
+          <button class="stock-report-mini-action muted" type="button" data-location-inspect="${escapeHtml(row.locationId)}" data-inspector-item="${escapeHtml(row.itemId)}">Обект</button>
+        </td>
       `;
       tbody.appendChild(tr);
     });
@@ -245,10 +270,150 @@
     });
   }
 
+
+
+  function setText(selector, value) {
+    const el = $(selector);
+    if (el) el.textContent = value;
+  }
+
+  function renderItemLedger() {
+    const rows = state.itemLedgerRows || [];
+    const summary = state.itemLedgerSummary || {};
+    const context = state.itemLedgerContext || {};
+    setText('[data-ledger-item]', context.itemLabel || 'Избери артикул');
+    setText('[data-ledger-location]', context.locationLabel || 'Всички');
+    setText('[data-ledger-first]', formatDate(summary.firstMovementDate));
+    setText('[data-ledger-last]', formatDate(summary.lastMovementDate));
+    setText('[data-ledger-incoming]', formatNumber(summary.incoming));
+    setText('[data-ledger-outgoing]', formatNumber(summary.outgoing));
+    setText('[data-ledger-net]', formatNumber(summary.netQuantity));
+    setText('[data-ledger-documents]', formatNumber(summary.documents));
+    setText('[data-ledger-counter]', `${formatNumber(rows.length)} реда`);
+
+    const tbody = $('[data-stock-report-ledger] tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="10" class="empty">Избери артикул от таблица „Наличности“ или „Движения“.</td></tr>';
+      return;
+    }
+    rows.forEach((row) => {
+      const tr = document.createElement('tr');
+      if (Number(row.runningBalance) < 0) tr.classList.add('danger-row');
+      tr.innerHTML = `
+        <td class="num">${formatNumber(row.ledgerNo)}</td>
+        <td>${escapeHtml(formatDate(row.date))}</td>
+        <td>${sourceDocumentCell(row)}</td>
+        <td>${escapeHtml(row.movementType || row.status)}</td>
+        <td>${escapeHtml(row.locationLabel)}</td>
+        <td>${escapeHtml(row.operatorLabel)}</td>
+        <td class="num">${formatNumber(row.incoming)}</td>
+        <td class="num">${formatNumber(row.outgoing)}</td>
+        <td class="num">${formatNumber(row.balanceBefore)}</td>
+        <td class="num strong">${formatNumber(row.runningBalance)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderLocationInspector() {
+    const rows = state.locationInspectorRows || [];
+    const items = state.locationInspectorItems || [];
+    const summary = state.locationInspectorSummary || {};
+    const context = state.locationInspectorContext || {};
+    setText('[data-inspector-location]', context.locationLabel || 'Избери обект');
+    setText('[data-inspector-item]', context.itemLabel || 'Всички');
+    setText('[data-inspector-movements]', formatNumber(summary.movementRows));
+    setText('[data-inspector-sku-locations]', formatNumber(summary.skuLocations));
+    setText('[data-inspector-incoming]', formatNumber(summary.incoming));
+    setText('[data-inspector-outgoing]', formatNumber(summary.outgoing));
+    setText('[data-inspector-net]', formatNumber(summary.netQuantity));
+    setText('[data-inspector-negative]', formatNumber(summary.negativeSkuLocations));
+    setText('[data-location-counter]', `${formatNumber(rows.length)} движения`);
+
+    const itemTbody = $('[data-stock-report-location-items] tbody');
+    if (itemTbody) {
+      itemTbody.innerHTML = '';
+      if (!items.length) {
+        itemTbody.innerHTML = '<tr><td colspan="6" class="empty">Избери обект от таблиците.</td></tr>';
+      } else {
+        items.forEach((row) => {
+          const tr = document.createElement('tr');
+          if (Number(row.netQuantity) < 0) tr.classList.add('danger-row');
+          tr.innerHTML = `
+            <td>${escapeHtml(row.itemLabel)}</td>
+            <td class="num">${formatNumber(row.incoming)}</td>
+            <td class="num">${formatNumber(row.outgoing)}</td>
+            <td class="num strong">${formatNumber(row.netQuantity)}</td>
+            <td class="num">${formatNumber(row.movements)}</td>
+            <td class="num">${formatNumber(row.documents)}</td>
+          `;
+          itemTbody.appendChild(tr);
+        });
+      }
+    }
+
+    const movementTbody = $('[data-stock-report-location-movements] tbody');
+    if (movementTbody) {
+      movementTbody.innerHTML = '';
+      if (!rows.length) {
+        movementTbody.innerHTML = '<tr><td colspan="5" class="empty">Няма движения за инспекция.</td></tr>';
+      } else {
+        rows.forEach((row) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${escapeHtml(formatDate(row.date))}</td>
+            <td>${escapeHtml(row.itemLabel)}</td>
+            <td>${sourceDocumentCell(row)}</td>
+            <td>${escapeHtml(row.movementType || row.status)}</td>
+            <td class="num strong">${formatNumber(row.signedQuantity)}</td>
+          `;
+          movementTbody.appendChild(tr);
+        });
+      }
+    }
+  }
+
+  async function loadItemLedger(itemId, locationId) {
+    if (!itemId) {
+      setStatus('Избери артикул за складова карта.', 'warn');
+      return;
+    }
+    const params = buildDrilldownQuery(itemId, locationId);
+    setStatus('Зареждане на артикулна складова карта...', 'info');
+    const data = await fetchJson(`/api/stock/reports/item-ledger?${params.toString()}`);
+    state.itemLedgerRows = data.rows || [];
+    state.itemLedgerSummary = data.summary || {};
+    state.itemLedgerContext = data.context || {};
+    renderItemLedger();
+    setActiveTab('item-ledger');
+    setStatus('Артикулната карта е заредена. Режимът е само за преглед.', 'ok');
+  }
+
+  async function loadLocationInspector(locationId, itemId) {
+    if (!locationId) {
+      setStatus('Избери обект за инспектор по движения.', 'warn');
+      return;
+    }
+    const params = buildDrilldownQuery(itemId, locationId);
+    setStatus('Зареждане на инспектор по обект...', 'info');
+    const data = await fetchJson(`/api/stock/reports/location-movements?${params.toString()}`);
+    state.locationInspectorRows = data.rows || [];
+    state.locationInspectorItems = data.itemSummary || [];
+    state.locationInspectorSummary = data.summary || {};
+    state.locationInspectorContext = data.context || {};
+    renderLocationInspector();
+    setActiveTab('location-inspector');
+    setStatus('Инспекторът по обект е зареден. Режимът е само за преглед.', 'ok');
+  }
+
   function renderAll() {
     setKpis(state.summary || {});
     renderBalance(state.balanceRows || []);
     renderMovements(state.movementRows || []);
+    renderItemLedger();
+    renderLocationInspector();
     renderList('[data-stock-report-negative]', state.topNegative || [], 'Няма отрицателни наличности в избрания период.', 'netQuantity');
     renderList('[data-stock-report-active]', state.topMovement || [], 'Няма активност в избрания период.', 'movements');
   }
@@ -341,6 +506,29 @@
         { key: 'quantity', label: 'quantity' },
         { key: 'signedQuantity', label: 'signedQuantity' }
       ];
+    } else if (state.activeTab === 'item-ledger') {
+      rows = state.itemLedgerRows || [];
+      header = [
+        { key: 'ledgerNo', label: 'ledgerNo' },
+        { key: 'date', label: 'date' },
+        { key: 'documentNo', label: 'documentNo' },
+        { key: 'movementType', label: 'type' },
+        { key: 'locationLabel', label: 'location' },
+        { key: 'incoming', label: 'incoming' },
+        { key: 'outgoing', label: 'outgoing' },
+        { key: 'balanceBefore', label: 'balanceBefore' },
+        { key: 'runningBalance', label: 'runningBalance' }
+      ];
+    } else if (state.activeTab === 'location-inspector') {
+      rows = state.locationInspectorItems || [];
+      header = [
+        { key: 'itemLabel', label: 'item' },
+        { key: 'incoming', label: 'incoming' },
+        { key: 'outgoing', label: 'outgoing' },
+        { key: 'netQuantity', label: 'netQuantity' },
+        { key: 'movements', label: 'movements' },
+        { key: 'documents', label: 'documents' }
+      ];
     }
 
     const blob = new Blob([toCsv(rows, header)], { type: 'text/csv;charset=utf-8' });
@@ -361,6 +549,13 @@
     $('[data-filter-report-mode]').value = 'all';
     $('[data-filter-search]').value = '';
     $('[data-filter-limit]').value = '100';
+    state.itemLedgerRows = [];
+    state.itemLedgerSummary = {};
+    state.itemLedgerContext = {};
+    state.locationInspectorRows = [];
+    state.locationInspectorItems = [];
+    state.locationInspectorSummary = {};
+    state.locationInspectorContext = {};
   }
 
   async function init() {
@@ -402,6 +597,26 @@
         await loadReports();
       } catch (error) {
         setStatus(error.message, 'error');
+      }
+    });
+
+    root.addEventListener('click', async (event) => {
+      const ledgerButton = event.target.closest('[data-ledger-item]');
+      const locationButton = event.target.closest('[data-location-inspect]');
+      if (ledgerButton) {
+        event.preventDefault();
+        try {
+          await loadItemLedger(ledgerButton.dataset.ledgerItem, ledgerButton.dataset.ledgerLocation);
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      } else if (locationButton) {
+        event.preventDefault();
+        try {
+          await loadLocationInspector(locationButton.dataset.locationInspect, locationButton.dataset.inspectorItem);
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
       }
     });
 
