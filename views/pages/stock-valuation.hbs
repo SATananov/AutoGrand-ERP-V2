@@ -3,9 +3,9 @@
 <main class="stock-valuation-shell" data-stock-valuation-root>
   <header class="stock-valuation-hero">
     <div>
-      <p class="stock-valuation-eyebrow">Step 4.11.2 · Read-only</p>
+      <p class="stock-valuation-eyebrow">Step 4.11.3 · Read-only</p>
       <h1>Стойност на склада</h1>
-      <p>Inventory cost view с cost confidence, manager filters и Cost Source Inspector. Справката не записва и не коригира складови движения.</p>
+      <p>Inventory cost view с cost confidence, manager snapshot, print/export QA и Cost Source Inspector. Справката не записва и не коригира складови движения.</p>
     </div>
     <div class="stock-valuation-actions">
       <a class="stock-valuation-button stock-valuation-button-muted" href="/stock-reports">Складови справки</a>
@@ -137,6 +137,7 @@
     <button type="button" data-valuation-tab="locations">По обекти</button>
     <button type="button" data-valuation-tab="movements">Движения със себестойност</button>
     <button type="button" data-valuation-tab="inspector">Cost Inspector</button>
+    <button type="button" data-valuation-tab="manager-print">Manager Snapshot QA</button>
   </nav>
 
   <section class="stock-valuation-kpis" data-tab-panel="snapshot">
@@ -262,6 +263,59 @@
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </article>
+
+
+    <article class="stock-valuation-panel stock-valuation-manager-print" data-tab-panel="manager-print">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Manager Snapshot QA</h2>
+          <p>Print/export-ready управителски snapshot за стойност, risk exposure и cost confidence.</p>
+        </div>
+        <span data-manager-print-period>-</span>
+      </div>
+      <div class="stock-valuation-manager-print-meta" data-manager-print-meta></div>
+      <div class="stock-valuation-manager-cards" data-manager-snapshot-cards></div>
+      <div class="stock-valuation-notes" data-manager-snapshot-notes></div>
+      <div class="stock-valuation-manager-grid">
+        <section>
+          <h3>Контрол по обекти</h3>
+          <div class="stock-valuation-table-wrap">
+            <table class="stock-valuation-table" data-manager-location-table>
+              <thead>
+                <tr>
+                  <th>Обект</th>
+                  <th class="num">Risk score</th>
+                  <th>Контрол</th>
+                  <th class="num">Стойност</th>
+                  <th class="num">Позиции</th>
+                  <th class="num">Без cost</th>
+                  <th class="num">Missing %</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section>
+          <h3>Позиции за управителски преглед</h3>
+          <div class="stock-valuation-table-wrap">
+            <table class="stock-valuation-table" data-manager-risk-table>
+              <thead>
+                <tr>
+                  <th>Артикул</th>
+                  <th>Обект</th>
+                  <th class="num">Наличност</th>
+                  <th class="num">Стойност</th>
+                  <th>Confidence</th>
+                  <th>Manager</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </article>
 

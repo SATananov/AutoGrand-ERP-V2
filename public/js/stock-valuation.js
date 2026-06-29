@@ -11,6 +11,7 @@
     movements: null,
     itemLedger: null,
     costSource: null,
+    managerSnapshot: null,
     search: ''
   };
 
@@ -260,6 +261,47 @@
     ], 'Няма открити стойностни източници за избраните филтри.');
   }
 
+  function renderManagerSnapshot() {
+    const snapshot = state.managerSnapshot || {};
+    const cards = root.querySelector('[data-manager-snapshot-cards]');
+    if (cards) {
+      cards.innerHTML = (snapshot.cards || []).map((card) => `<article class="${text(card.tone || '')}"><span>${text(card.label)}</span><strong>${text(card.value)}</strong><em>${text(card.unit || '')}</em><small>${text(card.hint || '')}</small></article>`).join('');
+    }
+    const notes = root.querySelector('[data-manager-snapshot-notes]');
+    if (notes) notes.innerHTML = (snapshot.notes || []).map((note) => `<article>${text(note)}</article>`).join('');
+    const meta = root.querySelector('[data-manager-print-meta]');
+    const printMeta = snapshot.printMetadata || {};
+    if (meta) {
+      meta.innerHTML = [
+        ['Генериран', printMeta.generatedAt || '-'],
+        ['Период', `${printMeta.period?.from || '-'} → ${printMeta.period?.to || '-'}`],
+        ['Метод', printMeta.valuationMode || '-'],
+        ['Фокус', printMeta.managerFocus || '-'],
+        ['Режим', printMeta.stockMode || '-']
+      ].map(([label, value]) => `<article><span>${label}</span><strong>${text(value)}</strong></article>`).join('');
+    }
+    const period = root.querySelector('[data-manager-print-period]');
+    if (period) period.textContent = `${printMeta.period?.from || '-'} → ${printMeta.period?.to || '-'}`;
+    renderTable('[data-manager-location-table]', snapshot.locationControls || [], (row) => [
+      { value: row.locationLabel },
+      { value: fmtQty(row.riskScore), className: 'num' },
+      { value: row.controlLabel },
+      { value: fmtNumber(row.stockValue), className: 'num' },
+      { value: fmtQty(row.positions), className: 'num' },
+      { value: fmtQty(row.missingCostPositions), className: 'num' },
+      { value: `${row.missingCostRate || 0}%`, className: 'num' }
+    ], 'Няма обекти за управителски контрол.');
+    const riskRows = (snapshot.riskRows && snapshot.riskRows.length ? snapshot.riskRows : snapshot.highValueRows) || [];
+    renderTable('[data-manager-risk-table]', riskRows, (row) => [
+      { html: `<button type="button" class="stock-valuation-linkbutton" data-inspect-item="${text(row.itemId, '')}" data-inspect-location="${text(row.locationId, '')}">${text(row.itemLabel)}</button>` },
+      { value: row.locationLabel },
+      { value: fmtQty(row.netQuantity), className: 'num' },
+      { value: fmtNumber(row.stockValue), className: 'num' },
+      { html: confidenceBadge(row) },
+      { html: managerFlagBadge(row) }
+    ], 'Няма рискови позиции за избраните филтри.');
+  }
+
   function setTab(tab) {
     state.activeTab = tab;
     root.querySelectorAll('[data-valuation-tab]').forEach((button) => button.classList.toggle('active', button.dataset.valuationTab === tab));
@@ -273,6 +315,7 @@
     if (state.snapshot) renderLocations(state.snapshot);
     if (state.movements) renderMovements(state.movements);
     renderInspector();
+    renderManagerSnapshot();
   }
 
   async function loadOptions() {
@@ -286,18 +329,20 @@
     setStatus('Зареждане на стойностната справка...');
     const params = buildParams();
     state.search = String(form.querySelector('[data-filter-search]')?.value || '');
-    const [snapshot, balance, movements, itemLedger, costSource] = await Promise.all([
+    const [snapshot, balance, movements, itemLedger, costSource, managerSnapshot] = await Promise.all([
       fetchJson(`/api/stock/valuation/snapshot?${params}`),
       fetchJson(`/api/stock/valuation/balance?${params}`),
       fetchJson(`/api/stock/valuation/movements-cost?${params}`),
       fetchJson(`/api/stock/valuation/item-ledger?${params}`),
-      fetchJson(`/api/stock/valuation/cost-source?${params}`)
+      fetchJson(`/api/stock/valuation/cost-source?${params}`),
+      fetchJson(`/api/stock/valuation/manager-snapshot?${params}`)
     ]);
     state.snapshot = snapshot;
     state.balance = balance;
     state.movements = movements;
     state.itemLedger = itemLedger;
     state.costSource = costSource;
+    state.managerSnapshot = managerSnapshot;
     renderAll();
     if (!snapshot.ready) setStatus(snapshot.summary?.diagnostics?.reason || 'Не е открита read-only база за valuation.', 'warn');
     else setStatus(`Готово · ${snapshot.summary.rows} позиции · стойност ${fmtNumber(snapshot.summary.totalStockValue)} BGN · coverage ${snapshot.summary.costCoverage || 0}%`, 'ok');
@@ -320,6 +365,9 @@
     } else if (state.activeTab === 'inspector') {
       header = ['line', 'date', 'item', 'location', 'document', 'signed_quantity', 'unit_cost', 'signed_value', 'running_quantity', 'running_value', 'source', 'confidence'];
       rows = collectRowsForSearch(state.itemLedger?.rows || []).map((row) => [row.ledgerLine, row.date, row.itemLabel, row.locationLabel, row.documentNo || row.documentId, row.signedQuantity, row.unitCost, row.signedValue, row.runningQuantity, row.runningValue, row.sourceKindLabel || row.costSource, row.costConfidence]);
+    } else if (state.activeTab === 'manager-print') {
+      header = ['line', 'item', 'location', 'quantity', 'unit_cost', 'stock_value', 'confidence', 'confidence_score', 'value_band', 'manager_flag', 'last_movement'];
+      rows = collectRowsForSearch(state.managerSnapshot?.exportRows || []).map((row) => [row.line, row.itemLabel, row.locationLabel, row.netQuantity, row.unitCost, row.stockValue, row.costConfidenceLabel, row.costConfidenceScore, row.valueBandLabel, row.managerFlag, row.lastMovementDate]);
     } else {
       header = ['item', 'location', 'quantity', 'unit_cost', 'stock_value', 'incoming_value', 'outgoing_value', 'confidence', 'confidence_score', 'value_band', 'manager_flag'];
       rows = collectRowsForSearch(state.balance?.rows || state.snapshot?.highValue || []).map((row) => [row.itemLabel, row.locationLabel, row.netQuantity, row.unitCost, row.stockValue, row.incomingValue, row.outgoingValue, row.costConfidenceLabel || row.costConfidence, row.costConfidenceScore, row.valueBandLabel || row.valueBand, row.managerFlag]);

@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.33",
+  "version": "0.4.34",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.11.2 Stock Valuation Drilldown Cost Source Inspector",
+  "description": "AutoGrand ERP V2 Step 4.11.3 Stock Valuation Print Export Manager Snapshot QA",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

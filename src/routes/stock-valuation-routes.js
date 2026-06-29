@@ -3,6 +3,7 @@ import {
   getStockValuationBalance,
   getStockValuationCostSource,
   getStockValuationItemLedger,
+  getStockValuationManagerSnapshot,
   getStockValuationMovements,
   getStockValuationOptions,
   getStockValuationSnapshot,
@@ -69,6 +70,15 @@ router.get('/api/stock/valuation/movements-cost', async (req, res) => {
 router.get('/api/stock/valuation/snapshot', async (req, res) => {
   try {
     res.json(await getStockValuationSnapshot(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+
+router.get('/api/stock/valuation/manager-snapshot', async (req, res) => {
+  try {
+    res.json(await getStockValuationManagerSnapshot(req.query));
   } catch (error) {
     sendError(res, error);
   }

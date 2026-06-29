@@ -909,6 +909,93 @@ export async function getStockValuationOptions(query = {}) {
   };
 }
 
+
+function sumAbsStockValue(rows) {
+  return roundMoney((rows || []).reduce((sum, row) => sum + Math.abs(Number(row.stockValue || 0)), 0));
+}
+
+function buildManagerSnapshotNotes(summary) {
+  const notes = [];
+  if ((summary.riskPositions || 0) > 0) notes.push(`${summary.riskPositions} позиции са маркирани за управителски контрол.`);
+  else notes.push('Няма позиции с управителски риск за избраните филтри.');
+  if ((summary.missingCostPositions || 0) > 0) notes.push(`${summary.missingCostPositions} позиции са без откриваема себестойност и трябва да се прегледат през Cost Inspector.`);
+  else notes.push('Себестойността е откриваема за всички позиции в избраната справка.');
+  if ((summary.negativePositions || 0) > 0) notes.push(`${summary.negativePositions} позиции са с отрицателна наличност и изискват оперативна проверка.`);
+  if ((summary.costCoverage || 0) < 85) notes.push(`Cost coverage е ${summary.costCoverage || 0}% — препоръчва се проверка на входящите стойности.`);
+  notes.push('Този snapshot е read-only: не променя документи, stock journal, posting, reversal или correction логика.');
+  return notes;
+}
+
+function buildManagerSnapshotCards(valuation, riskRows, missingRows, negativeRows, highValueRows) {
+  const summary = valuation.summary || {};
+  const atRiskValue = sumAbsStockValue(riskRows);
+  const highValueTotal = sumAbsStockValue(highValueRows);
+  const missingValue = sumAbsStockValue(missingRows);
+  return [
+    { id: 'totalStockValue', label: 'Обща складова стойност', value: roundMoney(summary.totalStockValue || 0), unit: 'BGN', tone: 'ok', hint: 'Всички позиции по активните филтри' },
+    { id: 'atRiskValue', label: 'Стойност за контрол', value: atRiskValue, unit: 'BGN', tone: atRiskValue > 0 ? 'warn' : 'ok', hint: 'Позиции с manager flag различен от OK' },
+    { id: 'missingCostPositions', label: 'Без себестойност', value: summary.missingCostPositions || 0, unit: 'позиции', tone: (summary.missingCostPositions || 0) > 0 ? 'danger' : 'ok', hint: 'Липсва откриваем cost source' },
+    { id: 'costCoverage', label: 'Cost coverage', value: summary.costCoverage || 0, unit: '%', tone: (summary.costCoverage || 0) < 85 ? 'warn' : 'ok', hint: 'Дял позиции с открита себестойност' },
+    { id: 'negativePositions', label: 'Отрицателни наличности', value: summary.negativePositions || 0, unit: 'позиции', tone: (summary.negativePositions || 0) > 0 ? 'danger' : 'ok', hint: 'Оперативен риск' },
+    { id: 'highValueTotal', label: 'High-value exposure', value: highValueTotal, unit: 'BGN', tone: highValueTotal > 0 ? 'warn' : 'ok', hint: 'Critical/high value позиции' },
+    { id: 'missingValue', label: 'Value without cost', value: missingValue, unit: 'BGN', tone: missingValue > 0 ? 'danger' : 'ok', hint: 'Стойност с липсваща себестойност' }
+  ];
+}
+
+function buildManagerLocationControls(locationSummary) {
+  return (locationSummary || []).map((row) => {
+    const riskScore = Math.min(100, Math.round(((row.riskPositions || 0) * 20) + ((row.missingCostRate || 0) * 0.6) + (Math.abs(row.negativeValue || 0) > 0 ? 20 : 0)));
+    const controlLevel = riskScore >= 70 ? 'high' : riskScore >= 35 ? 'medium' : 'low';
+    return {
+      ...row,
+      riskScore,
+      controlLevel,
+      controlLabel: controlLevel === 'high' ? 'Висок контрол' : controlLevel === 'medium' ? 'Среден контрол' : 'Нисък контрол'
+    };
+  }).sort((a, b) => b.riskScore - a.riskScore || Math.abs(b.stockValue || 0) - Math.abs(a.stockValue || 0));
+}
+
+function buildManagerExportRows(rows) {
+  return (rows || [])
+    .slice()
+    .sort((a, b) => {
+      const aRisk = a.managerFlag === 'OK' ? 0 : 1;
+      const bRisk = b.managerFlag === 'OK' ? 0 : 1;
+      return bRisk - aRisk || Math.abs(b.stockValue || 0) - Math.abs(a.stockValue || 0);
+    })
+    .slice(0, 250)
+    .map((row, index) => ({
+      line: index + 1,
+      itemId: row.itemId,
+      itemLabel: row.itemLabel,
+      locationId: row.locationId,
+      locationLabel: row.locationLabel,
+      netQuantity: row.netQuantity,
+      unitCost: row.unitCost,
+      stockValue: row.stockValue,
+      costConfidenceLabel: row.costConfidenceLabel,
+      costConfidenceScore: row.costConfidenceScore,
+      valueBandLabel: row.valueBandLabel,
+      managerFlag: row.managerFlag,
+      lastMovementDate: row.lastMovementDate,
+      inspectorHint: 'Open Cost Inspector for source trace'
+    }));
+}
+
+function buildPrintMetadata(filters) {
+  return {
+    title: 'Stock Valuation Manager Snapshot QA',
+    step: '4.11.3',
+    generatedAt: new Date().toISOString(),
+    period: { from: filters.from, to: filters.to },
+    valuationMode: filters.valuationMode,
+    stockMode: filters.stockMode,
+    confidenceMode: filters.confidenceMode,
+    managerFocus: filters.managerFocus,
+    safety: 'Read-only print/export snapshot. No stock journal, posting, reversal or correction write operation is executed.'
+  };
+}
+
 export async function getStockValuationSummary(query = {}) {
   const valuation = await buildValuation(query);
   return { ok: true, ready: valuation.ready, filters: valuation.filters, summary: valuation.summary, diagnostics: valuation.summary.diagnostics };
@@ -975,5 +1062,34 @@ export async function getStockValuationCostSource(query = {}) {
     sourceRows: drilldown.sourceRows || [],
     diagnostics: drilldown.diagnostics,
     safety: 'Read-only cost source trace. No posting, reversal, correction or valuation write operation is executed.'
+  };
+}
+
+
+export async function getStockValuationManagerSnapshot(query = {}) {
+  const valuation = await buildValuation(query);
+  const rows = valuation.rows || [];
+  const riskRows = rows.filter((row) => row.managerFlag !== 'OK');
+  const missingRows = rows.filter((row) => row.missingCost || row.costConfidenceLevel === 'missing');
+  const negativeRows = rows.filter((row) => row.netQuantity < 0);
+  const highValueRows = rows.filter((row) => row.valueBand === 'critical' || row.valueBand === 'high');
+  const cards = buildManagerSnapshotCards(valuation, riskRows, missingRows, negativeRows, highValueRows);
+  const locationControls = buildManagerLocationControls(valuation.locationSummary || []);
+  return {
+    ok: true,
+    ready: valuation.ready,
+    filters: valuation.filters,
+    summary: valuation.summary,
+    cards,
+    notes: buildManagerSnapshotNotes(valuation.summary || {}),
+    locationControls,
+    riskRows: riskRows.slice(0, 50),
+    missingRows: missingRows.slice(0, 50),
+    negativeRows: negativeRows.slice(0, 50),
+    highValueRows: highValueRows.slice(0, 50),
+    exportRows: buildManagerExportRows(rows),
+    printMetadata: buildPrintMetadata(valuation.filters),
+    diagnostics: valuation.summary?.diagnostics,
+    safety: 'Read-only manager snapshot QA. No stock journal, posting, reversal or correction write operation is executed.'
   };
 }
