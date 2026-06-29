@@ -50,6 +50,11 @@ if (!client.includes('confidenceBadge')) throw new Error('Missing confidence bad
 if (!client.includes('valuation-badge')) throw new Error('Missing badge UI output.');
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8').replace(/^\uFEFF/, ''));
-if (pkg.version !== '0.4.32') throw new Error(`Expected package version 0.4.32, got ${pkg.version}`);
+const versionParts = String(pkg.version || '').split('.').map((part) => Number(part));
+const versionNumber = (versionParts[0] * 10000) + (versionParts[1] * 100) + versionParts[2];
+const minimumVersionNumber = (0 * 10000) + (4 * 100) + 32;
+if (!Number.isFinite(versionNumber) || versionNumber < minimumVersionNumber) {
+  throw new Error(`Expected package version >= 0.4.32, got ${pkg.version}`);
+}
 
 console.log('OK: Step 4.11.1 stock valuation UI polish / cost confidence checks passed.');

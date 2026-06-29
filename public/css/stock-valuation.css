@@ -412,3 +412,80 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Step 4.11.2 drilldown / cost source inspector */
+.stock-valuation-linkbutton {
+  border: 0;
+  background: transparent;
+  color: #b9f0c9;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.stock-valuation-inspector-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.stock-valuation-inspector-grid h3 {
+  margin: 0 0 10px;
+  color: #dff7e8;
+}
+
+.stock-valuation-inspector-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stock-valuation-inspector-summary article,
+.stock-valuation-inspector-summary p {
+  border: 1px solid rgba(185, 240, 201, 0.18);
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  margin: 0;
+}
+
+.stock-valuation-inspector-summary span {
+  display: block;
+  color: #acd8bd;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.stock-valuation-inspector-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #fff;
+}
+
+.stock-valuation-inspector-summary p {
+  grid-column: 1 / -1;
+  color: #e8f5ec;
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .stock-valuation-inspector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .stock-valuation-linkbutton {
+    color: #111;
+    text-decoration: none;
+  }
+  .stock-valuation-inspector-grid {
+    display: block;
+  }
+}

@@ -3,9 +3,9 @@
 <main class="stock-valuation-shell" data-stock-valuation-root>
   <header class="stock-valuation-hero">
     <div>
-      <p class="stock-valuation-eyebrow">Step 4.11.1 · Read-only</p>
+      <p class="stock-valuation-eyebrow">Step 4.11.2 · Read-only</p>
       <h1>Стойност на склада</h1>
-      <p>Inventory cost view с cost confidence, manager filters и print/export polish. Справката не записва и не коригира складови движения.</p>
+      <p>Inventory cost view с cost confidence, manager filters и Cost Source Inspector. Справката не записва и не коригира складови движения.</p>
     </div>
     <div class="stock-valuation-actions">
       <a class="stock-valuation-button stock-valuation-button-muted" href="/stock-reports">Складови справки</a>
@@ -136,6 +136,7 @@
     <button type="button" data-valuation-tab="balance">Стойност по позиции</button>
     <button type="button" data-valuation-tab="locations">По обекти</button>
     <button type="button" data-valuation-tab="movements">Движения със себестойност</button>
+    <button type="button" data-valuation-tab="inspector">Cost Inspector</button>
   </nav>
 
   <section class="stock-valuation-kpis" data-tab-panel="snapshot">
@@ -165,7 +166,7 @@
         <table class="stock-valuation-table" data-high-value-table>
           <thead>
             <tr>
-              <th>Артикул</th>
+              <th>Артикул / Inspector</th>
               <th>Обект</th>
               <th class="num">Наличност</th>
               <th class="num">Ед. цена</th>
@@ -263,6 +264,60 @@
         </table>
       </div>
     </article>
+
+    <article class="stock-valuation-panel stock-valuation-inspector" data-tab-panel="inspector">
+      <div class="stock-valuation-panel-head">
+        <div>
+          <h2>Cost Source Inspector</h2>
+          <p>Read-only trace на себестойността: складова карта, running balance и източници на цена.</p>
+        </div>
+        <span data-inspector-counter>0 реда</span>
+      </div>
+      <div class="stock-valuation-inspector-summary" data-inspector-summary></div>
+      <div class="stock-valuation-inspector-grid">
+        <section>
+          <h3>Артикулна стойностна карта</h3>
+          <div class="stock-valuation-table-wrap">
+            <table class="stock-valuation-table" data-ledger-table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Дата</th>
+                  <th>Документ</th>
+                  <th class="num">Кол.</th>
+                  <th class="num">Ед. цена</th>
+                  <th class="num">Стойност</th>
+                  <th class="num">Running qty</th>
+                  <th class="num">Running value</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section>
+          <h3>Източници на себестойност</h3>
+          <div class="stock-valuation-table-wrap">
+            <table class="stock-valuation-table" data-source-table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Дата</th>
+                  <th>Документ</th>
+                  <th class="num">Кол.</th>
+                  <th class="num">Ед. цена</th>
+                  <th>Източник</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </article>
+
   </section>
 </main>
 

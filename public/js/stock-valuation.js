@@ -9,6 +9,8 @@
     snapshot: null,
     balance: null,
     movements: null,
+    itemLedger: null,
+    costSource: null,
     search: ''
   };
 
@@ -216,6 +218,48 @@
     ]);
   }
 
+  function renderInspector() {
+    const ledger = state.itemLedger || {};
+    const source = state.costSource || {};
+    const ledgerRows = ledger.rows || [];
+    const sourceRows = source.sourceRows || [];
+    const sourceSummary = source.sourceSummary || {};
+    const counter = root.querySelector('[data-inspector-counter]');
+    if (counter) counter.textContent = `${collectRowsForSearch(ledgerRows).length} ledger реда`;
+    const summary = root.querySelector('[data-inspector-summary]');
+    if (summary) {
+      summary.innerHTML = [
+        ['Артикул', sourceSummary.itemLabel || ledger.selected?.itemLabel || 'Избери артикул от таблицата'],
+        ['Обект', sourceSummary.locationLabel || ledger.selected?.locationLabel || 'Всички обекти'],
+        ['Ед. цена', `${fmtNumber(sourceSummary.unitCost)} BGN`],
+        ['Стойност', `${fmtNumber(sourceSummary.stockValue)} BGN`],
+        ['Confidence', `${text(sourceSummary.costConfidenceLabel)} · ${fmtQty(sourceSummary.costConfidenceScore)}%`],
+        ['Източници', `${fmtQty(sourceSummary.valuedMovements)} / ${fmtQty(sourceSummary.movements)} движения`]
+      ].map(([label, value]) => `<article><span>${label}</span><strong>${text(value)}</strong></article>`).join('')
+        + `<p>${text(sourceSummary.confidenceExplanation, 'Избери артикул от таба Стойност по позиции, за да видиш trace на себестойността.')}</p>`;
+    }
+    renderTable('[data-ledger-table]', ledgerRows, (row) => [
+      { value: row.ledgerLine },
+      { value: row.date },
+      { html: row.sourceHref ? `<a href="${row.sourceHref}">${text(row.documentNo || row.documentId)}</a>` : text(row.documentNo || row.documentId) },
+      { value: fmtQty(row.signedQuantity), className: 'num' },
+      { value: fmtNumber(row.unitCost), className: 'num' },
+      { value: fmtNumber(row.signedValue), className: 'num' },
+      { value: fmtQty(row.runningQuantity), className: 'num' },
+      { value: fmtNumber(row.runningValue), className: 'num' },
+      { html: `${text(row.sourceKindLabel)} ${confidenceBadge(row)}` }
+    ], 'Избери артикул/обект за стойностна карта.');
+    renderTable('[data-source-table]', sourceRows, (row) => [
+      { value: row.sourceLine },
+      { value: row.date },
+      { html: row.sourceHref ? `<a href="${row.sourceHref}">${text(row.documentNo || row.documentId)}</a>` : text(row.documentNo || row.documentId) },
+      { value: fmtQty(row.signedQuantity), className: 'num' },
+      { value: fmtNumber(row.unitCost), className: 'num' },
+      { value: row.sourceKindLabel || row.costSource },
+      { html: confidenceBadge(row) }
+    ], 'Няма открити стойностни източници за избраните филтри.');
+  }
+
   function setTab(tab) {
     state.activeTab = tab;
     root.querySelectorAll('[data-valuation-tab]').forEach((button) => button.classList.toggle('active', button.dataset.valuationTab === tab));
@@ -228,6 +272,7 @@
     if (state.balance) renderBalance(state.balance);
     if (state.snapshot) renderLocations(state.snapshot);
     if (state.movements) renderMovements(state.movements);
+    renderInspector();
   }
 
   async function loadOptions() {
@@ -241,14 +286,18 @@
     setStatus('Зареждане на стойностната справка...');
     const params = buildParams();
     state.search = String(form.querySelector('[data-filter-search]')?.value || '');
-    const [snapshot, balance, movements] = await Promise.all([
+    const [snapshot, balance, movements, itemLedger, costSource] = await Promise.all([
       fetchJson(`/api/stock/valuation/snapshot?${params}`),
       fetchJson(`/api/stock/valuation/balance?${params}`),
-      fetchJson(`/api/stock/valuation/movements-cost?${params}`)
+      fetchJson(`/api/stock/valuation/movements-cost?${params}`),
+      fetchJson(`/api/stock/valuation/item-ledger?${params}`),
+      fetchJson(`/api/stock/valuation/cost-source?${params}`)
     ]);
     state.snapshot = snapshot;
     state.balance = balance;
     state.movements = movements;
+    state.itemLedger = itemLedger;
+    state.costSource = costSource;
     renderAll();
     if (!snapshot.ready) setStatus(snapshot.summary?.diagnostics?.reason || 'Не е открита read-only база за valuation.', 'warn');
     else setStatus(`Готово · ${snapshot.summary.rows} позиции · стойност ${fmtNumber(snapshot.summary.totalStockValue)} BGN · coverage ${snapshot.summary.costCoverage || 0}%`, 'ok');
@@ -268,6 +317,9 @@
     } else if (state.activeTab === 'movements') {
       header = ['date', 'item', 'location', 'document', 'signed_quantity', 'unit_cost', 'movement_value', 'confidence'];
       rows = collectRowsForSearch(state.movements?.rows || []).map((row) => [row.date, row.itemLabel, row.locationLabel, row.documentNo || row.documentId, row.signedQuantity, row.unitCost, row.movementValue, row.costConfidence]);
+    } else if (state.activeTab === 'inspector') {
+      header = ['line', 'date', 'item', 'location', 'document', 'signed_quantity', 'unit_cost', 'signed_value', 'running_quantity', 'running_value', 'source', 'confidence'];
+      rows = collectRowsForSearch(state.itemLedger?.rows || []).map((row) => [row.ledgerLine, row.date, row.itemLabel, row.locationLabel, row.documentNo || row.documentId, row.signedQuantity, row.unitCost, row.signedValue, row.runningQuantity, row.runningValue, row.sourceKindLabel || row.costSource, row.costConfidence]);
     } else {
       header = ['item', 'location', 'quantity', 'unit_cost', 'stock_value', 'incoming_value', 'outgoing_value', 'confidence', 'confidence_score', 'value_band', 'manager_flag'];
       rows = collectRowsForSearch(state.balance?.rows || state.snapshot?.highValue || []).map((row) => [row.itemLabel, row.locationLabel, row.netQuantity, row.unitCost, row.stockValue, row.incomingValue, row.outgoingValue, row.costConfidenceLabel || row.costConfidence, row.costConfidenceScore, row.valueBandLabel || row.valueBand, row.managerFlag]);
@@ -318,6 +370,22 @@
   form.querySelector('[data-filter-search]')?.addEventListener('input', (event) => {
     state.search = event.target.value;
     renderAll();
+  });
+
+  root.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-inspect-item]');
+    if (!button) return;
+    const item = root.querySelector('[data-filter-item]');
+    const location = root.querySelector('[data-filter-location]');
+    if (item) item.value = button.dataset.inspectItem || '';
+    if (location) location.value = button.dataset.inspectLocation || '';
+    setTab('inspector');
+    try {
+      await loadReports();
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || 'Грешка при зареждане на inspector.', 'error');
+    }
   });
 
   initDefaults();

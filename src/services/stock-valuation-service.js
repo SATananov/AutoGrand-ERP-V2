@@ -720,6 +720,139 @@ async function buildValuation(query = {}) {
   };
 }
 
+
+function getCostSourceKindLabel(kind) {
+  const labels = {
+    'direct-unit': 'Директна единична цена',
+    'derived-total': 'Изведена от обща стойност',
+    missing: 'Липсва себестойност'
+  };
+  return labels[kind] || 'Неизвестен източник';
+}
+
+function getConfidenceExplanation(row) {
+  if (!row) return 'Няма избрана позиция за анализ.';
+  if (row.costConfidenceLevel === 'high') {
+    return 'Себестойността е с висока увереност, защото има директна единична цена или стабилно покритие от стойностни входящи движения.';
+  }
+  if (row.costConfidenceLevel === 'medium') {
+    return 'Себестойността е със средна увереност, защото част от стойността е изведена от обща сума или покритието не е пълно.';
+  }
+  return 'Липсва откриваема себестойност за тази позиция в избрания период. Провери доставките и входящите движения.';
+}
+
+function buildLedgerRows(movements) {
+  let runningQuantity = 0;
+  let runningValue = 0;
+  return movements.map((row, index) => {
+    const movementValue = row.costConfidence === 'missing'
+      ? 0
+      : roundMoney(row.unitCost * Math.abs(row.signedQuantity || 0));
+    const signedValue = row.signedQuantity < 0 ? -Math.abs(movementValue) : Math.abs(movementValue);
+    runningQuantity = roundMoney(runningQuantity + row.signedQuantity);
+    runningValue = roundMoney(runningValue + signedValue);
+    const runningUnitCost = runningQuantity !== 0 ? roundMoney(Math.abs(runningValue) / Math.abs(runningQuantity)) : 0;
+    return {
+      ...row,
+      ledgerLine: index + 1,
+      signedValue: roundMoney(signedValue),
+      runningQuantity,
+      runningValue,
+      runningUnitCost,
+      sourceKindLabel: getCostSourceKindLabel(row.costConfidence),
+      sourceColumn: row.costSource || '',
+      sourceHref: row.documentHref || ''
+    };
+  });
+}
+
+function summarizeCostSources(movements, ledgerRows, balanceRow, filters) {
+  const valuedRows = movements.filter((row) => row.costConfidence !== 'missing' && row.unitCost > 0);
+  const directRows = valuedRows.filter((row) => row.costConfidence === 'direct-unit');
+  const derivedRows = valuedRows.filter((row) => row.costConfidence === 'derived-total');
+  const missingRows = movements.filter((row) => row.costConfidence === 'missing');
+  const incomingValuedRows = valuedRows.filter((row) => row.signedQuantity > 0);
+  const latestValued = incomingValuedRows.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)))[0]
+    || valuedRows.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)))[0]
+    || null;
+  const totalQuantity = movements.reduce((sum, row) => sum + row.signedQuantity, 0);
+  const totalValue = ledgerRows.length ? ledgerRows[ledgerRows.length - 1].runningValue : 0;
+  return {
+    generatedAt: new Date().toISOString(),
+    valuationMode: filters.valuationMode,
+    itemId: balanceRow?.itemId || filters.itemId || '',
+    itemLabel: balanceRow?.itemLabel || '',
+    locationId: balanceRow?.locationId || filters.locationId || '',
+    locationLabel: balanceRow?.locationLabel || '',
+    movements: movements.length,
+    valuedMovements: valuedRows.length,
+    directUnitMovements: directRows.length,
+    derivedTotalMovements: derivedRows.length,
+    missingCostMovements: missingRows.length,
+    netQuantity: roundMoney(balanceRow?.netQuantity ?? totalQuantity),
+    unitCost: roundMoney(balanceRow?.unitCost || latestValued?.unitCost || 0),
+    stockValue: roundMoney(balanceRow?.stockValue ?? totalValue),
+    latestUnitCost: roundMoney(latestValued?.unitCost || 0),
+    latestCostDate: latestValued?.date || '',
+    latestCostDocument: latestValued?.documentNo || latestValued?.documentId || '',
+    latestCostHref: latestValued?.documentHref || '',
+    costConfidenceLevel: balanceRow?.costConfidenceLevel || 'missing',
+    costConfidenceLabel: balanceRow?.costConfidenceLabel || 'Липсва',
+    costConfidenceScore: balanceRow?.costConfidenceScore || 0,
+    confidenceExplanation: getConfidenceExplanation(balanceRow),
+    safety: 'Read-only cost source inspector. No journal, posting, reversal or correction write operation is executed.'
+  };
+}
+
+async function buildValuationDrilldown(query = {}) {
+  const filters = normalizeFilters({ ...query, limit: query.limit || 1000 });
+  const meta = await buildMeta();
+  if (!meta.ready) {
+    return {
+      ok: true,
+      ready: false,
+      filters,
+      summary: summarizeValuation([], meta, filters),
+      selected: null,
+      rows: [],
+      sourceRows: [],
+      message: meta.reason
+    };
+  }
+  const rawRows = await queryMovementRows(meta, filters, { limit: Math.max(10, Math.min(1000, filters.limit || 1000)) });
+  const movements = (await prepareCostRows(meta, rawRows)).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const balanceRows = aggregateValuation(movements, filters);
+  const selected = balanceRows[0] || null;
+  const ledgerRows = buildLedgerRows(movements);
+  const sourceRows = movements
+    .filter((row) => row.costConfidence !== 'missing' || row.signedQuantity > 0)
+    .slice()
+    .sort((a, b) => {
+      if (a.costConfidence === 'missing' && b.costConfidence !== 'missing') return 1;
+      if (a.costConfidence !== 'missing' && b.costConfidence === 'missing') return -1;
+      return String(b.date).localeCompare(String(a.date));
+    })
+    .slice(0, Math.min(filters.limit, 250))
+    .map((row, index) => ({
+      ...row,
+      sourceLine: index + 1,
+      sourceKindLabel: getCostSourceKindLabel(row.costConfidence),
+      sourceColumn: row.costSource || '',
+      sourceHref: row.documentHref || ''
+    }));
+  return {
+    ok: true,
+    ready: true,
+    filters,
+    summary: summarizeValuation(balanceRows, meta, filters),
+    selected,
+    sourceSummary: summarizeCostSources(movements, ledgerRows, selected, filters),
+    rows: ledgerRows,
+    sourceRows,
+    diagnostics: buildDiagnostics(meta)
+  };
+}
+
 export async function getStockValuationOptions(query = {}) {
   const filters = normalizeFilters(query);
   const meta = await buildMeta();
@@ -813,5 +946,34 @@ export async function getStockValuationSnapshot(query = {}) {
         : 'Няма позиции с управителски риск за избраните филтри.',
       'Справката е read-only и не променя складови движения, документи или journal записи.'
     ]
+  };
+}
+
+
+export async function getStockValuationItemLedger(query = {}) {
+  const drilldown = await buildValuationDrilldown(query);
+  return {
+    ok: true,
+    ready: drilldown.ready,
+    filters: drilldown.filters,
+    summary: drilldown.summary,
+    selected: drilldown.selected,
+    rows: drilldown.rows,
+    diagnostics: drilldown.diagnostics,
+    safety: 'Read-only item valuation ledger. No stock journal write operation is executed.'
+  };
+}
+
+export async function getStockValuationCostSource(query = {}) {
+  const drilldown = await buildValuationDrilldown(query);
+  return {
+    ok: true,
+    ready: drilldown.ready,
+    filters: drilldown.filters,
+    selected: drilldown.selected,
+    sourceSummary: drilldown.sourceSummary || null,
+    sourceRows: drilldown.sourceRows || [],
+    diagnostics: drilldown.diagnostics,
+    safety: 'Read-only cost source trace. No posting, reversal, correction or valuation write operation is executed.'
   };
 }

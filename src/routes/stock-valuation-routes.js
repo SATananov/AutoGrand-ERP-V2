@@ -1,6 +1,8 @@
 import express from 'express';
 import {
   getStockValuationBalance,
+  getStockValuationCostSource,
+  getStockValuationItemLedger,
   getStockValuationMovements,
   getStockValuationOptions,
   getStockValuationSnapshot,
@@ -67,6 +69,22 @@ router.get('/api/stock/valuation/movements-cost', async (req, res) => {
 router.get('/api/stock/valuation/snapshot', async (req, res) => {
   try {
     res.json(await getStockValuationSnapshot(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get('/api/stock/valuation/item-ledger', async (req, res) => {
+  try {
+    res.json(await getStockValuationItemLedger(req.query));
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+router.get('/api/stock/valuation/cost-source', async (req, res) => {
+  try {
+    res.json(await getStockValuationCostSource(req.query));
   } catch (error) {
     sendError(res, error);
   }
