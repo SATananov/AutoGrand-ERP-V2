@@ -9094,3 +9094,226 @@ AutoGrand compatibility markers for legacy checker:
   }
 }
 /* STEP 4.9.2 STOCK CONTROL CENTER OPERATIONAL FILTERS END */
+
+/* AutoGrand ERP V2 Step 4.9.3 Stock Control Detail Inspector START */
+.ag-stock-control-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ag-stock-control-inspector__hero {
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.ag-inspector-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 18px;
+}
+
+.ag-inspector-grid--bottom {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+}
+
+.ag-inspector-card {
+  border: 1px solid rgba(28, 94, 58, 0.22);
+  box-shadow: 0 14px 36px rgba(8, 45, 29, 0.08);
+}
+
+.ag-inspector-card--document {
+  border-left: 4px solid rgba(32, 133, 85, 0.72);
+}
+
+.ag-inspector-card--reversal {
+  border-left: 4px solid rgba(191, 144, 44, 0.75);
+}
+
+.ag-inspector-card--trace {
+  overflow: hidden;
+}
+
+.ag-inspector-card--moneta {
+  background: linear-gradient(135deg, rgba(15, 87, 55, 0.08), rgba(255, 255, 255, 0.72));
+}
+
+.ag-inspector-dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.ag-inspector-dl div {
+  padding: 10px 12px;
+  border: 1px solid rgba(27, 83, 58, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.ag-inspector-dl dt {
+  margin: 0 0 5px;
+  color: rgba(24, 67, 49, 0.72);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ag-inspector-dl dd {
+  margin: 0;
+  color: #123b2b;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.ag-inspector-note {
+  margin-top: 14px;
+}
+
+.ag-safe-rule-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 245, 214, 0.82);
+  border: 1px solid rgba(191, 144, 44, 0.32);
+  color: #614515;
+}
+
+.ag-status-pill--locked,
+.ag-status-pill--warning {
+  background: rgba(255, 225, 164, 0.88);
+  color: #77510d;
+  border-color: rgba(181, 118, 24, 0.38);
+}
+
+.ag-status-pill--ok,
+.ag-status-pill--safe {
+  background: rgba(215, 245, 230, 0.92);
+  color: #115a3a;
+  border-color: rgba(32, 133, 85, 0.35);
+}
+
+.ag-status-pill--muted {
+  background: rgba(222, 228, 224, 0.85);
+  color: #4b5d53;
+}
+
+.ag-inspector-table th,
+.ag-inspector-table td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.ag-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ag-checklist__item {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 11px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid rgba(27, 83, 58, 0.13);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.ag-checklist__item p {
+  margin: 4px 0 0;
+  color: rgba(16, 58, 40, 0.74);
+}
+
+.ag-checklist__mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid currentColor;
+}
+
+.ag-checklist__item--ok .ag-checklist__mark {
+  color: #12633f;
+  background: rgba(218, 246, 232, 0.84);
+}
+
+.ag-checklist__item--warn .ag-checklist__mark {
+  color: #865d11;
+  background: rgba(255, 239, 199, 0.9);
+}
+
+.ag-action-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.ag-action-note {
+  margin: -2px 0 8px;
+  color: rgba(16, 58, 40, 0.68);
+  font-size: 13px;
+}
+
+.ag-moneta-logic-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ag-moneta-logic-list li {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(32, 133, 85, 0.18);
+  color: #143c2b;
+  font-weight: 700;
+}
+
+.ag-button--tiny {
+  padding: 5px 9px;
+  font-size: 12px;
+  line-height: 1.15;
+  min-height: auto;
+}
+
+.ag-button--safe {
+  background: #0f7a4a;
+  border-color: #0f7a4a;
+  color: #fff;
+}
+
+@media (max-width: 980px) {
+  .ag-inspector-grid,
+  .ag-inspector-grid--bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-moneta-logic-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ag-inspector-dl {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-moneta-logic-list {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.9.3 Stock Control Detail Inspector END */

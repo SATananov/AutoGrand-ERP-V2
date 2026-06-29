@@ -1,0 +1,159 @@
+<section class="ag-page ag-stock-control-inspector" data-ag-step="4.9.3-detail-inspector">
+  <header class="ag-page-hero ag-stock-control-inspector__hero">
+    <div>
+      <p class="ag-eyebrow">AutoGrand ERP V2 · Step 4.9.3</p>
+      <h1>Stock Control Detail Inspector</h1>
+      <p class="ag-muted">Drilldown от risk/filter панел към документ, movement trace, reversal status, operator checklist и безопасни действия.</p>
+    </div>
+    <div class="ag-hero-actions">
+      <a class="ag-button ag-button--ghost" href="/stock-control-center">Назад към Stock Control Center</a>
+      <a class="ag-button ag-button--ghost" href="/stock-hardening">Stock hardening audit</a>
+    </div>
+  </header>
+
+  {{#if warnings.length}}
+    <div class="ag-alert ag-alert--warning">
+      <strong>Предупреждения при read-only инспекция:</strong>
+      <ul>
+        {{#each warnings}}
+          <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
+
+  <div class="ag-inspector-grid">
+    <article class="ag-panel ag-inspector-card ag-inspector-card--document">
+      <div class="ag-panel__head">
+        <div>
+          <p class="ag-eyebrow">Document summary</p>
+          <h2>{{document.title}}</h2>
+        </div>
+        <span class="ag-status-pill {{#if document.locked}}ag-status-pill--locked{{/if}}">{{document.statusText}}</span>
+      </div>
+
+      <dl class="ag-inspector-dl">
+        <div><dt>Тип</dt><dd>{{document.type}}</dd></div>
+        <div><dt>Номер / ID</dt><dd>{{document.number}}</dd></div>
+        <div><dt>Модел</dt><dd>{{document.modelName}}</dd></div>
+        <div><dt>Дата</dt><dd>{{document.date}}</dd></div>
+        <div><dt>Обект / склад</dt><dd>{{document.location}}</dd></div>
+        <div><dt>Оператор</dt><dd>{{document.operator}}</dd></div>
+      </dl>
+
+      {{#unless document.found}}
+        <p class="ag-muted ag-inspector-note">Документът не беше намерен автоматично. Inspector-ът остава read-only и не предлага journal редакция.</p>
+      {{/unless}}
+    </article>
+
+    <article class="ag-panel ag-inspector-card ag-inspector-card--reversal">
+      <div class="ag-panel__head">
+        <div>
+          <p class="ag-eyebrow">Reversal / correction status</p>
+          <h2>{{reversal.label}}</h2>
+        </div>
+        <span class="ag-status-pill ag-status-pill--{{reversal.tone}}">{{reversal.tone}}</span>
+      </div>
+      <p>{{reversal.description}}</p>
+      <div class="ag-safe-rule-box">
+        <strong>Safety rule:</strong> POSTED документи не се отключват от този екран. Корекция или reversal минава през отделен документ.
+      </div>
+    </article>
+  </div>
+
+  <article class="ag-panel ag-inspector-card ag-inspector-card--trace">
+    <div class="ag-panel__head">
+      <div>
+        <p class="ag-eyebrow">Movement trace</p>
+        <h2>Stock movement journal — read-only trace</h2>
+      </div>
+      <span class="ag-status-pill">{{movements.length}} реда</span>
+    </div>
+
+    {{#if movements.length}}
+      <div class="ag-table-wrap">
+        <table class="ag-table ag-inspector-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Дата</th>
+              <th>Артикул</th>
+              <th>Склад / обект</th>
+              <th>Посока</th>
+              <th>Количество</th>
+              <th>Документ</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each movements}}
+              <tr>
+                <td>{{id}}</td>
+                <td>{{date}}</td>
+                <td>{{item}}</td>
+                <td>{{warehouse}}</td>
+                <td>{{direction}}</td>
+                <td>{{quantity}}</td>
+                <td>{{documentNumber}}</td>
+                <td>{{status}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="ag-empty-state">Няма намерен stock movement trace по подадения документ/риск. Това не е грешка, а сигнал за допълнителна проверка.</p>
+    {{/if}}
+  </article>
+
+  <div class="ag-inspector-grid ag-inspector-grid--bottom">
+    <article class="ag-panel ag-inspector-card">
+      <div class="ag-panel__head">
+        <div>
+          <p class="ag-eyebrow">Operator checklist</p>
+          <h2>Проверки преди действие</h2>
+        </div>
+      </div>
+      <ul class="ag-checklist">
+        {{#each checklist}}
+          <li class="ag-checklist__item {{#if ok}}ag-checklist__item--ok{{else}}ag-checklist__item--warn{{/if}}">
+            <span class="ag-checklist__mark">{{#if ok}}OK{{else}}!{{/if}}</span>
+            <div>
+              <strong>{{label}}</strong>
+              <p>{{text}}</p>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    </article>
+
+    <article class="ag-panel ag-inspector-card">
+      <div class="ag-panel__head">
+        <div>
+          <p class="ag-eyebrow">Safe actions</p>
+          <h2>Разрешени действия</h2>
+        </div>
+      </div>
+      <div class="ag-action-list">
+        {{#each actions}}
+          <a class="ag-button ag-button--{{tone}}" href="{{url}}">{{label}}</a>
+          <p class="ag-action-note">{{note}}</p>
+        {{/each}}
+      </div>
+    </article>
+  </div>
+
+  <article class="ag-panel ag-inspector-card ag-inspector-card--moneta">
+    <div class="ag-panel__head">
+      <div>
+        <p class="ag-eyebrow">Moneta-like control logic</p>
+        <h2>Следван ERP pattern</h2>
+      </div>
+    </div>
+    <ul class="ag-moneta-logic-list">
+      {{#each monetaLogic}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </article>
+</section>

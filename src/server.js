@@ -99,7 +99,8 @@ getStockAdjustmentFormData,
   stockActionMessage
 } from './services/stock-actions-service.js';
 import stockControlCenterRouter from './routes/stock-control-center-routes.js';
-
+
+import stockControlDetailInspectorRoutes from "./routes/stock-control-detail-inspector-routes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
@@ -1105,6 +1106,10 @@ app.use((req, res) => {
     })
   });
 });
+
+// AutoGrand ERP V2 Step 4.9.3 Stock Control Detail Inspector route mount
+app.use(stockControlDetailInspectorRoutes);
+
 app.listen(PORT, () => {
   console.log(`AutoGrand ERP V2 is running at http://localhost:${PORT}`);
 });
