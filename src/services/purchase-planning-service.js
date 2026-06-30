@@ -1,4 +1,4 @@
-// AutoGrand ERP V2 - Step 4.13.3 Purchase Planning Detail Inspector / Supplier Recommendation Drilldown
+// AutoGrand ERP V2 - Step 4.13.4 Purchase Planning Purchase Draft Preparation / Manual Procurement Handoff
 // Read-only procurement decision support over the existing Inventory Planning supplier recommendations.
 // Guardrail: no purchase document creation, no stock posting, no stock journal mutation, no auto-approval.
 
@@ -7,12 +7,14 @@ import {
   getInventoryPlanningSupplierRecommendations,
 } from "./inventory-planning-service.js";
 
-const STEP_4_13_3 = "4.13.3";
-const STEP_4_13_3_HEALTH_LABEL = "4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown";
-const STEP_4_13_2 = STEP_4_13_3;
-const STEP_4_13_2_HEALTH_LABEL = STEP_4_13_3_HEALTH_LABEL;
-const STEP_4_13 = STEP_4_13_3;
-const STEP_4_13_HEALTH_LABEL = STEP_4_13_3_HEALTH_LABEL;
+const STEP_4_13_4 = "4.13.4";
+const STEP_4_13_4_HEALTH_LABEL = "4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff";
+const STEP_4_13_3 = STEP_4_13_4;
+const STEP_4_13_3_HEALTH_LABEL = STEP_4_13_4_HEALTH_LABEL;
+const STEP_4_13_2 = STEP_4_13_4;
+const STEP_4_13_2_HEALTH_LABEL = STEP_4_13_4_HEALTH_LABEL;
+const STEP_4_13 = STEP_4_13_4;
+const STEP_4_13_HEALTH_LABEL = STEP_4_13_4_HEALTH_LABEL;
 
 const PROCUREMENT_POLICY = Object.freeze({
   budgetWarningLimit: 2500,
@@ -141,6 +143,7 @@ function normalizeDecisionSupplier(supplier = {}, index = 0) {
     supplierInventoryHref: supplier.supplierHref || "/inventory-planning/suppliers",
     supplierDetailHref: `/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
     supplierProcurementHref: `/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
+    supplierDraftHandoffHref: `/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}/handoff`,
     supplierFocusHref: `/purchase-planning?supplier=${encodeURIComponent(supplier.supplierName || supplier.supplierKey || "")}`,
     firstLineHref: purchaseLines[0]?.detailHref || supplier.supplierHref || "/inventory-planning/suppliers",
     displayRecommendedOrderQtyTotal: supplier.display?.recommendedOrderQtyTotal || formatQty(supplier.recommendedOrderQtyTotal),
@@ -557,6 +560,105 @@ function buildSupplierPeerLinks(supplier = {}, suppliers = []) {
     }));
 }
 
+function compactDraftKeyPart(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9а-я-]+/gi, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "") || "supplier";
+}
+
+function buildDraftLine(line = {}, index = 0) {
+  const qty = toNumber(line.recommendedOrderQty);
+  const estimatedValue = toNumber(line.recommendedOrderValue);
+  const tone = lineTone(line);
+  const displayQty = line.displayRecommendedOrderQty || formatQty(qty);
+  const displayValue = line.displayRecommendedOrderValue || formatMoney(estimatedValue);
+  const itemCode = compactText(line.itemCode, "код");
+  const itemName = compactText(line.itemName, "артикул");
+  const warehouseName = compactText(line.warehouseName, "склад");
+
+  return {
+    lineNumber: index + 1,
+    tone,
+    itemCode,
+    itemName,
+    warehouseName,
+    groupName: compactText(line.groupName, "група"),
+    suggestedQty: qty,
+    displaySuggestedQty: displayQty,
+    estimatedValue,
+    displayEstimatedValue: displayValue,
+    sourceRisk: line.riskLabel || line.priorityLabel || "planning signal",
+    manualNote: tone === "danger"
+      ? "Потвърди критична липса преди въвеждане в purchase документа."
+      : "Провери цена, срок и MOQ преди ръчно въвеждане.",
+    copyText: `${itemCode} | ${itemName} | ${warehouseName} | qty ${displayQty} | est. ${displayValue}`,
+  };
+}
+
+function buildPurchaseDraftPreparation(supplier = {}, lines = []) {
+  const draftLines = lines.map(buildDraftLine);
+  const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const supplierKey = compactDraftKeyPart(supplier.supplierKey || supplier.supplierName);
+  const draftKey = `PP-${dateKey}-${supplierKey}`.toUpperCase();
+  const totalQty = sumLineQty(lines);
+  const totalValue = sumLineValue(lines);
+  const budget = budgetBand(totalValue);
+  const hasCritical = toNumber(supplier.criticalCount) > 0;
+
+  return {
+    active: true,
+    step: STEP_4_13_4,
+    title: "Purchase Draft Preparation / Manual Procurement Handoff",
+    subtitle: "Подготвен read-only пакет за ръчно въвеждане в purchase документа.",
+    draftKey,
+    draftStateLabel: "Подготовка · не е документ",
+    documentType: "PURCHASE_ORDER",
+    documentTypeLabel: "Поръчка към доставчик",
+    supplierName: supplier.supplierName,
+    supplierKey: supplier.supplierKey,
+    readinessLabel: supplier.decisionLabel,
+    readinessTone: supplier.readiness?.tone || "ok",
+    budgetLabel: budget.label,
+    budgetTone: budget.tone,
+    totalLines: draftLines.length,
+    totalCriticalLines: draftLines.filter((line) => line.tone === "danger").length,
+    displayTotalQty: formatQty(totalQty),
+    displayTotalValue: formatMoney(totalValue),
+    manualPurchaseHref: "/document/purchase/new/PURCHASE_ORDER",
+    supplierInspectorHref: supplier.supplierDetailHref,
+    apiHref: `/api/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}/handoff`,
+    draftLines,
+    headerFields: [
+      { label: "Тип документ", value: "PURCHASE_ORDER · ръчно" },
+      { label: "Доставчик", value: supplier.supplierName || "няма данни" },
+      { label: "Източник", value: "Inventory Planning supplier recommendations" },
+      { label: "Състояние", value: "Само подготовка — няма запис в БД" },
+    ],
+    checklist: [
+      { order: 1, tone: hasCritical ? "danger" : "ok", title: "Потвърди критичните редове", description: "Провери наличност, резервирано и очаквани доставки преди документ." },
+      { order: 2, tone: budget.tone, title: "Провери бюджет и цена", description: "Ориентировъчната стойност не е одобрение за покупка." },
+      { order: 3, tone: "warning", title: "Копирай редовете ръчно", description: "Използвай handoff редовете като списък за оператор, без автоматично прехвърляне." },
+      { order: 4, tone: "muted", title: "Отвори празен purchase документ", description: "Документът се създава само от човек в стандартния purchase workflow." },
+    ],
+    copyBlock: [
+      `Draft: ${draftKey}`,
+      `Supplier: ${supplier.supplierName || "няма данни"}`,
+      `Document type: PURCHASE_ORDER (manual)` ,
+      `Lines: ${draftLines.length} | Qty: ${formatQty(totalQty)} | Est: ${formatMoney(totalValue)}`,
+      ...draftLines.map((line) => `${line.lineNumber}. ${line.copyText}`),
+    ].join("\n"),
+    guardrails: [
+      "Това е handoff подготовка, не purchase документ",
+      "Няма автоматично записване на header, lines, delivery или invoice",
+      "Няма stock posting, reversal, correction или journal mutation",
+      "Операторът въвежда документа ръчно след човешко одобрение",
+    ],
+  };
+}
+
 function buildSupplierDetailInspector(supplier = null, suppliers = []) {
   if (!supplier) {
     return {
@@ -564,6 +666,7 @@ function buildSupplierDetailInspector(supplier = null, suppliers = []) {
       missing: true,
       title: "Supplier recommendation drilldown",
       emptyText: "Избери доставчик от supplier cards или decision workbench, за да видиш detail inspector.",
+      draftPreparation: null,
     };
   }
 
@@ -597,12 +700,16 @@ function buildSupplierDetailInspector(supplier = null, suppliers = []) {
     peerSuppliers: buildSupplierPeerLinks(supplier, suppliers),
     inventorySupplierHref: supplier.supplierInventoryHref,
     manualPurchaseHref: "/document/purchase/new/PURCHASE_ORDER",
+    handoffHref: supplier.supplierDraftHandoffHref,
     apiHref: `/api/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
+    handoffApiHref: `/api/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}/handoff`,
+    draftPreparation: buildPurchaseDraftPreparation(supplier, lines),
     guardrails: [
       "Детайлният inspector е само за управленско решение",
       "Няма автоматично създаване на purchase, delivery или supplier invoice документ",
       "Няма stock posting, reversal, correction или journal mutation",
       "Редовете са recommendation snapshot и се въвеждат ръчно при одобрение",
+      "Handoff подготовката не записва purchase header или lines",
     ],
   };
 }
@@ -651,17 +758,19 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
   const activeLane = normalizeLane(options.lane);
   const filteredSuppliers = filterSuppliersByLane(suppliers, activeLane);
   const filteredPurchaseLines = flattenPurchaseLines(filteredSuppliers);
+  const detailInspector = buildSupplierDetailInspector(selectedSupplier, suppliers);
 
   return {
     step: STEP_4_13,
     previousStep: supplierSnapshot.step || "4.12.3",
     moduleKey: "purchase-planning",
-    title: "Purchase Planning / Supplier Recommendation Drilldown",
+    title: "Purchase Planning / Manual Procurement Handoff",
     healthLabel: STEP_4_13_HEALTH_LABEL,
     generatedAtIso: new Date().toISOString(),
     sourceName: supplierSnapshot.sourceName || inventorySnapshot.sourceName || "inventory-planning-service",
     uiPolishStep: "4.13.2",
     detailInspectorStep: "4.13.3",
+    purchaseDraftStep: "4.13.4",
     activeLane,
     activeLaneLabel: laneLabel(activeLane),
     readOnly: true,
@@ -684,8 +793,10 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
     selectedSupplier,
     selectedSupplierName: selectedSupplier?.supplierName || "",
     selectedSupplierActive: Boolean(selectedSupplier),
-    detailInspector: buildSupplierDetailInspector(selectedSupplier, suppliers),
+    detailInspector,
     detailInspectorActive: Boolean(selectedSupplier),
+    purchaseDraftPreparation: detailInspector.draftPreparation,
+    purchaseDraftPreparationActive: Boolean(detailInspector.draftPreparation?.active),
     topPurchaseLines: purchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
     filteredTopPurchaseLines: filteredPurchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
     purchaseLines,
@@ -696,6 +807,7 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
       { label: "Inventory Planning Dashboard", href: "/inventory-planning", note: "reorder и risk snapshot" },
       { label: "Supplier purchase recommendations", href: "/inventory-planning/suppliers", note: "детайлен supplier planning" },
       { label: "Нов purchase документ", href: "/document/purchase/new/PURCHASE_ORDER", note: "само ръчно след решение" },
+      { label: "Manual procurement handoff", href: selectedSupplier?.supplierDraftHandoffHref || "/purchase-planning", note: "read-only draft preparation пакет" },
     ],
     apiHref: "/api/purchase-planning",
     inventoryPlanningHref: "/inventory-planning",
@@ -703,6 +815,7 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
     manualPurchaseHref: "/document/purchase/new/PURCHASE_ORDER",
     guardrails: [
       "Procurement center е само decision-support слой",
+      "Manual handoff е read-only подготовка, не purchase документ",
       "Няма автоматично създаване на purchase, delivery или supplier invoice документ",
       "Няма stock posting, reversal, correction или journal mutation",
       "POSTED документите и съществуващият purchase workflow остават locked по досегашните правила",
@@ -710,7 +823,7 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
   };
 }
 
-export { STEP_4_13, STEP_4_13_HEALTH_LABEL, STEP_4_13_2, STEP_4_13_2_HEALTH_LABEL, STEP_4_13_3, STEP_4_13_3_HEALTH_LABEL };
+export { STEP_4_13, STEP_4_13_HEALTH_LABEL, STEP_4_13_2, STEP_4_13_2_HEALTH_LABEL, STEP_4_13_3, STEP_4_13_3_HEALTH_LABEL, STEP_4_13_4, STEP_4_13_4_HEALTH_LABEL };
 
 export default {
   getPurchasePlanningDecisionCenter,

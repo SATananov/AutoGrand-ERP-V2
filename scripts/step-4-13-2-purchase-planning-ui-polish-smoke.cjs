@@ -19,15 +19,15 @@ function assertIncludes(file, needle, label = needle) {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
 
-  assert(pkg.version === '0.4.46', `package version must be 0.4.46, found ${pkg.version}`);
-  assert(lock.version === '0.4.46', `package-lock version must be 0.4.46, found ${lock.version}`);
-  assert(lock.packages[''].version === '0.4.46', `package-lock root version must be 0.4.46, found ${lock.packages[''].version}`);
-  assert(pkg.autograndStep === '4.13.3', `autograndStep must be 4.13.3, found ${pkg.autograndStep}`);
-  assert(pkg.autograndHealthLabel === '4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown', 'autograndHealthLabel mismatch');
+  assert(pkg.version === '0.4.47', `package version must be 0.4.47, found ${pkg.version}`);
+  assert(lock.version === '0.4.47', `package-lock version must be 0.4.47, found ${lock.version}`);
+  assert(lock.packages[''].version === '0.4.47', `package-lock root version must be 0.4.47, found ${lock.packages[''].version}`);
+  assert(pkg.autograndStep === '4.13.4', `autograndStep must be 4.13.4, found ${pkg.autograndStep}`);
+  assert(pkg.autograndHealthLabel === '4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff', 'autograndHealthLabel mismatch');
   assert(pkg.scripts['check:step4:13:2'] === 'node scripts/step-4-13-2-purchase-planning-ui-polish-smoke.cjs', 'missing check:step4:13:2 script');
 
-  assertIncludes('src/server.js', "appVersion: 'v0.4.46'", 'server appVersion');
-  assertIncludes('src/server.js', '4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown', 'health marker');
+  assertIncludes('src/server.js', "appVersion: 'v0.4.47'", 'server appVersion');
+  assertIncludes('src/server.js', '4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff', 'health marker');
 
   assertIncludes('src/services/purchase-planning-service.js', 'STEP_4_13_2', 'step constant');
   assertIncludes('src/services/purchase-planning-service.js', 'buildManagerFilters', 'manager filters builder');
@@ -39,7 +39,7 @@ function assertIncludes(file, needle, label = needle) {
   assertIncludes('src/routes/purchase-planning-routes.js', 'lane: req.query?.lane', 'lane query support');
   assert(!read('src/routes/purchase-planning-routes.js').includes('router.post('), 'purchase planning routes must remain read-only');
 
-  assertIncludes('views/pages/purchase-planning.hbs', 'data-step="4.13.3"', 'view step marker');
+  assertIncludes('views/pages/purchase-planning.hbs', 'data-step="4.13.4"', 'view step marker');
   assertIncludes('views/pages/purchase-planning.hbs', 'Procurement Manager Dashboard', 'manager dashboard title');
   assertIncludes('views/pages/purchase-planning.hbs', 'ag-step-4132__filter-bar', 'filter bar view');
   assertIncludes('views/pages/purchase-planning.hbs', 'decisionCenter.managerPanels', 'manager panels view');
@@ -57,8 +57,8 @@ function assertIncludes(file, needle, label = needle) {
 
   const service = await import(pathToFileURL(path.join(root, 'src/services/purchase-planning-service.js')).href);
   const snapshot = await service.getPurchasePlanningDecisionCenter({ lane: 'urgent' });
-  assert(snapshot.step === '4.13.3', `snapshot step must be 4.13.3, found ${snapshot.step}`);
-  assert(snapshot.healthLabel === '4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown', 'snapshot health label mismatch');
+  assert(snapshot.step === '4.13.4', `snapshot step must be 4.13.4, found ${snapshot.step}`);
+  assert(snapshot.healthLabel === '4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff', 'snapshot health label mismatch');
   assert(snapshot.uiPolishStep === '4.13.2', 'snapshot ui polish marker mismatch');
   assert(snapshot.detailInspectorStep === '4.13.3', 'snapshot detail inspector marker mismatch');
   assert(snapshot.readOnly === true, 'snapshot must remain read-only');

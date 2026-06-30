@@ -237,9 +237,11 @@ const ROUTE_RULES = [
 
   route('GET', '/purchase-planning', 'purchase.view', 'Планиране на покупки'),
   route('GET', '/purchase-planning/suppliers/:supplierKey', 'purchase.view', 'Детайлен инспектор за планиране на покупки'),
+  route('GET', '/purchase-planning/suppliers/:supplierKey/handoff', 'purchase.view', 'Ръчна handoff подготовка за purchase planning'),
   route('GET', '/procurement-decision-center', 'purchase.view', 'Procurement Decision Center'),
   route('GET', '/api/purchase-planning', 'purchase.view', 'API планиране на покупки'),
   route('GET', '/api/purchase-planning/suppliers/:supplierKey', 'purchase.view', 'API детайлен инспектор за планиране на покупки'),
+  route('GET', '/api/purchase-planning/suppliers/:supplierKey/handoff', 'purchase.view', 'API ръчна handoff подготовка за purchase planning'),
   route('GET', '/api/procurement-decision-center', 'purchase.view', 'API procurement decision center'),
 
   route('GET', '/document/purchase/new/:docType', 'purchase.create', 'Нов доставен документ'),

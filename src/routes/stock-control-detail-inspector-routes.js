@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import { getStockControlDetailInspector } from "../services/stock-control-detail-inspector-service.js";
 
 const router = express.Router();
@@ -28,7 +28,7 @@ router.get("/api/stock-control-center/inspect", async (req, res, next) => {
 router.get("/stock-control-center/inspect", async (req, res, next) => {
   try {
     const inspector = await getStockControlDetailInspector(queryInput(req));
-    res.render("pages/stock-control-detail-inspector", {
+    res.render("stock-control-detail-inspector", {
       title: "Stock Control Detail Inspector",
       activeModule: "stock-control-center",
       inspector,
@@ -48,3 +48,4 @@ router.get("/stock-control-center/inspect", async (req, res, next) => {
 });
 
 export default router;
+

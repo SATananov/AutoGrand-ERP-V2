@@ -1,4 +1,4 @@
-// AutoGrand ERP V2 - Step 4.12.3 Inventory Planning Supplier / Purchase Recommendation View
+﻿// AutoGrand ERP V2 - Step 4.12.3 Inventory Planning Supplier / Purchase Recommendation View
 // Read-only routes. No purchase document creation, no journal edit, no posting mutation.
 
 import express from "express";
@@ -20,9 +20,9 @@ function routeOptions(req) {
 router.get("/inventory-planning", async (req, res, next) => {
   try {
     const snapshot = await getInventoryPlanningSnapshot(routeOptions(req));
-    res.render("pages/inventory-planning", {
-      title: "Планиране на наличности",
-      moduleTitle: "Планиране на наличности",
+    res.render("inventory-planning", {
+      title: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё",
+      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё",
       activeModule: "inventory-planning",
       healthLabel: "4-12-3-inventory-planning-supplier-purchase-recommendation-view",
       snapshot,
@@ -35,9 +35,9 @@ router.get("/inventory-planning", async (req, res, next) => {
 router.get("/inventory-planning/suppliers", async (req, res, next) => {
   try {
     const supplierSnapshot = await getInventoryPlanningSupplierRecommendations(routeOptions(req));
-    res.render("pages/inventory-planning-suppliers", {
-      title: "Доставчици · Планиране на покупки",
-      moduleTitle: "Планиране на наличности",
+    res.render("inventory-planning-suppliers", {
+      title: "Р”РѕСЃС‚Р°РІС‡РёС†Рё В· РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё",
+      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё",
       activeModule: "inventory-planning",
       healthLabel: "4-12-3-inventory-planning-supplier-purchase-recommendation-view",
       supplierSnapshot,
@@ -55,9 +55,9 @@ router.get("/inventory-planning/suppliers/:supplierKey", async (req, res, next) 
       return;
     }
 
-    res.render("pages/inventory-planning-supplier", {
-      title: `${supplierDetail.supplier.supplierName} · Планиране на покупки`,
-      moduleTitle: "Планиране на наличности",
+    res.render("inventory-planning-supplier", {
+      title: `${supplierDetail.supplier.supplierName} В· РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё`,
+      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё",
       activeModule: "inventory-planning",
       healthLabel: "4-12-3-inventory-planning-supplier-purchase-recommendation-view",
       supplierDetail,
@@ -75,9 +75,9 @@ router.get("/inventory-planning/item/:itemCode", async (req, res, next) => {
       return;
     }
 
-    res.render("pages/inventory-planning-item", {
-      title: `${detail.item.itemCode} · Планиране на наличности`,
-      moduleTitle: "Планиране на наличности",
+    res.render("inventory-planning-item", {
+      title: `${detail.item.itemCode} В· РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё`,
+      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РЅР°Р»РёС‡РЅРѕСЃС‚Рё",
       activeModule: "inventory-planning",
       healthLabel: "4-12-3-inventory-planning-supplier-purchase-recommendation-view",
       detail,
@@ -176,3 +176,4 @@ router.get("/api/inventory-planning/items/:itemCode", async (req, res, next) => 
 });
 
 export default router;
+

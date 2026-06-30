@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import {
   buildStockAdjustmentFromIssuePreview,
   createStockAdjustmentReversalDraft,
@@ -36,9 +36,9 @@ router.get("/stock-adjustments", async (req, res, next) => {
   try {
     const foundation = await getStockAdjustmentFoundationStatus();
     const documents = await listStockAdjustmentDocuments({ limit: 30 });
-    res.render("pages/stock-adjustments", {
-      title: "Складови корекции",
-      pageTitle: "Складови корекции",
+    res.render("stock-adjustments", {
+      title: "РЎРєР»Р°РґРѕРІРё РєРѕСЂРµРєС†РёРё",
+      pageTitle: "РЎРєР»Р°РґРѕРІРё РєРѕСЂРµРєС†РёРё",
       currentPath: req.path,
       foundation,
       initialDocumentsJson: JSON.stringify(documents),
@@ -122,7 +122,7 @@ router.post("/api/stock/adjustments/documents", async (req, res) => {
 router.get("/api/stock/adjustments/documents/:id", async (req, res) => {
   try {
     const document = await getStockAdjustmentDocument(req.params.id);
-    if (!document) return res.status(404).json({ ok: false, error: "Документът не е намерен." });
+    if (!document) return res.status(404).json({ ok: false, error: "Р”РѕРєСѓРјРµРЅС‚СЉС‚ РЅРµ Рµ РЅР°РјРµСЂРµРЅ." });
     sendOk(res, { document });
   } catch (error) {
     sendError(res, error);

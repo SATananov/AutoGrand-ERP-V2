@@ -1,10 +1,10 @@
-<section class="ag-step-413 ag-step-4132 ag-step-4133 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13.3">
+<section class="ag-step-413 ag-step-4132 ag-step-4133 ag-step-4134 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13.4">
   <header class="module-hero ag-step-412__hero ag-step-413__hero ag-step-4132__hero">
     <div>
-      <p class="module-kicker">Purchase Planning · Procurement Manager Dashboard · Supplier Recommendation Drilldown · Само анализ</p>
+      <p class="module-kicker">Purchase Planning · Procurement Manager Dashboard · Supplier Recommendation Drilldown · Manual Handoff · Само анализ</p>
       <h1>Планиране на покупки</h1>
       <p class="module-lead">
-        Мениджърски procurement dashboard и детайлен supplier recommendation drilldown: показва конкретни редове, складове, групи, бюджетен риск и ръчни действия преди purchase документ.
+        Мениджърски procurement dashboard, supplier drilldown и read-only handoff подготовка: показва редове, складове, бюджетен риск и ръчен пакет преди purchase документ.
       </p>
       <div class="ag-step-4121__hero-meta ag-step-4132__hero-meta">
         <span>Step: {{decisionCenter.step}}</span>
@@ -175,6 +175,7 @@
         <div class="ag-step-4133__inspector-actions">
           <a href="{{decisionCenter.detailInspector.inventorySupplierHref}}">Inventory supplier detail</a>
           <a href="{{decisionCenter.detailInspector.apiHref}}">API detail</a>
+          <a href="{{decisionCenter.detailInspector.handoffHref}}">Handoff пакет</a>
           <a href="{{decisionCenter.detailInspector.manualPurchaseHref}}">Ръчна purchase поръчка</a>
         </div>
       </div>
@@ -324,6 +325,114 @@
     </section>
   {{/if}}
 
+  {{#if decisionCenter.purchaseDraftPreparationActive}}
+    <section class="module-card ag-step-412__card ag-step-4134__handoff-card" aria-label="Purchase draft preparation handoff">
+      <div class="module-card-header">
+        <div>
+          <p class="module-kicker">Step 4.13.4 · Purchase Draft Preparation / Manual Procurement Handoff</p>
+          <h2>{{decisionCenter.purchaseDraftPreparation.supplierName}}</h2>
+          <p class="ag-step-4122__inline-note">{{decisionCenter.purchaseDraftPreparation.subtitle}}</p>
+        </div>
+        <span class="ag-step-413__decision-pill tone-{{decisionCenter.purchaseDraftPreparation.readinessTone}}">{{decisionCenter.purchaseDraftPreparation.draftStateLabel}}</span>
+      </div>
+
+      <div class="ag-step-4134__handoff-banner tone-{{decisionCenter.purchaseDraftPreparation.budgetTone}}">
+        <div>
+          <strong>{{decisionCenter.purchaseDraftPreparation.draftKey}}</strong>
+          <span>{{decisionCenter.purchaseDraftPreparation.documentTypeLabel}} · {{decisionCenter.purchaseDraftPreparation.totalLines}} реда · {{decisionCenter.purchaseDraftPreparation.displayTotalValue}}</span>
+        </div>
+        <div class="ag-step-4133__inspector-actions ag-step-4134__handoff-actions">
+          <a href="{{decisionCenter.purchaseDraftPreparation.apiHref}}">API handoff</a>
+          <a href="{{decisionCenter.purchaseDraftPreparation.supplierInspectorHref}}">Назад към inspector</a>
+          <a href="{{decisionCenter.purchaseDraftPreparation.manualPurchaseHref}}">Отвори празен purchase документ</a>
+        </div>
+      </div>
+
+      <div class="ag-step-4134__header-grid">
+        {{#each decisionCenter.purchaseDraftPreparation.headerFields}}
+          <article>
+            <span>{{label}}</span>
+            <strong>{{value}}</strong>
+          </article>
+        {{/each}}
+      </div>
+
+      <div class="ag-step-4133__split-grid ag-step-4134__handoff-grid">
+        <article class="ag-step-4133__subcard">
+          <div class="module-card-header">
+            <div>
+              <p class="module-kicker">Draft lines</p>
+              <h3>Редове за ръчно въвеждане</h3>
+            </div>
+            <span class="ag-step-412__readonly-badge">copy only</span>
+          </div>
+          {{#if decisionCenter.purchaseDraftPreparation.draftLines.length}}
+            <div class="ag-step-412__table-wrap">
+              <table class="ag-step-412__table ag-step-4134__draft-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Артикул</th>
+                    <th>Склад</th>
+                    <th class="num">Количество</th>
+                    <th class="num">Оценка</th>
+                    <th>Ръчна бележка</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each decisionCenter.purchaseDraftPreparation.draftLines}}
+                    <tr class="tone-{{tone}}">
+                      <td class="num">{{lineNumber}}</td>
+                      <td>
+                        <strong>{{itemCode}}</strong>
+                        <small>{{itemName}} · {{groupName}}</small>
+                      </td>
+                      <td>{{warehouseName}}</td>
+                      <td class="num"><strong>{{displaySuggestedQty}}</strong></td>
+                      <td class="num">{{displayEstimatedValue}}</td>
+                      <td>
+                        <span>{{manualNote}}</span>
+                        <small>{{sourceRisk}}</small>
+                      </td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          {{else}}
+            <p class="ag-step-412__empty">Няма draft редове за ръчен handoff.</p>
+          {{/if}}
+        </article>
+
+        <article class="ag-step-4133__subcard ag-step-4134__copy-card">
+          <div class="module-card-header">
+            <div>
+              <p class="module-kicker">Copy block</p>
+              <h3>Текст за оператор</h3>
+            </div>
+            <span class="ag-step-412__readonly-badge">manual</span>
+          </div>
+          <pre>{{decisionCenter.purchaseDraftPreparation.copyBlock}}</pre>
+        </article>
+      </div>
+
+      <div class="ag-step-4134__check-grid">
+        {{#each decisionCenter.purchaseDraftPreparation.checklist}}
+          <article class="tone-{{tone}}">
+            <strong>{{order}}. {{title}}</strong>
+            <span>{{description}}</span>
+          </article>
+        {{/each}}
+      </div>
+
+      <div class="ag-step-4133__guard-list ag-step-4134__guard-list">
+        {{#each decisionCenter.purchaseDraftPreparation.guardrails}}
+          <span>{{this}}</span>
+        {{/each}}
+      </div>
+    </section>
+  {{/if}}
+
   <section class="module-card ag-step-412__card ag-step-4132__supplier-cards-card">
     <div class="module-card-header">
       <div>
@@ -344,6 +453,7 @@
           <strong>{{displayRecommendedOrderValueTotal}}</strong>
           <small>{{metricLine}}</small>
           <a href="{{supplierProcurementHref}}">{{actionLabel}}</a>
+          <a class="ag-step-4134__mini-link" href="{{supplierDraftHandoffHref}}">Handoff</a>
         </article>
       {{/each}}
     </div>
@@ -422,8 +532,9 @@
                   <small>{{budgetBand.note}}</small>
                 </td>
                 <td>
-                  <a class="ag-step-4122__detail-link" href="{{supplierInventoryHref}}">Supplier</a>
-                  <small>inventory planning</small>
+                  <a class="ag-step-4122__detail-link" href="{{supplierProcurementHref}}">Drilldown</a>
+                  <a class="ag-step-4134__table-link" href="{{supplierDraftHandoffHref}}">Handoff</a>
+                  <small>read-only preparation</small>
                 </td>
               </tr>
             {{/each}}
@@ -491,7 +602,7 @@
   </section>
 
   <footer class="ag-step-412__footer-note ag-step-4121__footer-note ag-step-413__footer-note ag-step-4132__footer-note">
-    <strong>Guardrails:</strong>
+    <strong>Guardrails / Manual handoff:</strong>
     {{#each decisionCenter.guardrails}}
       <span>{{this}}</span>
     {{/each}}

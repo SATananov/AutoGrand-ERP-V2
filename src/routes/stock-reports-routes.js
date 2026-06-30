@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import {
   getStockReportsBalance,
   getStockReportsItemLedger,
@@ -21,13 +21,13 @@ function sendError(res, error) {
   res.status(500).json({
     ok: false,
     error: 'STOCK_REPORTS_READ_FAILED',
-    message: 'Справката не може да бъде заредена в момента. Данните не са променени.'
+    message: 'РЎРїСЂР°РІРєР°С‚Р° РЅРµ РјРѕР¶Рµ РґР° Р±СЉРґРµ Р·Р°СЂРµРґРµРЅР° РІ РјРѕРјРµРЅС‚Р°. Р”Р°РЅРЅРёС‚Рµ РЅРµ СЃР° РїСЂРѕРјРµРЅРµРЅРё.'
   });
 }
 
 router.get('/stock-reports', (req, res) => {
-  res.render('pages/stock-reports', {
-    title: 'Складови справки',
+  res.render('stock-reports', {
+    title: 'РЎРєР»Р°РґРѕРІРё СЃРїСЂР°РІРєРё',
     activeModule: 'stock-reports',
     pageClass: 'stock-reports-page'
   });
@@ -90,3 +90,4 @@ router.get('/api/stock/reports/manager-snapshot', async (req, res) => {
 });
 
 export default router;
+

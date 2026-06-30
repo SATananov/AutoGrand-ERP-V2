@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import {
   getStockControlCenterFoundation,
   getStockControlCenterSummary,
@@ -17,7 +17,7 @@ function getFilter(req) {
 
 router.get('/stock-control-center', (req, res) => {
   const dashboard = getStockControlCenterOperationalDashboard({ filter: getFilter(req) });
-  res.render('pages/stock-control-center', {
+  res.render('stock-control-center', {
     title: 'Stock Control Center',
     pageTitle: 'Stock Control Center',
     currentPath: '/stock-control-center',
@@ -64,3 +64,4 @@ router.get('/api/stock/control-center/operational-dashboard', (req, res) => {
 });
 
 export default router;
+

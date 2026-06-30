@@ -25,7 +25,7 @@ const packageJson = JSON.parse(read('package.json'));
 if (!semverAtLeast(packageJson.version, '0.4.44')) fail('package version must be >= 0.4.44');
 else ok(`package version is ${packageJson.version}`);
 
-if (!['4.13.1', '4.13.2', '4.13.3'].includes(packageJson.autograndStep)) fail('autograndStep must remain compatible with Step 4.13.1 repair');
+if (!['4.13.1', '4.13.2', '4.13.3', '4.13.4'].includes(packageJson.autograndStep)) fail('autograndStep must remain compatible with Step 4.13.1 repair');
 else ok(`autograndStep is ${packageJson.autograndStep}`);
 
 const server = read('src/server.js');
@@ -46,7 +46,7 @@ else ok('login route has no visible encoding damage');
 if (!server.includes('UI_ENCODING_DAMAGE_PATTERN')) fail('server UI encoding guard is missing');
 else ok('server UI encoding guard is present');
 
-if (!server.includes("appVersion: 'v0.4.46'") && !server.includes("appVersion: 'v0.4.45'") && !server.includes("appVersion: 'v0.4.44'")) fail('server appVersion must remain synced after login repair');
+if (!server.includes("appVersion: 'v0.4.47'") && !server.includes("appVersion: 'v0.4.46'") && !server.includes("appVersion: 'v0.4.45'") && !server.includes("appVersion: 'v0.4.44'")) fail('server appVersion must remain synced after login repair');
 else ok('server appVersion is synced');
 
 if (!loginView.includes('/public/css/ag-login.css?v=4.13.1')) fail('isolated login stylesheet is not linked');

@@ -45,14 +45,14 @@ function semverAtLeast(version, minimum) {
   assertIncludes('src/routes/purchase-planning-routes.js', 'router.get("/api/purchase-planning"', 'purchase planning API route');
   assert(!read('src/routes/purchase-planning-routes.js').includes('router.post('), 'purchase planning routes must not define POST handlers');
 
-  assertIncludes('views/pages/purchase-planning.hbs', 'data-step="4.13.3"', 'view step marker');
+  assertIncludes('views/pages/purchase-planning.hbs', 'data-step="4.13.4"', 'view step marker');
   assert(read('views/pages/purchase-planning.hbs').includes('Procurement Decision Center') || read('views/pages/purchase-planning.hbs').includes('Procurement Manager Dashboard'), 'views/pages/purchase-planning.hbs missing procurement dashboard title marker');
   assertIncludes('views/pages/purchase-planning.hbs', 'Ръчна purchase поръчка', 'manual purchase CTA');
   assertIncludes('views/pages/purchase-planning.hbs', 'няма stock posting', 'view read-only guard');
 
   assertIncludes('src/server.js', 'purchasePlanningRoutes', 'server route import/mount');
-  assertIncludes('src/server.js', 'Step 4.13.3 Purchase Planning route mount', 'server mount marker');
-  assertIncludes('src/server.js', '4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown', 'health route marker');
+  assertIncludes('src/server.js', 'Step 4.13.4 Purchase Planning route mount', 'server mount marker');
+  assertIncludes('src/server.js', '4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff', 'health route marker');
 
   assertIncludes('src/data/navigation.js', "id: 'purchase-planning'", 'navigation link');
   assertIncludes('src/services/permission-service.js', "'/purchase-planning'", 'permission route');
@@ -63,8 +63,8 @@ function semverAtLeast(version, minimum) {
 
   const service = await import(pathToFileURL(path.join(root, 'src/services/purchase-planning-service.js')).href);
   const snapshot = await service.getPurchasePlanningDecisionCenter();
-  assert(['4.13', '4.13.2', '4.13.3'].includes(snapshot.step), `snapshot step must be 4.13 compatible, found ${snapshot.step}`);
-  assert(snapshot.healthLabel === '4-13-purchase-planning-procurement-decision-center-foundation' || snapshot.healthLabel === '4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement' || snapshot.healthLabel === '4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown', 'snapshot health label mismatch');
+  assert(['4.13', '4.13.2', '4.13.3', '4.13.4'].includes(snapshot.step), `snapshot step must be 4.13 compatible, found ${snapshot.step}`);
+  assert(snapshot.healthLabel === '4-13-purchase-planning-procurement-decision-center-foundation' || snapshot.healthLabel === '4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement' || snapshot.healthLabel === '4-13-4-purchase-planning-purchase-draft-preparation-manual-procurement-handoff', 'snapshot health label mismatch');
   assert(snapshot.readOnly === true, 'snapshot must be read-only');
   assert(Array.isArray(snapshot.suppliers), 'snapshot suppliers must be array');
   assert(Array.isArray(snapshot.decisionLanes) && snapshot.decisionLanes.length === 4, 'decision lanes must have 4 lanes');

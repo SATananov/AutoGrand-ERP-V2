@@ -11352,3 +11352,165 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.13.3 Purchase Planning Detail Inspector Supplier Recommendation Drilldown END */
+
+/* AutoGrand ERP V2 Step 4.13.4 Purchase Draft Preparation Manual Procurement Handoff START */
+.ag-step-4134__handoff-card {
+  border-color: rgba(30, 118, 81, 0.26);
+  background: linear-gradient(135deg, rgba(240, 253, 246, 0.96), rgba(255, 255, 255, 0.98));
+}
+
+.ag-step-4134__handoff-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(30, 118, 81, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 32px rgba(15, 77, 52, 0.08);
+}
+
+.ag-step-4134__handoff-banner.tone-danger {
+  border-color: rgba(180, 35, 24, 0.24);
+  background: rgba(255, 247, 246, 0.92);
+}
+
+.ag-step-4134__handoff-banner.tone-warning {
+  border-color: rgba(181, 121, 0, 0.28);
+  background: rgba(255, 250, 235, 0.94);
+}
+
+.ag-step-4134__handoff-banner strong {
+  display: block;
+  color: #123c2b;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.ag-step-4134__handoff-banner span,
+.ag-step-4134__header-grid span,
+.ag-step-4134__check-grid span,
+.ag-step-4134__draft-table small,
+.ag-step-4134__draft-table td span {
+  color: #5f6f67;
+  font-size: 12px;
+}
+
+.ag-step-4134__handoff-actions {
+  justify-content: flex-end;
+}
+
+.ag-step-4134__header-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.ag-step-4134__header-grid article,
+.ag-step-4134__check-grid article {
+  padding: 13px;
+  border: 1px solid rgba(30, 118, 81, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.ag-step-4134__header-grid strong,
+.ag-step-4134__check-grid strong {
+  display: block;
+  color: #123c2b;
+  font-size: 13px;
+}
+
+.ag-step-4134__draft-table tr.tone-danger td {
+  background: rgba(255, 247, 246, 0.72);
+}
+
+.ag-step-4134__draft-table tr.tone-warning td {
+  background: rgba(255, 250, 235, 0.72);
+}
+
+.ag-step-4134__copy-card pre {
+  margin: 0;
+  min-height: 220px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px dashed rgba(30, 118, 81, 0.25);
+  border-radius: 14px;
+  background: #f8fffb;
+  color: #153d2d;
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.ag-step-4134__check-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ag-step-4134__check-grid article.tone-danger {
+  border-color: rgba(180, 35, 24, 0.25);
+  background: rgba(255, 247, 246, 0.9);
+}
+
+.ag-step-4134__check-grid article.tone-warning {
+  border-color: rgba(181, 121, 0, 0.25);
+  background: rgba(255, 250, 235, 0.9);
+}
+
+.ag-step-4134__check-grid article.tone-muted {
+  background: rgba(247, 250, 249, 0.9);
+}
+
+.ag-step-4134__guard-list {
+  margin-top: 14px;
+}
+
+.ag-step-4134__mini-link,
+.ag-step-4134__table-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 118, 81, 0.22);
+  color: #176b49;
+  background: rgba(240, 253, 246, 0.9);
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.ag-step-4134__table-link {
+  margin-left: 6px;
+}
+
+@media (max-width: 1100px) {
+  .ag-step-4134__header-grid,
+  .ag-step-4134__check-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ag-step-4134__handoff-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .ag-step-4134__header-grid,
+  .ag-step-4134__check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4134__table-link {
+    margin-left: 0;
+  }
+}
+/* AutoGrand ERP V2 Step 4.13.4 Purchase Draft Preparation Manual Procurement Handoff END */

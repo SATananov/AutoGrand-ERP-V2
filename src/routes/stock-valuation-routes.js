@@ -1,4 +1,4 @@
-import express from 'express';
+﻿import express from 'express';
 import {
   getStockValuationBalance,
   getStockValuationCostSource,
@@ -23,13 +23,13 @@ function sendError(res, error) {
   res.status(500).json({
     ok: false,
     error: 'STOCK_VALUATION_READ_FAILED',
-    message: 'Стойностната складова справка не може да бъде заредена в момента. Данните не са променени.'
+    message: 'РЎС‚РѕР№РЅРѕСЃС‚РЅР°С‚Р° СЃРєР»Р°РґРѕРІР° СЃРїСЂР°РІРєР° РЅРµ РјРѕР¶Рµ РґР° Р±СЉРґРµ Р·Р°СЂРµРґРµРЅР° РІ РјРѕРјРµРЅС‚Р°. Р”Р°РЅРЅРёС‚Рµ РЅРµ СЃР° РїСЂРѕРјРµРЅРµРЅРё.'
   });
 }
 
 router.get('/stock-valuation', (req, res) => {
-  res.render('pages/stock-valuation', {
-    title: 'Стойност на склада · Cost Confidence',
+  res.render('stock-valuation', {
+    title: 'РЎС‚РѕР№РЅРѕСЃС‚ РЅР° СЃРєР»Р°РґР° В· Cost Confidence',
     activeModule: 'stock-valuation',
     pageClass: 'stock-valuation-page'
   });
@@ -101,3 +101,4 @@ router.get('/api/stock/valuation/cost-source', async (req, res) => {
 });
 
 export default router;
+
