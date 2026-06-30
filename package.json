@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.42",
+  "version": "0.4.44",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.12.4 Inventory Planning Final QA Clean Module Closure",
+  "description": "AutoGrand ERP V2 Step 4.13.1 Login Screen Polish and Browser Title Encoding Repair",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -14,7 +14,9 @@
     "check": "node scripts/check-project.mjs",
     "analyze:references": "python tools/analyze_reference_zips.py --zip \"%USERPROFILE%\\Desktop\\Client_REFERENCE_source-only_20260625_1447(4).zip\" --zip \"%USERPROFILE%\\Desktop\\ZipMasterR23.zip\" --out docs/reference/generated --include-private-log-data --private-out docs/reference/private",
     "check:step4:12:4": "node scripts/step-4-12-4-inventory-planning-final-qa-smoke.cjs",
-    "check:step4:12:4:1": "node scripts/step-4-12-4-1-shell-menu-cyrillic-encoding-smoke.cjs"
+    "check:step4:12:4:1": "node scripts/step-4-12-4-1-shell-menu-cyrillic-encoding-smoke.cjs",
+    "check:step4:13": "node scripts/step-4-13-purchase-planning-smoke.cjs",
+    "check:step4:13:1": "node scripts/step-4-13-1-login-screen-polish-smoke.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -108,8 +110,8 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.9",
-  "autograndHealthLabel": "4-9-stock-control-center",
+  "autograndStep": "4.13.1",
+  "autograndHealthLabel": "4-13-1-login-screen-polish-browser-title-encoding-repair",
   "autogrand": {
     "version": "0.4.17",
     "step": "4.8.6",

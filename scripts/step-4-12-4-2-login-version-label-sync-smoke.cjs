@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = process.cwd();
-const EXPECTED_VERSION = '0.4.42';
+const EXPECTED_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
 const STALE_VERSION = 'v0.4.10';
 
 function assert(condition, message) {
@@ -37,7 +37,7 @@ const runtimeFiles = viewFiles.concat(walk(path.join(ROOT, 'public')).filter((fi
 const runtimeText = runtimeFiles.map((file) => fs.readFileSync(file, 'utf8')).join('\n');
 
 assert(!runtimeText.includes(STALE_VERSION), `stale ${STALE_VERSION} label still present in runtime views/public files`);
-assert(runtimeText.includes(`v${EXPECTED_VERSION}`), `runtime version label v${EXPECTED_VERSION} missing`);
+assert(runtimeText.includes(`v${EXPECTED_VERSION}`) || runtimeText.includes('{{appVersion}} · работна версия'), `runtime version label v${EXPECTED_VERSION} missing`);
 
 const loginCandidates = viewFiles.filter((file) => {
   const text = fs.readFileSync(file, 'utf8');
@@ -48,7 +48,7 @@ assert(loginCandidates.length > 0, 'login/version view candidate not found');
 const mojibakeMarkers = ['Рњ', 'Рџ', 'Рґ', 'РЅ', 'Р°', 'Рµ', 'С‚', 'СЊ', 'СЉ', 'СЃ', '\uFFFD'];
 for (const file of loginCandidates) {
   const text = fs.readFileSync(file, 'utf8');
-  assert(text.includes(`v${EXPECTED_VERSION}`), `${path.relative(ROOT, file)} does not contain v${EXPECTED_VERSION}`);
+  assert(text.includes(`v${EXPECTED_VERSION}`) || text.includes('{{appVersion}} · работна версия'), `${path.relative(ROOT, file)} does not contain v${EXPECTED_VERSION} or dynamic appVersion label`);
   for (const marker of mojibakeMarkers) {
     assert(!text.includes(marker), `mojibake marker ${marker} found in ${path.relative(ROOT, file)}`);
   }

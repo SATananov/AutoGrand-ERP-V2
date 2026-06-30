@@ -10556,3 +10556,256 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.12.3 Inventory Planning Supplier Purchase View END */
+
+/* AutoGrand ERP V2 Step 4.13 Purchase Planning Procurement Decision Center START */
+.ag-step-413 {
+  display: grid;
+  gap: 14px;
+}
+
+.ag-step-413__hero {
+  border-bottom: 3px solid rgba(18, 103, 75, 0.22);
+}
+
+.ag-step-413__guard-card {
+  min-width: 300px;
+}
+
+.ag-step-413__command-strip {
+  margin-top: 2px;
+}
+
+.ag-step-413__manual-purchase {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(18, 103, 75, 0.32);
+  border-radius: 999px;
+  padding: 9px 15px;
+  background: linear-gradient(180deg, rgba(15, 103, 73, 0.98), rgba(7, 72, 51, 0.96));
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 10px 22px rgba(8, 51, 37, 0.16);
+}
+
+.ag-step-413__manual-purchase:hover {
+  background: linear-gradient(180deg, rgba(22, 125, 88, 1), rgba(9, 85, 60, 0.98));
+}
+
+.ag-step-413__summary-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ag-step-413__coverage-strip {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 1fr;
+  gap: 12px;
+}
+
+.ag-step-413__coverage-strip article,
+.ag-step-413__focus-card {
+  border: 1px solid rgba(18, 103, 75, 0.16);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(248, 252, 249, 0.96);
+  box-shadow: 0 8px 18px rgba(8, 51, 37, 0.06);
+}
+
+.ag-step-413__coverage-strip span,
+.ag-step-413__coverage-strip strong {
+  display: block;
+}
+
+.ag-step-413__coverage-strip span {
+  color: rgba(15, 58, 45, 0.64);
+  font-weight: 800;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ag-step-413__coverage-strip strong {
+  margin-top: 4px;
+  color: #123b2c;
+}
+
+.ag-step-413__focus-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ag-step-413__focus-grid span,
+.ag-step-413__focus-grid a {
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #123b2c;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ag-step-413__lanes {
+  margin-top: 2px;
+}
+
+.ag-step-413__lane.tone-danger {
+  border-left: 4px solid rgba(179, 48, 48, 0.58);
+}
+
+.ag-step-413__lane.tone-warning {
+  border-left: 4px solid rgba(176, 115, 22, 0.58);
+}
+
+.ag-step-413__lane.tone-ok {
+  border-left: 4px solid rgba(18, 103, 75, 0.55);
+}
+
+.ag-step-413__lane.tone-muted {
+  border-left: 4px solid rgba(88, 113, 101, 0.32);
+}
+
+.ag-step-413__supplier-list,
+.ag-step-413__line-list,
+.ag-step-413__link-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ag-step-413__supplier-list li,
+.ag-step-413__line-list li,
+.ag-step-413__link-list li {
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(18, 103, 75, 0.13);
+  border-radius: 14px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.ag-step-413__supplier-list a,
+.ag-step-413__line-list a,
+.ag-step-413__link-list a {
+  color: #0b5d40;
+  text-decoration: none;
+}
+
+.ag-step-413__supplier-list a:hover,
+.ag-step-413__line-list a:hover,
+.ag-step-413__link-list a:hover {
+  text-decoration: underline;
+}
+
+.ag-step-413__supplier-list span,
+.ag-step-413__supplier-list small,
+.ag-step-413__line-list span,
+.ag-step-413__line-list small,
+.ag-step-413__link-list span {
+  color: rgba(15, 58, 45, 0.7);
+}
+
+.ag-step-413__decision-pill,
+.ag-step-413__budget {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 10px;
+  border: 1px solid rgba(18, 103, 75, 0.16);
+  background: rgba(232, 247, 239, 0.95);
+  color: #0b5d40;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.ag-step-413__decision-pill.tone-danger,
+.ag-step-413__budget.tone-danger,
+.ag-step-413__decision-table tr.procurement-danger {
+  background: rgba(255, 241, 238, 0.8);
+  color: #9b2d1d;
+}
+
+.ag-step-413__decision-pill.tone-warning,
+.ag-step-413__budget.tone-warning,
+.ag-step-413__decision-table tr.procurement-warning {
+  background: rgba(255, 248, 226, 0.82);
+  color: #87540d;
+}
+
+.ag-step-413__decision-pill.tone-muted,
+.ag-step-413__budget.tone-muted,
+.ag-step-413__decision-table tr.procurement-muted {
+  background: rgba(244, 247, 245, 0.86);
+  color: #40554a;
+}
+
+.ag-step-413__decision-table td small,
+.ag-step-413__decision-table td span {
+  display: block;
+  margin-top: 3px;
+}
+
+.ag-step-413__detail-grid {
+  align-items: start;
+}
+
+.ag-step-413__workflow {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ag-step-413__workflow li {
+  display: grid;
+  gap: 4px;
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.ag-step-413__workflow li.tone-danger {
+  border-color: rgba(179, 48, 48, 0.25);
+  background: rgba(255, 241, 238, 0.86);
+}
+
+.ag-step-413__workflow li.tone-warning {
+  border-color: rgba(176, 115, 22, 0.24);
+  background: rgba(255, 248, 226, 0.88);
+}
+
+.ag-step-413__workflow strong {
+  color: #123b2c;
+}
+
+.ag-step-413__workflow span {
+  color: rgba(15, 58, 45, 0.72);
+}
+
+@media (max-width: 1180px) {
+  .ag-step-413__summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ag-step-413__coverage-strip,
+  .ag-step-413__focus-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .ag-step-413__summary-grid,
+  .ag-step-413__coverage-strip,
+  .ag-step-413__focus-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.13 Purchase Planning Procurement Decision Center END */

@@ -1,0 +1,77 @@
+// AutoGrand ERP V2 - Step 4.13 smoke check
+const fs = require('fs');
+const path = require('path');
+
+const root = path.resolve(__dirname, '..');
+function read(rel) {
+  return fs.readFileSync(path.join(root, rel), 'utf8');
+}
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+function assertIncludes(file, needle, label = needle) {
+  const text = read(file);
+  assert(text.includes(needle), `${file} missing marker: ${label}`);
+}
+function semverAtLeast(version, minimum) {
+  const left = String(version || '').split('.').map((part) => Number(part));
+  const right = String(minimum || '').split('.').map((part) => Number(part));
+  for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+    const a = left[index] || 0;
+    const b = right[index] || 0;
+    if (a > b) return true;
+    if (a < b) return false;
+  }
+  return true;
+}
+
+(async () => {
+  const pkg = JSON.parse(read('package.json'));
+  const lock = JSON.parse(read('package-lock.json'));
+
+  assert(semverAtLeast(pkg.version, '0.4.43'), `package version must be >= 0.4.43, found ${pkg.version}`);
+  assert(semverAtLeast(lock.version, '0.4.43'), `package-lock version must be >= 0.4.43, found ${lock.version}`);
+  assert(semverAtLeast(lock.packages[''].version, '0.4.43'), `package-lock root version must be >= 0.4.43, found ${lock.packages[''].version}`);
+  assert(pkg.scripts['check:step4:13'] === 'node scripts/step-4-13-purchase-planning-smoke.cjs', 'missing check:step4:13 script');
+
+  assertIncludes('src/services/purchase-planning-service.js', 'STEP_4_13_HEALTH_LABEL', 'health label export');
+  assertIncludes('src/services/purchase-planning-service.js', 'getInventoryPlanningSupplierRecommendations', 'inventory planning supplier dependency');
+  assertIncludes('src/services/purchase-planning-service.js', 'getPurchasePlanningDecisionCenter', 'decision center function');
+  assertIncludes('src/services/purchase-planning-service.js', 'no purchase document creation', 'read-only guard comment');
+  assertIncludes('src/services/purchase-planning-service.js', 'Няма автоматично създаване на purchase', 'guardrail text');
+
+  assertIncludes('src/routes/purchase-planning-routes.js', 'router.get("/purchase-planning"', 'purchase planning route');
+  assertIncludes('src/routes/purchase-planning-routes.js', 'router.get("/api/purchase-planning"', 'purchase planning API route');
+  assert(!read('src/routes/purchase-planning-routes.js').includes('router.post('), 'purchase planning routes must not define POST handlers');
+
+  assertIncludes('views/pages/purchase-planning.hbs', 'data-step="4.13"', 'view step marker');
+  assertIncludes('views/pages/purchase-planning.hbs', 'Procurement Decision Center', 'view title marker');
+  assertIncludes('views/pages/purchase-planning.hbs', 'Ръчна purchase поръчка', 'manual purchase CTA');
+  assertIncludes('views/pages/purchase-planning.hbs', 'няма stock posting', 'view read-only guard');
+
+  assertIncludes('src/server.js', 'purchasePlanningRoutes', 'server route import/mount');
+  assertIncludes('src/server.js', 'Step 4.13 Purchase Planning route mount', 'server mount marker');
+  assertIncludes('src/server.js', "4-13-purchase-planning-procurement-decision-center-foundation", 'health route marker');
+
+  assertIncludes('src/data/navigation.js', "id: 'purchase-planning'", 'navigation link');
+  assertIncludes('src/services/permission-service.js', "'/purchase-planning'", 'permission route');
+  assertIncludes('public/css/styles.css', 'Step 4.13 Purchase Planning Procurement Decision Center START', 'CSS start marker');
+
+  assertIncludes('docs/steps/STEP_4_13_PURCHASE_PLANNING_PROCUREMENT_DECISION_CENTER_FOUNDATION_BG.md', 'Step 4.13', 'step docs');
+  assertIncludes('docs/checkpoints/STEP_4_13_PURCHASE_PLANNING_PROCUREMENT_DECISION_CENTER_FOUNDATION_BG.md', '0.4.43', 'checkpoint docs');
+
+  const service = await import(path.join(root, 'src/services/purchase-planning-service.js'));
+  const snapshot = await service.getPurchasePlanningDecisionCenter();
+  assert(snapshot.step === '4.13', `snapshot step must be 4.13, found ${snapshot.step}`);
+  assert(snapshot.healthLabel === '4-13-purchase-planning-procurement-decision-center-foundation', 'snapshot health label mismatch');
+  assert(snapshot.readOnly === true, 'snapshot must be read-only');
+  assert(Array.isArray(snapshot.suppliers), 'snapshot suppliers must be array');
+  assert(Array.isArray(snapshot.decisionLanes) && snapshot.decisionLanes.length === 4, 'decision lanes must have 4 lanes');
+  assert(Array.isArray(snapshot.guardrails) && snapshot.guardrails.some((line) => line.includes('Няма автоматично създаване')), 'guardrails must mention no automatic creation');
+  assert(snapshot.manualPurchaseHref === '/document/purchase/new/PURCHASE_ORDER', 'manual purchase href mismatch');
+
+  console.log('OK: Step 4.13 purchase planning procurement decision center smoke markers passed.');
+})().catch((error) => {
+  console.error(error.stack || error.message || error);
+  process.exit(1);
+});

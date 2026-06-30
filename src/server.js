@@ -102,8 +102,10 @@ getStockAdjustmentFormData,
 import stockControlCenterRouter from './routes/stock-control-center-routes.js';
 
 
-import stockControlDetailInspectorRoutes from "./routes/stock-control-detail-inspector-routes.js";
+import stockControlDetailInspectorRoutes from "./routes/stock-control-detail-inspector-routes.js";
+
 import inventoryPlanningRoutes from "./routes/inventory-planning-routes.js";
+import purchasePlanningRoutes from "./routes/purchase-planning-routes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
@@ -127,17 +129,52 @@ function statusDateTimeText(date = new Date()) {
   }).format(date).replace(',', '');
 }
 
-function baseViewData({ title, currentScreen = '', statusText = 'Р В РЎвЂєР РЋРІР‚С™Р В Р вЂ Р В РЎвЂўР РЋР вЂљР В Р’ВµР В Р вЂ¦ Р В Р’ВµР В РЎвЂќР РЋР вЂљР В Р’В°Р В Р вЂ¦: Р В РЎСљР В Р’В°Р РЋРІР‚РЋР В Р’В°Р В Р’В»Р В РЎвЂў' } = {}) {
+const UI_ENCODING_DAMAGE_PATTERN = /Р |РЎ|РЋ|Р†|вЂ|В¦|Вµ|Â|�|\?\?\?\?/;
+
+const SCREEN_LABELS = {
+  '': 'Начало',
+  forbidden: 'Ограничен достъп',
+  'price-list': 'Ценови листи, цени и наличности',
+  'catalog-foundation': 'Номенклатурна основа',
+  'grid-column-preferences': 'Глобални настройки на колони',
+  'document-engine': 'Глобален документен engine',
+  'print-engine': 'Глобален print engine',
+  sales: 'Продажби',
+  purchases: 'Доставки',
+  stock: 'Складови наличности',
+  warehouses: 'Складове',
+  'reference-map': 'Client Reference Map'
+};
+
+function hasEncodingDamage(value = '') {
+  return UI_ENCODING_DAMAGE_PATTERN.test(String(value || ''));
+}
+
+function screenLabel(currentScreen = '') {
+  return SCREEN_LABELS[currentScreen] || 'Работен екран';
+}
+
+function cleanUiText(value = '', fallback = '') {
+  const text = String(value || '').trim();
+  if (!text || hasEncodingDamage(text)) return fallback;
+  return text;
+}
+
+function baseViewData({ title, currentScreen = '', statusText = '' } = {}) {
+  const label = screenLabel(currentScreen);
+  const safeTitle = cleanUiText(title, `AutoGrand ERP V2 · ${label}`);
+  const safeStatusText = cleanUiText(statusText, `Отворен екран: ${label}`);
+
   return {
-    title: title || 'AutoGrand ERP V2',
-    appVersion: 'v0.4.10',
-    companyName: 'Р В РЎв„ўР В Р вЂћР В Р’В Р В РІР‚СњР В РІР‚вЂњР В РЎвЂ™Р В РІР‚С”Р В Р’В Р вЂ™Р’В· Р В РЎвЂ™Р В Р вЂ Р РЋРІР‚С™Р В РЎвЂўР В РЎвЂ“Р РЋР вЂљР В Р’В°Р В Р вЂ¦Р В РўвЂ Р В РЎвЂєР В РЎвЂєР В РІР‚Сњ',
-    userName: 'Р В Р Р‹Р В РЎС›Р В РІР‚СћР В Р’В¤Р В РЎвЂ™Р В РЎСљ Р В РЎС›Р В РЎвЂ™Р В РЎСљР В РЎвЂ™Р В РЎСљР В РЎвЂєР В РІР‚в„ў',
+    title: safeTitle,
+    appVersion: 'v0.4.44',
+    companyName: 'Автогранд ООД',
+    userName: 'Няма вход',
     databaseName: 'Local SQLite',
     statusDate: todayText(),
     statusDateTime: statusDateTimeText(),
     currentScreen,
-    statusText,
+    statusText: safeStatusText,
     navigationGroups: decorateNavigation(currentScreen),
     ribbonGroups: RIBBON_GROUPS
   };
@@ -342,7 +379,8 @@ app.use(async (req, res, next) => {
     }
     return next();
   }
-});app.use('/', stockValuationRoutes);
+});
+app.use('/', stockValuationRoutes);
 
 
 app.use((req, res, next) => {
@@ -367,11 +405,11 @@ app.get('/login', async (req, res) => {
   const options = await getLoginOptions(req, req.query || {});
   res.render('login', {
     layout: false,
-    title: 'Р В РІР‚в„ўР РЋРІР‚В¦Р В РЎвЂўР В РўвЂ Р Р†Р вЂљРІР‚Сњ AutoGrand ERP',
+    title: 'Вход · AutoGrand ERP V2',
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.10'
+    appVersion: 'v0.4.44'
   });
 });
 
@@ -381,7 +419,7 @@ app.post('/login', async (req, res) => {
 
   if (!result.ok) {
     const query = new URLSearchParams({
-      error: result.message || 'Р В РІР‚в„ўР РЋРІР‚В¦Р В РЎвЂўР В РўвЂР РЋР вЂ°Р РЋРІР‚С™ Р В Р вЂ¦Р В Р’Вµ Р В Р’Вµ Р РЋРЎвЂњР РЋР С“Р В РЎвЂ”Р В Р’ВµР РЋРІвЂљВ¬Р В Р’ВµР В Р вЂ¦.',
+      error: result.message || 'Входът не е успешен.',
       companyId: req.body?.companyId || '',
       locationId: req.body?.locationId || '',
       username: req.body?.username || '',
@@ -589,6 +627,13 @@ app.use(stockHardeningRoutes);
 // AutoGrand ERP V2 Step 4.8 Stock Adjustment route mount
 app.use(stockAdjustmentRoutes);
 
+// AutoGrand ERP V2 Step 4.9 Stock Control Center route mounts
+app.use('/', stockControlCenterRouter);
+app.use('/', stockControlDetailInspectorRoutes);
+// AutoGrand ERP V2 Step 4.12 Inventory Planning route mount
+app.use(inventoryPlanningRoutes);
+// AutoGrand ERP V2 Step 4.13 Purchase Planning route mount
+app.use(purchasePlanningRoutes);
 
 app.get('/screen/:screenId', async (req, res) => {
   const screen = await getScreenData(req.params.screenId);
@@ -1097,13 +1142,11 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: STEP_4_6_PRINT_ENGINE_HEALTH_LABEL
+    step: '4-13-purchase-planning-procurement-decision-center-foundation'
   });
 });
 
 app.use((req, res) => {
-app.use('/', stockControlCenterRouter);
-app.use('/', stockControlDetailInspectorRoutes);
   res.status(404);
     return renderPage(req, res, 'not-found', {
     ...baseViewData({
@@ -1113,10 +1156,6 @@ app.use('/', stockControlDetailInspectorRoutes);
   });
 });
 
-// AutoGrand ERP V2 Step 4.9.3 Stock Control Detail Inspector route mount
-
-// AutoGrand ERP V2 Step 4.12 Inventory Planning route mount
-app.use(inventoryPlanningRoutes);
 
 app.listen(PORT, () => {
   console.log(`AutoGrand ERP V2 is running at http://localhost:${PORT}`);

@@ -26,6 +26,7 @@ export const NAV_GROUPS = [
     title: 'Доставки',
     icon: '🚚',
     items: [
+      { id: 'purchase-planning', title: 'Планиране на покупки', icon: '◈', href: '/purchase-planning' },
       { id: 'purchase-orders', title: 'Поръчки към доставчици', icon: '▤' },
       { id: 'supplier-invoices', title: 'Фактури доставчици', icon: '▤' },
       { id: 'deliveries', title: 'Доставки', icon: '▤' },

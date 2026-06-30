@@ -235,6 +235,11 @@ const ROUTE_RULES = [
   route('POST', '/document/sales/:documentId/status', 'sales.finish', 'Приключване на продажбен документ'),
   route('POST', '/document/sales/:documentId/payments', 'sales.payment', 'Плащане по продажба'),
 
+  route('GET', '/purchase-planning', 'purchase.view', 'Планиране на покупки'),
+  route('GET', '/procurement-decision-center', 'purchase.view', 'Procurement Decision Center'),
+  route('GET', '/api/purchase-planning', 'purchase.view', 'API планиране на покупки'),
+  route('GET', '/api/procurement-decision-center', 'purchase.view', 'API procurement decision center'),
+
   route('GET', '/document/purchase/new/:docType', 'purchase.create', 'Нов доставен документ'),
   route('POST', '/document/purchase/new', 'purchase.create', 'Създаване на доставен документ'),
   route('GET', '/document/purchase/:documentId', 'purchase.view', 'Преглед на доставен документ'),
@@ -289,7 +294,7 @@ const SCREEN_RULES = [
 
 const COMMAND_RULES = [
   commandRule(['sales', 'sale', 'pos', 'invoice'], 'sales.view', 'Продажби'),
-  commandRule(['purchase', 'delivery', 'supplier'], 'purchase.view', 'Доставки'),
+  commandRule(['purchase', 'delivery', 'supplier', 'procurement'], 'purchase.view', 'Доставки'),
   commandRule(['stock', 'warehouse', 'inventory'], 'stock.view', 'Склад'),
   commandRule(['transfer'], 'stock.transfer.view', 'Трансфери'),
   commandRule(['adjustment'], 'stock.adjustment.view', 'Складови корекции'),
