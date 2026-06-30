@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.39",
+  "version": "0.4.40",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.12.3 Inventory Planning Supplier / Purchase Recommendation View",
+  "description": "AutoGrand ERP V2 Step 4.12.4 Inventory Planning Final QA Clean Module Closure",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -12,7 +12,8 @@
     "db:seed": "node scripts/seed-prisma.js",
     "db:studio": "prisma studio",
     "check": "node scripts/check-project.mjs",
-    "analyze:references": "python tools/analyze_reference_zips.py --zip \"%USERPROFILE%\\Desktop\\Client_REFERENCE_source-only_20260625_1447(4).zip\" --zip \"%USERPROFILE%\\Desktop\\ZipMasterR23.zip\" --out docs/reference/generated --include-private-log-data --private-out docs/reference/private"
+    "analyze:references": "python tools/analyze_reference_zips.py --zip \"%USERPROFILE%\\Desktop\\Client_REFERENCE_source-only_20260625_1447(4).zip\" --zip \"%USERPROFILE%\\Desktop\\ZipMasterR23.zip\" --out docs/reference/generated --include-private-log-data --private-out docs/reference/private",
+    "check:step4:12:4": "node scripts/step-4-12-4-inventory-planning-final-qa-smoke.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
