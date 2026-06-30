@@ -1,63 +1,121 @@
-<section class="ag-step-412 module-page" data-module="inventory-planning" data-step="4.12">
-  <header class="module-hero ag-step-412__hero">
+<section class="ag-step-412 ag-step-4121 module-page" data-module="inventory-planning" data-step="4.12.1">
+  <header class="module-hero ag-step-412__hero ag-step-4121__hero">
     <div>
-      <p class="module-kicker">Планиране · Само анализ</p>
+      <p class="module-kicker">Планиране · Мениджърски изглед · Само анализ</p>
       <h1>Планиране на наличности</h1>
       <p class="module-lead">
-        Минимални количества, предложения за дозареждане, бавнодвижещи се артикули и риск от изчерпване без автоматично създаване на документи.
+        По-ясен manager dashboard за минимални количества, предложения за дозареждане, бавно движение и риск от изчерпване.
       </p>
+      <div class="ag-step-4121__hero-meta">
+        <span>Snapshot: {{snapshot.step}}</span>
+        <span>Източник: {{snapshot.sourceName}}</span>
+        <span>Филтър: {{snapshot.viewMode}}</span>
+      </div>
     </div>
-    <div class="ag-step-412__guard-card">
-      <strong>Само анализ</strong>
-      <span>POSTED документите остават заключени. Stock journal не се редактира.</span>
+    <div class="ag-step-412__guard-card ag-step-4121__guard-card">
+      <strong>Read-only planning</strong>
+      <span>Няма автоматични документи. Няма редакция на stock journal. POSTED документите остават locked.</span>
     </div>
   </header>
 
-  <section class="ag-step-412__summary-grid" aria-label="Мениджърски преглед">
-    <article class="ag-step-412__metric">
-      <span>Артикули</span>
-      <strong>{{snapshot.summary.totalItems}}</strong>
-      <small>източник: {{snapshot.sourceName}}</small>
+  <section class="ag-step-4121__command-strip" aria-label="Мениджърски статус">
+    <div class="ag-step-4121__command-main">
+      <span class="ag-step-4121__status-dot tone-{{snapshot.managerSnapshot.statusTone}}"></span>
+      <div>
+        <p class="module-kicker">{{snapshot.managerSnapshot.title}}</p>
+        <h2>{{snapshot.managerSnapshot.statusLabel}}</h2>
+        <p>{{snapshot.managerSnapshot.nextAction}}</p>
+      </div>
+    </div>
+    <div class="ag-step-4121__snapshot-note">
+      <strong>Правило</strong>
+      <span>{{snapshot.managerSnapshot.safetyNote}}</span>
+    </div>
+  </section>
+
+  <section class="ag-step-412__summary-grid ag-step-4121__summary-grid" aria-label="KPI cards">
+    <article class="ag-step-412__metric ag-step-4121__metric is-danger">
+      <span>Критичен риск</span>
+      <strong>{{snapshot.summary.criticalCount}}</strong>
+      <small>артикули с нулева/отрицателна проектна наличност</small>
     </article>
-    <article class="ag-step-412__metric is-warning">
+    <article class="ag-step-412__metric ag-step-4121__metric is-warning">
       <span>За дозареждане</span>
       <strong>{{snapshot.summary.reorderCount}}</strong>
-      <small>под минимално / целево ниво</small>
+      <small>{{snapshot.summary.displayRecommendedOrderQtyTotal}} общо предложено количество</small>
     </article>
-    <article class="ag-step-412__metric is-danger">
-      <span>Риск от изчерпване</span>
-      <strong>{{snapshot.summary.outOfStockRiskCount}}</strong>
-      <small>критично или под минимум</small>
+    <article class="ag-step-412__metric ag-step-4121__metric is-money">
+      <span>Стойност за планиране</span>
+      <strong>{{snapshot.summary.displayTotalRecommendedValue}}</strong>
+      <small>само ориентир, без автоматична покупка</small>
     </article>
-    <article class="ag-step-412__metric is-muted">
+    <article class="ag-step-412__metric ag-step-4121__metric is-muted">
       <span>Бавно движение</span>
       <strong>{{snapshot.summary.slowMovingCount}}</strong>
-      <small>над прага за дни без движение</small>
+      <small>над {{snapshot.profile.slowMovingDays}} дни без движение</small>
+    </article>
+    <article class="ag-step-412__metric ag-step-4121__metric">
+      <span>Проектна наличност</span>
+      <strong>{{snapshot.summary.displayTotalProjectedQty}}</strong>
+      <small>наличност - резервирано + входящо</small>
+    </article>
+    <article class="ag-step-412__metric ag-step-4121__metric">
+      <span>Stock value</span>
+      <strong>{{snapshot.summary.displayTotalStockValue}}</strong>
+      <small>ориентировъчна текуща стойност</small>
     </article>
   </section>
 
-  <section class="ag-step-412__manager-panel">
-    <div>
-      <h2>Мениджърски преглед</h2>
-      <p>{{snapshot.managerSnapshot.nextAction}}</p>
-    </div>
-    <div class="ag-step-412__status-pill">{{snapshot.summary.managerStatus}}</div>
+  <nav class="ag-step-4121__filterbar" aria-label="Planning filters">
+    {{#each snapshot.filterChips}}
+      <a class="ag-step-4121__chip {{#if isActive}}is-active{{/if}}" href="{{href}}">
+        <span>{{label}}</span>
+        <strong>{{count}}</strong>
+      </a>
+    {{/each}}
+  </nav>
+
+  <section class="ag-step-4121__lanes" aria-label="Planning lanes">
+    {{#each snapshot.attentionLanes}}
+      <article class="module-card ag-step-412__card ag-step-4121__lane tone-{{tone}}">
+        <div class="module-card-header">
+          <div>
+            <p class="module-kicker">{{note}}</p>
+            <h2>{{title}}</h2>
+          </div>
+          <span class="ag-step-412__readonly-badge">{{count}}</span>
+        </div>
+        {{#if items.length}}
+          <ul class="ag-step-4121__mini-list">
+            {{#each items}}
+              <li>
+                <strong>{{itemCode}}</strong>
+                <span>{{itemName}}</span>
+                <small>{{warehouseName}} · {{riskLabel}} · предл. {{display.recommendedOrderQty}}</small>
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <p class="ag-step-412__empty">{{empty}}</p>
+        {{/if}}
+      </article>
+    {{/each}}
   </section>
 
-  <section class="module-card ag-step-412__card">
-    <div class="module-card-header">
+  <section class="module-card ag-step-412__card ag-step-4121__card">
+    <div class="module-card-header ag-step-4121__table-header">
       <div>
-        <p class="module-kicker">Reorder suggestions</p>
-        <h2>Предложения за дозареждане</h2>
+        <p class="module-kicker">Planning list · {{snapshot.visibleCount}} реда</p>
+        <h2>Мениджърска таблица за планиране</h2>
       </div>
       <span class="ag-step-412__readonly-badge">само анализ</span>
     </div>
 
-    <div class="ag-step-412__table-wrap">
-      <table class="ag-step-412__table">
+    <div class="ag-step-412__table-wrap ag-step-4121__table-wrap">
+      <table class="ag-step-412__table ag-step-4121__table">
         <thead>
           <tr>
-            <th>Код</th>
+            <th>Приоритет</th>
             <th>Артикул</th>
             <th>Склад</th>
             <th class="num">Наличност</th>
@@ -65,28 +123,36 @@
             <th class="num">Входящо</th>
             <th class="num">Проектна</th>
             <th class="num">Мин.</th>
+            <th class="num">Цел</th>
             <th class="num">Предл.</th>
-            <th>Риск</th>
+            <th class="num">Стойност</th>
+            <th>Действие</th>
           </tr>
         </thead>
         <tbody>
-          {{#each snapshot.items}}
-            <tr class="risk-{{riskLevel}}">
-              <td><strong>{{itemCode}}</strong></td>
-              <td>
-                <span>{{itemName}}</span>
-                <small>{{groupName}}</small>
-              </td>
-              <td>{{warehouseName}}</td>
-              <td class="num">{{currentQty}}</td>
-              <td class="num">{{reservedQty}}</td>
-              <td class="num">{{inboundQty}}</td>
-              <td class="num"><strong>{{projectedAvailableQty}}</strong></td>
-              <td class="num">{{minimumQty}}</td>
-              <td class="num"><strong>{{recommendedOrderQty}}</strong></td>
+          {{#each snapshot.visibleItems}}
+            <tr class="risk-{{riskLevel}} priority-{{priority}}">
               <td>
                 <span class="ag-step-412__risk ag-step-412__risk--{{riskLevel}}">{{riskLabel}}</span>
                 <small>{{priorityLabel}}</small>
+              </td>
+              <td>
+                <strong>{{itemCode}}</strong>
+                <span>{{itemName}}</span>
+                <small>{{groupName}} · {{coverageLabel}}</small>
+              </td>
+              <td>{{warehouseName}}</td>
+              <td class="num">{{display.currentQty}}</td>
+              <td class="num">{{display.reservedQty}}</td>
+              <td class="num">{{display.inboundQty}}</td>
+              <td class="num"><strong>{{display.projectedAvailableQty}}</strong></td>
+              <td class="num">{{display.minimumQty}}</td>
+              <td class="num">{{display.targetQty}}</td>
+              <td class="num"><strong>{{display.recommendedOrderQty}}</strong></td>
+              <td class="num">{{display.recommendedOrderValue}}</td>
+              <td>
+                <span class="ag-step-4121__manual-action">{{actionLabel}}</span>
+                <small>{{display.daysSinceLastMovement}} без движение</small>
               </td>
             </tr>
           {{/each}}
@@ -95,54 +161,46 @@
     </div>
   </section>
 
-  <section class="ag-step-412__split">
-    <article class="module-card ag-step-412__card">
+  <section class="ag-step-4121__breakdowns">
+    <article class="module-card ag-step-412__card ag-step-4121__breakdown-card">
       <div class="module-card-header">
         <div>
-          <p class="module-kicker">Бавно движение</p>
-          <h2>Бавнодвижещи се артикули</h2>
+          <p class="module-kicker">Warehouse planning</p>
+          <h2>Складов разрез</h2>
         </div>
       </div>
-      {{#if snapshot.slowMovingItems.length}}
-        <ul class="ag-step-412__list">
-          {{#each snapshot.slowMovingItems}}
-            <li>
-              <strong>{{itemCode}}</strong>
-              <span>{{itemName}}</span>
-              <small>{{daysSinceLastMovement}} дни без движение · наличност {{currentQty}}</small>
-            </li>
-          {{/each}}
-        </ul>
-      {{else}}
-        <p class="ag-step-412__empty">Няма артикули над прага за бавно движение.</p>
-      {{/if}}
+      <ul class="ag-step-4121__breakdown-list">
+        {{#each snapshot.warehouseBreakdown}}
+          <li>
+            <strong>{{title}}</strong>
+            <span>{{itemCount}} артикула · риск {{criticalCount}} · дозареждане {{reorderCount}}</span>
+            <small>стойност за планиране {{displayRecommendedOrderValue}}</small>
+          </li>
+        {{/each}}
+      </ul>
     </article>
 
-    <article class="module-card ag-step-412__card">
+    <article class="module-card ag-step-412__card ag-step-4121__breakdown-card">
       <div class="module-card-header">
         <div>
-          <p class="module-kicker">Риск от изчерпване</p>
-          <h2>Риск от изчерпване</h2>
+          <p class="module-kicker">Group planning</p>
+          <h2>Разрез по групи</h2>
         </div>
       </div>
-      {{#if snapshot.outOfStockRiskItems.length}}
-        <ul class="ag-step-412__list">
-          {{#each snapshot.outOfStockRiskItems}}
-            <li>
-              <strong>{{itemCode}}</strong>
-              <span>{{itemName}}</span>
-              <small>{{riskLabel}} · проектна наличност {{projectedAvailableQty}} · минимум {{minimumQty}}</small>
-            </li>
-          {{/each}}
-        </ul>
-      {{else}}
-        <p class="ag-step-412__empty">Няма критичен риск според текущия snapshot.</p>
-      {{/if}}
+      <ul class="ag-step-4121__breakdown-list">
+        {{#each snapshot.groupBreakdown}}
+          <li>
+            <strong>{{title}}</strong>
+            <span>{{itemCount}} артикула · бавно движение {{slowMovingCount}} · дозареждане {{reorderCount}}</span>
+            <small>стойност за планиране {{displayRecommendedOrderValue}}</small>
+          </li>
+        {{/each}}
+      </ul>
     </article>
   </section>
 
-  <footer class="ag-step-412__footer-note">
-    <strong>Ограничения:</strong>
+  <footer class="ag-step-412__footer-note ag-step-4121__footer-note">
+    <strong>Guardrails:</strong>
     {{#each snapshot.guardrails}}
       <span>{{this}}</span>
     {{/each}}

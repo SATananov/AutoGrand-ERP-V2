@@ -9863,3 +9863,312 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.12 Inventory Planning END */
+
+/* AutoGrand ERP V2 Step 4.12.1 Inventory Planning UI Polish START */
+.ag-step-4121 {
+  --planning-green: #2f6b22;
+  --planning-green-dark: #214b18;
+  --planning-soft: #f4faef;
+  --planning-line: rgba(70, 124, 46, 0.22);
+}
+
+.ag-step-4121__hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.ag-step-4121__hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -80px -110px auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(79, 139, 52, 0.12);
+  pointer-events: none;
+}
+
+.ag-step-4121__hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.ag-step-4121__hero-meta span,
+.ag-step-4121__snapshot-note,
+.ag-step-4121__chip,
+.ag-step-4121__manual-action {
+  border: 1px solid var(--planning-line);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--planning-green-dark);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.ag-step-4121__guard-card {
+  z-index: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+}
+
+.ag-step-4121__command-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  align-items: stretch;
+  margin: 16px 0;
+}
+
+.ag-step-4121__command-main {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--planning-line);
+  background: linear-gradient(135deg, #f7fff3 0%, #eaf5e3 100%);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.ag-step-4121__command-main h2 {
+  margin: 0 0 4px;
+  color: var(--planning-green-dark);
+}
+
+.ag-step-4121__command-main p {
+  margin: 0;
+}
+
+.ag-step-4121__status-dot {
+  width: 16px;
+  height: 48px;
+  border-radius: 999px;
+  background: #6aa54c;
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 5px rgba(86, 145, 62, 0.12);
+}
+
+.ag-step-4121__status-dot.tone-critical {
+  background: #b94330;
+  box-shadow: 0 0 0 5px rgba(185, 67, 48, 0.12);
+}
+
+.ag-step-4121__status-dot.tone-warning {
+  background: #c6901d;
+  box-shadow: 0 0 0 5px rgba(198, 144, 29, 0.14);
+}
+
+.ag-step-4121__snapshot-note {
+  border-radius: 16px;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+
+.ag-step-4121__snapshot-note strong {
+  color: var(--planning-green-dark);
+}
+
+.ag-step-4121__summary-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.ag-step-4121__metric {
+  min-height: 126px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ag-step-4121__metric::after {
+  content: "";
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  right: -28px;
+  bottom: -34px;
+  background: rgba(54, 110, 36, 0.08);
+}
+
+.ag-step-4121__metric.is-money {
+  background: #f5fbef;
+}
+
+.ag-step-4121__metric strong {
+  font-size: 1.75rem;
+  letter-spacing: -0.03em;
+}
+
+.ag-step-4121__filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.ag-step-4121__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.ag-step-4121__chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(45, 83, 32, 0.11);
+}
+
+.ag-step-4121__chip.is-active {
+  color: #ffffff;
+  background: var(--planning-green);
+  border-color: var(--planning-green);
+}
+
+.ag-step-4121__chip strong {
+  min-width: 24px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--planning-green-dark);
+}
+
+.ag-step-4121__chip.is-active strong {
+  color: var(--planning-green-dark);
+  background: #ffffff;
+}
+
+.ag-step-4121__lanes,
+.ag-step-4121__breakdowns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ag-step-4121__breakdowns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ag-step-4121__lane {
+  border-top: 4px solid rgba(72, 126, 48, 0.34);
+}
+
+.ag-step-4121__lane.tone-danger {
+  border-top-color: #b94330;
+}
+
+.ag-step-4121__lane.tone-warning {
+  border-top-color: #c6901d;
+}
+
+.ag-step-4121__lane.tone-muted {
+  border-top-color: #7b8b71;
+}
+
+.ag-step-4121__mini-list,
+.ag-step-4121__breakdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.ag-step-4121__mini-list li,
+.ag-step-4121__breakdown-list li {
+  border: 1px solid #dfead8;
+  background: #fbfff7;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.ag-step-4121__mini-list strong,
+.ag-step-4121__breakdown-list strong {
+  color: var(--planning-green-dark);
+}
+
+.ag-step-4121__mini-list small,
+.ag-step-4121__breakdown-list small,
+.ag-step-4121__breakdown-list span {
+  color: #607458;
+}
+
+.ag-step-4121__table-header {
+  gap: 16px;
+}
+
+.ag-step-4121__table-wrap {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.ag-step-4121__table {
+  min-width: 1220px;
+}
+
+.ag-step-4121__table th:first-child,
+.ag-step-4121__table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: inherit;
+}
+
+.ag-step-4121__table th:first-child {
+  background: #e9f3e1;
+  z-index: 2;
+}
+
+.ag-step-4121__manual-action {
+  display: inline-flex;
+  margin-bottom: 4px;
+  background: #f7fff1;
+}
+
+.ag-step-4121__breakdown-card {
+  min-height: 100%;
+}
+
+.ag-step-4121__footer-note {
+  margin-top: 4px;
+}
+
+@media (max-width: 1240px) {
+  .ag-step-4121__summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ag-step-4121__lanes {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .ag-step-4121__command-strip,
+  .ag-step-4121__breakdowns {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4121__summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .ag-step-4121__summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4121__command-main {
+    align-items: flex-start;
+  }
+
+  .ag-step-4121__status-dot {
+    height: 34px;
+  }
+}
+/* AutoGrand ERP V2 Step 4.12.1 Inventory Planning UI Polish END */
