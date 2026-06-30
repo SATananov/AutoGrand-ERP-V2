@@ -10172,3 +10172,258 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.12.1 Inventory Planning UI Polish END */
+
+/* AutoGrand ERP V2 Step 4.12.2 Inventory Planning Detail Inspector START */
+.ag-step-4122__inline-note {
+  margin: 6px 0 0;
+  color: rgba(15, 58, 45, 0.72);
+  font-size: 0.88rem;
+}
+
+.ag-step-4122__detail-link,
+.ag-step-4122__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(18, 103, 75, 0.28);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(232, 247, 239, 0.92);
+  color: #0b5d40;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ag-step-4122__detail-link:hover,
+.ag-step-4122__back:hover {
+  border-color: rgba(18, 103, 75, 0.52);
+  background: rgba(211, 241, 225, 0.98);
+}
+
+.ag-step-4122__detail-hero {
+  border-bottom: 3px solid rgba(18, 103, 75, 0.18);
+}
+
+.ag-step-4122__guard-card {
+  gap: 10px;
+}
+
+.ag-step-4122__item-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.ag-step-4122__item-strip > div {
+  border: 1px solid rgba(18, 103, 75, 0.16);
+  border-radius: 16px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(237, 248, 242, 0.9));
+  box-shadow: 0 8px 22px rgba(8, 51, 37, 0.06);
+}
+
+.ag-step-4122__item-strip h2 {
+  margin: 3px 0 4px;
+  color: #0c4f39;
+  font-size: 1.1rem;
+}
+
+.ag-step-4122__item-strip span {
+  color: rgba(15, 58, 45, 0.75);
+  font-size: 0.9rem;
+}
+
+.ag-step-4122__summary-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.ag-step-4122__detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.ag-step-4122__recommendation-card p {
+  margin: 0 0 12px;
+  color: rgba(15, 58, 45, 0.78);
+  line-height: 1.45;
+}
+
+.ag-step-4122__check-list,
+.ag-step-4122__timeline,
+.ag-step-4122__related-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ag-step-4122__check-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ag-step-4122__check-list li {
+  border-left: 4px solid rgba(18, 103, 75, 0.38);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: rgba(237, 248, 242, 0.86);
+  color: #123b2c;
+  font-weight: 700;
+}
+
+.ag-step-4122__readonly-lock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  border: 1px dashed rgba(18, 103, 75, 0.34);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.68);
+  color: rgba(15, 58, 45, 0.78);
+}
+
+.ag-step-4122__signals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ag-step-4122__signal {
+  display: grid;
+  gap: 4px;
+  border: 1px solid rgba(18, 103, 75, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.ag-step-4122__signal strong {
+  color: #103d2d;
+}
+
+.ag-step-4122__signal span {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #0b5d40;
+}
+
+.ag-step-4122__signal small {
+  color: rgba(15, 58, 45, 0.68);
+}
+
+.ag-step-4122__signal.tone-danger {
+  border-color: rgba(179, 48, 48, 0.28);
+  background: rgba(255, 241, 241, 0.92);
+}
+
+.ag-step-4122__signal.tone-warning {
+  border-color: rgba(168, 116, 20, 0.28);
+  background: rgba(255, 248, 226, 0.94);
+}
+
+.ag-step-4122__signal.tone-muted {
+  background: rgba(244, 247, 245, 0.94);
+}
+
+.ag-step-4122__timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.ag-step-4122__timeline li {
+  position: relative;
+  display: grid;
+  gap: 3px;
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 14px;
+  padding: 11px 12px 11px 16px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.ag-step-4122__timeline li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 4px;
+  border-radius: 999px;
+  background: rgba(18, 103, 75, 0.45);
+}
+
+.ag-step-4122__timeline li.tone-out::before {
+  background: rgba(179, 48, 48, 0.55);
+}
+
+.ag-step-4122__timeline li.tone-in::before {
+  background: rgba(18, 103, 75, 0.62);
+}
+
+.ag-step-4122__timeline strong {
+  color: #123b2c;
+}
+
+.ag-step-4122__timeline span,
+.ag-step-4122__timeline small {
+  color: rgba(15, 58, 45, 0.7);
+}
+
+.ag-step-4122__facts {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.5fr) minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.ag-step-4122__facts dt {
+  color: rgba(15, 58, 45, 0.62);
+  font-weight: 800;
+}
+
+.ag-step-4122__facts dd {
+  margin: 0;
+  color: #123b2c;
+  font-weight: 800;
+}
+
+.ag-step-4122__compact-table th,
+.ag-step-4122__compact-table td {
+  white-space: nowrap;
+}
+
+.ag-step-4122__footer-note {
+  margin-top: 16px;
+}
+
+@media (max-width: 1180px) {
+  .ag-step-4122__summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .ag-step-4122__item-strip,
+  .ag-step-4122__detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4122__signals {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .ag-step-4122__summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4122__facts {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.12.2 Inventory Planning Detail Inspector END */

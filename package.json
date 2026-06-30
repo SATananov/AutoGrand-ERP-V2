@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.37",
+  "version": "0.4.38",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.12.1 Inventory Planning UI Polish / Manager Dashboard Refinement",
+  "description": "AutoGrand ERP V2 Step 4.12.2 Inventory Planning Detail Inspector / Item Planning Drilldown",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

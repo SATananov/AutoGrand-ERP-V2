@@ -1,13 +1,14 @@
-<section class="ag-step-412 ag-step-4121 module-page" data-module="inventory-planning" data-step="4.12.1">
+<section class="ag-step-412 ag-step-4121 ag-step-4122 module-page" data-module="inventory-planning" data-step="4.12.2">
   <header class="module-hero ag-step-412__hero ag-step-4121__hero">
     <div>
-      <p class="module-kicker">Планиране · Мениджърски изглед · Само анализ</p>
+      <p class="module-kicker">Планиране · Мениджърски изглед · Detail inspector · Само анализ</p>
       <h1>Планиране на наличности</h1>
       <p class="module-lead">
-        По-ясен manager dashboard за минимални количества, предложения за дозареждане, бавно движение и риск от изчерпване.
+        Мениджърски dashboard с drilldown към артикул: наличност по обекти, движения, причина за reorder и ръчна препоръка.
       </p>
       <div class="ag-step-4121__hero-meta">
         <span>Snapshot: {{snapshot.step}}</span>
+        <span>Inspector: {{snapshot.detailInspectorVersion}}</span>
         <span>Източник: {{snapshot.sourceName}}</span>
         <span>Филтър: {{snapshot.viewMode}}</span>
       </div>
@@ -89,7 +90,7 @@
           <ul class="ag-step-4121__mini-list">
             {{#each items}}
               <li>
-                <strong>{{itemCode}}</strong>
+                <a href="{{detailHref}}"><strong>{{itemCode}}</strong></a>
                 <span>{{itemName}}</span>
                 <small>{{warehouseName}} · {{riskLabel}} · предл. {{display.recommendedOrderQty}}</small>
               </li>
@@ -107,6 +108,7 @@
       <div>
         <p class="module-kicker">Planning list · {{snapshot.visibleCount}} реда</p>
         <h2>Мениджърска таблица за планиране</h2>
+          <p class="ag-step-4122__inline-note">Отвори „Детайл“ за item planning inspector без промяна на journal logic.</p>
       </div>
       <span class="ag-step-412__readonly-badge">само анализ</span>
     </div>
@@ -126,6 +128,7 @@
             <th class="num">Цел</th>
             <th class="num">Предл.</th>
             <th class="num">Стойност</th>
+            <th>Инспектор</th>
             <th>Действие</th>
           </tr>
         </thead>
@@ -137,7 +140,7 @@
                 <small>{{priorityLabel}}</small>
               </td>
               <td>
-                <strong>{{itemCode}}</strong>
+                <a href="{{detailHref}}"><strong>{{itemCode}}</strong></a>
                 <span>{{itemName}}</span>
                 <small>{{groupName}} · {{coverageLabel}}</small>
               </td>
@@ -150,6 +153,10 @@
               <td class="num">{{display.targetQty}}</td>
               <td class="num"><strong>{{display.recommendedOrderQty}}</strong></td>
               <td class="num">{{display.recommendedOrderValue}}</td>
+              <td>
+                <a class="ag-step-4122__detail-link" href="{{detailHref}}">Детайл</a>
+                <small>drilldown</small>
+              </td>
               <td>
                 <span class="ag-step-4121__manual-action">{{actionLabel}}</span>
                 <small>{{display.daysSinceLastMovement}} без движение</small>
