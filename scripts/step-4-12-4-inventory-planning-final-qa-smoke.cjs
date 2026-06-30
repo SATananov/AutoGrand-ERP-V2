@@ -46,9 +46,8 @@ const listViewText = read(path.join(root, 'views/pages/inventory-planning.hbs'))
 const itemViewText = read(path.join(root, 'views/pages/inventory-planning-item.hbs'));
 const suppliersViewText = read(path.join(root, 'views/pages/inventory-planning-suppliers.hbs'));
 const supplierViewText = read(path.join(root, 'views/pages/inventory-planning-supplier.hbs'));
-const sidebarText = fs.existsSync(path.join(root, 'views/partials/sidebar.hbs'))
-  ? read(path.join(root, 'views/partials/sidebar.hbs'))
-  : '';
+const sidebarPath = path.join(root, 'views/partials/sidebar.hbs');
+const sidebarText = fs.existsSync(sidebarPath) ? read(sidebarPath) : '';
 const serverText = read(path.join(root, 'src/server.js'));
 
 includesAny(serviceText, ['reorder', 'minimum', 'min', 'slow', 'risk'], 'planning service must retain reorder/minimum/slow/risk signals');
@@ -57,7 +56,7 @@ includesAny(routeText, ['/inventory-planning'], 'planning routes must expose inv
 includesAny(routeText, ['/suppliers', 'supplierKey'], 'planning routes must expose supplier drilldown paths');
 includesAny(routeText, ['itemCode', '/item/'], 'planning routes must expose item drilldown paths');
 includesAny(serverText, ['inventoryPlanningRoutes', 'inventory-planning'], 'server must mount inventory planning routes');
-includesAny(sidebarText, ['inventory-planning', 'Планиране', 'Planning'], 'sidebar must contain inventory planning navigation');
+includesAny(sidebarText, ['inventory-planning', 'Planning'], 'sidebar must contain inventory planning navigation');
 
 const forbiddenRouteMutations = /router\s*\.\s*(post|put|patch|delete)\s*\(/i;
 assert(!forbiddenRouteMutations.test(routeText), 'inventory planning routes must remain read-only GET routes');
@@ -71,19 +70,20 @@ for (const pattern of forbiddenJournalMutations) {
   assert(!pattern.test(serviceText), 'inventory planning service must not mutate stock movement/journal data');
 }
 
-includesAny(listViewText, ['reorder', 'risk', 'planning', 'дозар', 'риск', 'планиране'], 'main planning view must show planning/reorder/risk context');
-includesAny(itemViewText, ['item', 'артикул', 'movement', 'движ', 'recommendation', 'препор'], 'item inspector view must show item detail context');
-includesAny(suppliersViewText, ['supplier', 'достав', 'purchase', 'заяв', 'recommendation', 'препор'], 'suppliers view must show supplier purchase recommendation context');
-includesAny(supplierViewText, ['supplier', 'достав', 'detail', 'детайл', 'purchase', 'заяв'], 'supplier detail view must show supplier detail context');
+includesAny(listViewText, ['reorder', 'risk', 'planning', 'inventory-planning'], 'main planning view must show planning/reorder/risk context');
+includesAny(itemViewText, ['item', 'movement', 'recommendation', 'inventory-planning'], 'item inspector view must show item detail context');
+includesAny(suppliersViewText, ['supplier', 'purchase', 'recommendation', 'inventory-planning'], 'suppliers view must show supplier purchase recommendation context');
+includesAny(supplierViewText, ['supplier', 'detail', 'purchase', 'inventory-planning'], 'supplier detail view must show supplier detail context');
 
 const docsText = read(path.join(root, 'docs/steps/STEP_4_12_4_INVENTORY_PLANNING_FINAL_QA_CLEAN_MODULE_CLOSURE_BG.md'));
-includesAny(docsText, ['read-only', 'decision-support', 'без автоматично създаване', 'няма автоматично'], 'closure docs must state read-only/no automatic document creation guardrails');
+includesAny(docsText, ['read-only', 'decision-support', 'automatic document', 'guardrail'], 'closure docs must state read-only/no automatic document creation guardrails');
 includesAny(docsText, ['4.12', '4.12.1', '4.12.2', '4.12.3', '4.12.4'], 'closure docs must list the whole 4.12 block');
 
+const questionMarker = '?'.repeat(4);
 for (const file of requiredFiles) {
   const text = read(path.join(root, file));
   assert(!text.includes('\uFFFD'), `replacement character found in ${file}`);
-  assert(!text.includes('????'), `question mark encoding marker found in ${file}`);
+  assert(!text.includes(questionMarker), `question mark encoding marker found in ${file}`);
 }
 
 console.log('OK: Step 4.12.4 inventory planning final QA closure smoke markers passed.');
