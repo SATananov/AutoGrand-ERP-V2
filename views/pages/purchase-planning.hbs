@@ -1,10 +1,10 @@
-<section class="ag-step-413 ag-step-4132 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13.2">
+<section class="ag-step-413 ag-step-4132 ag-step-4133 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13.3">
   <header class="module-hero ag-step-412__hero ag-step-413__hero ag-step-4132__hero">
     <div>
-      <p class="module-kicker">Purchase Planning · Procurement Manager Dashboard · Само анализ</p>
+      <p class="module-kicker">Purchase Planning · Procurement Manager Dashboard · Supplier Recommendation Drilldown · Само анализ</p>
       <h1>Планиране на покупки</h1>
       <p class="module-lead">
-        Мениджърски procurement dashboard над supplier planning snapshot: показва приоритети, бюджетен риск, готови доставчици и ръчни действия преди purchase документ.
+        Мениджърски procurement dashboard и детайлен supplier recommendation drilldown: показва конкретни редове, складове, групи, бюджетен риск и ръчни действия преди purchase документ.
       </p>
       <div class="ag-step-4121__hero-meta ag-step-4132__hero-meta">
         <span>Step: {{decisionCenter.step}}</span>
@@ -155,6 +155,172 @@
         <span>Бюджет: <strong>{{decisionCenter.selectedSupplier.budgetBand.label}}</strong></span>
         <a href="{{decisionCenter.selectedSupplier.supplierInventoryHref}}">Отвори supplier inspector</a>
       </div>
+    </section>
+  {{/if}}
+
+  {{#if decisionCenter.detailInspectorActive}}
+    <section class="module-card ag-step-412__card ag-step-4133__inspector-card" aria-label="Supplier recommendation drilldown">
+      <div class="module-card-header">
+        <div>
+          <p class="module-kicker">Step 4.13.3 · Supplier Recommendation Drilldown</p>
+          <h2>{{decisionCenter.detailInspector.supplierName}}</h2>
+          <p class="ag-step-4122__inline-note">{{decisionCenter.detailInspector.subtitle}}</p>
+        </div>
+        <span class="ag-step-413__decision-pill tone-{{decisionCenter.detailInspector.tone}}">{{decisionCenter.detailInspector.decisionLabel}}</span>
+      </div>
+
+      <div class="ag-step-4133__inspector-banner tone-{{decisionCenter.detailInspector.tone}}">
+        <strong>{{decisionCenter.detailInspector.nextAction}}</strong>
+        <span>Inspector-ът е read-only: показва supplier recommendation snapshot, но не създава purchase документ.</span>
+        <div class="ag-step-4133__inspector-actions">
+          <a href="{{decisionCenter.detailInspector.inventorySupplierHref}}">Inventory supplier detail</a>
+          <a href="{{decisionCenter.detailInspector.apiHref}}">API detail</a>
+          <a href="{{decisionCenter.detailInspector.manualPurchaseHref}}">Ръчна purchase поръчка</a>
+        </div>
+      </div>
+
+      <div class="ag-step-4133__metric-grid">
+        {{#each decisionCenter.detailInspector.metrics}}
+          <article class="ag-step-4133__metric tone-{{tone}}">
+            <span>{{label}}</span>
+            <strong>{{value}}</strong>
+            <small>{{note}}</small>
+          </article>
+        {{/each}}
+      </div>
+
+      <div class="ag-step-4133__signal-grid">
+        {{#each decisionCenter.detailInspector.decisionSignals}}
+          <article class="ag-step-4133__signal tone-{{tone}}">
+            <span>{{title}}</span>
+            <strong>{{value}}</strong>
+            <small>{{note}}</small>
+          </article>
+        {{/each}}
+      </div>
+
+      <div class="ag-step-4133__split-grid">
+        <article class="ag-step-4133__subcard">
+          <div class="module-card-header">
+            <div>
+              <p class="module-kicker">Recommendation lines</p>
+              <h3>Редове за supplier решение</h3>
+            </div>
+            <span class="ag-step-412__readonly-badge">read-only</span>
+          </div>
+          {{#if decisionCenter.detailInspector.recommendationLines.length}}
+            <div class="ag-step-412__table-wrap">
+              <table class="ag-step-412__table ag-step-4133__line-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Артикул</th>
+                    <th>Риск</th>
+                    <th class="num">Проектна</th>
+                    <th class="num">Минимум</th>
+                    <th class="num">Поръчка</th>
+                    <th class="num">Стойност</th>
+                    <th>Инспектор</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each decisionCenter.detailInspector.recommendationLines}}
+                    <tr class="tone-{{tone}}">
+                      <td class="num">{{rowRank}}</td>
+                      <td>
+                        <strong>{{itemCode}}</strong>
+                        <small>{{itemName}} · {{warehouseName}} · {{groupName}}</small>
+                      </td>
+                      <td>
+                        <span class="ag-step-413__decision-pill tone-{{tone}}">{{riskLabel}}</span>
+                        <small>{{inspectorNote}}</small>
+                      </td>
+                      <td class="num">{{displayProjectedQty}}</td>
+                      <td class="num">{{displayMinimumQty}}</td>
+                      <td class="num"><strong>{{displayRecommendedOrderQty}}</strong></td>
+                      <td class="num">{{displayRecommendedOrderValue}}</td>
+                      <td><a class="ag-step-4122__detail-link" href="{{planningDetailHref}}">Item</a></td>
+                    </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          {{else}}
+            <p class="ag-step-412__empty">Няма активни recommendation редове за този доставчик.</p>
+          {{/if}}
+        </article>
+
+        <article class="ag-step-4133__subcard">
+          <div class="module-card-header">
+            <div>
+              <p class="module-kicker">Manual decision checklist</p>
+              <h3>Ръчна последователност</h3>
+            </div>
+            <span class="ag-step-412__readonly-badge">no mutation</span>
+          </div>
+          <ol class="ag-step-413__workflow ag-step-4133__workflow">
+            {{#each decisionCenter.detailInspector.manualSteps}}
+              <li class="tone-{{tone}}">
+                <strong>{{order}}. {{title}}</strong>
+                <span>{{description}}</span>
+              </li>
+            {{/each}}
+          </ol>
+          <div class="ag-step-4133__guard-list">
+            {{#each decisionCenter.detailInspector.guardrails}}
+              <span>{{this}}</span>
+            {{/each}}
+          </div>
+        </article>
+      </div>
+
+      <div class="ag-step-4133__breakdown-grid">
+        <article class="ag-step-4133__subcard">
+          <p class="module-kicker">Warehouse breakdown</p>
+          <h3>Складов разрез</h3>
+          <ul class="ag-step-4133__breakdown-list">
+            {{#each decisionCenter.detailInspector.warehouseBreakdown}}
+              <li class="tone-{{tone}}">
+                <strong>{{title}}</strong>
+                <span>{{lineCount}} реда · {{displayRecommendedQty}} · {{displayRecommendedValue}}</span>
+                <small>{{criticalCount}} критични</small>
+              </li>
+            {{/each}}
+          </ul>
+        </article>
+        <article class="ag-step-4133__subcard">
+          <p class="module-kicker">Group breakdown</p>
+          <h3>Групов разрез</h3>
+          <ul class="ag-step-4133__breakdown-list">
+            {{#each decisionCenter.detailInspector.groupBreakdown}}
+              <li class="tone-{{tone}}">
+                <strong>{{title}}</strong>
+                <span>{{lineCount}} реда · {{displayRecommendedQty}} · {{displayRecommendedValue}}</span>
+                <small>{{criticalCount}} критични</small>
+              </li>
+            {{/each}}
+          </ul>
+        </article>
+        <article class="ag-step-4133__subcard">
+          <p class="module-kicker">Peer suppliers</p>
+          <h3>Сравнение с други доставчици</h3>
+          <ul class="ag-step-4133__peer-list">
+            {{#each decisionCenter.detailInspector.peerSuppliers}}
+              <li class="tone-{{tone}}">
+                <a href="{{href}}"><strong>{{supplierName}}</strong></a>
+                <span>{{decisionLabel}}</span>
+                <small>{{value}}</small>
+              </li>
+            {{/each}}
+          </ul>
+        </article>
+      </div>
+    </section>
+  {{else}}
+    <section class="module-card ag-step-412__card ag-step-4133__empty-inspector">
+      <p class="module-kicker">Step 4.13.3 · Supplier drilldown</p>
+      <h2>Избери доставчик за detail inspector</h2>
+      <p>{{decisionCenter.detailInspector.emptyText}}</p>
     </section>
   {{/if}}
 

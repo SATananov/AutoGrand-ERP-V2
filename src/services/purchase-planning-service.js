@@ -1,4 +1,4 @@
-// AutoGrand ERP V2 - Step 4.13.2 Purchase Planning UI Polish / Procurement Manager Dashboard Refinement
+// AutoGrand ERP V2 - Step 4.13.3 Purchase Planning Detail Inspector / Supplier Recommendation Drilldown
 // Read-only procurement decision support over the existing Inventory Planning supplier recommendations.
 // Guardrail: no purchase document creation, no stock posting, no stock journal mutation, no auto-approval.
 
@@ -7,10 +7,12 @@ import {
   getInventoryPlanningSupplierRecommendations,
 } from "./inventory-planning-service.js";
 
-const STEP_4_13_2 = "4.13.2";
-const STEP_4_13_2_HEALTH_LABEL = "4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement";
-const STEP_4_13 = STEP_4_13_2;
-const STEP_4_13_HEALTH_LABEL = STEP_4_13_2_HEALTH_LABEL;
+const STEP_4_13_3 = "4.13.3";
+const STEP_4_13_3_HEALTH_LABEL = "4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown";
+const STEP_4_13_2 = STEP_4_13_3;
+const STEP_4_13_2_HEALTH_LABEL = STEP_4_13_3_HEALTH_LABEL;
+const STEP_4_13 = STEP_4_13_3;
+const STEP_4_13_HEALTH_LABEL = STEP_4_13_3_HEALTH_LABEL;
 
 const PROCUREMENT_POLICY = Object.freeze({
   budgetWarningLimit: 2500,
@@ -19,6 +21,7 @@ const PROCUREMENT_POLICY = Object.freeze({
   topDecisionLimit: 6,
   topLineLimit: 8,
   topSupplierCardLimit: 6,
+  detailPeerSupplierLimit: 4,
 });
 
 function toNumber(value, fallback = 0) {
@@ -36,6 +39,15 @@ function formatMoney(value) {
 
 function uniqueList(values = []) {
   return [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
+}
+
+function supplierLookupKey(value = "") {
+  return decodeURIComponent(String(value || "")).trim().toLowerCase();
+}
+
+function compactText(value, fallback = "няма данни") {
+  const text = String(value || "").trim();
+  return text || fallback;
 }
 
 function procurementTone(priority = "stable") {
@@ -127,7 +139,9 @@ function normalizeDecisionSupplier(supplier = {}, index = 0) {
     decisionLabel: readiness.label,
     decisionNextAction: readiness.nextAction,
     supplierInventoryHref: supplier.supplierHref || "/inventory-planning/suppliers",
-    supplierProcurementHref: `/purchase-planning?supplier=${encodeURIComponent(supplier.supplierName || supplier.supplierKey || "")}`,
+    supplierDetailHref: `/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
+    supplierProcurementHref: `/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
+    supplierFocusHref: `/purchase-planning?supplier=${encodeURIComponent(supplier.supplierName || supplier.supplierKey || "")}`,
     firstLineHref: purchaseLines[0]?.detailHref || supplier.supplierHref || "/inventory-planning/suppliers",
     displayRecommendedOrderQtyTotal: supplier.display?.recommendedOrderQtyTotal || formatQty(supplier.recommendedOrderQtyTotal),
     displayRecommendedOrderValueTotal: supplier.display?.recommendedOrderValueTotal || formatMoney(supplier.recommendedOrderValueTotal),
@@ -273,11 +287,11 @@ function buildManualWorkflow(summary = {}) {
 }
 
 function buildSupplierFocus(suppliers = [], selectedSupplier = "") {
-  const lookup = String(selectedSupplier || "").trim().toLowerCase();
+  const lookup = supplierLookupKey(selectedSupplier);
   if (!lookup) return null;
   return suppliers.find((supplier) =>
-    String(supplier.supplierName || "").toLowerCase() === lookup
-    || String(supplier.supplierKey || "").toLowerCase() === lookup
+    supplierLookupKey(supplier.supplierName) === lookup
+    || supplierLookupKey(supplier.supplierKey) === lookup
   ) || null;
 }
 
@@ -404,6 +418,195 @@ function buildSupplierCards(suppliers = []) {
   }));
 }
 
+function lineTone(line = {}) {
+  const risk = String(line.riskLabel || line.priorityLabel || "").toLowerCase();
+  if (risk.includes("крит") || risk.includes("critical")) return "danger";
+  if (risk.includes("миним") || risk.includes("наблю") || risk.includes("warning") || risk.includes("watch")) return "warning";
+  return "ok";
+}
+
+function sumLineValue(lines = []) {
+  return lines.reduce((sum, line) => sum + toNumber(line.recommendedOrderValue), 0);
+}
+
+function sumLineQty(lines = []) {
+  return lines.reduce((sum, line) => sum + toNumber(line.recommendedOrderQty), 0);
+}
+
+function buildLineBreakdown(lines = [], key = "warehouseName", fallbackLabel = "няма данни") {
+  const groups = new Map();
+  for (const line of lines) {
+    const title = compactText(line[key], fallbackLabel);
+    const current = groups.get(title) || {
+      title,
+      lineCount: 0,
+      criticalCount: 0,
+      recommendedQty: 0,
+      recommendedValue: 0,
+    };
+    current.lineCount += 1;
+    current.criticalCount += lineTone(line) === "danger" ? 1 : 0;
+    current.recommendedQty += toNumber(line.recommendedOrderQty);
+    current.recommendedValue += toNumber(line.recommendedOrderValue);
+    groups.set(title, current);
+  }
+
+  return Array.from(groups.values())
+    .sort((a, b) => b.criticalCount - a.criticalCount || b.recommendedValue - a.recommendedValue || a.title.localeCompare(b.title, "bg"))
+    .map((row, index) => ({
+      ...row,
+      rowRank: index + 1,
+      tone: row.criticalCount > 0 ? "danger" : (row.recommendedValue > 0 ? "warning" : "ok"),
+      displayRecommendedQty: formatQty(row.recommendedQty),
+      displayRecommendedValue: formatMoney(row.recommendedValue),
+    }));
+}
+
+function buildSupplierDetailMetrics(supplier = {}, lines = []) {
+  return [
+    {
+      key: "lines",
+      label: "Редове за преглед",
+      value: String(lines.length || 0),
+      note: `${supplier.reorderLineCount || 0} reorder · ${supplier.criticalCount || 0} критични`,
+      tone: supplier.criticalCount > 0 ? "danger" : "ok",
+    },
+    {
+      key: "qty",
+      label: "Препоръчано количество",
+      value: formatQty(sumLineQty(lines)),
+      note: "сбор само от активните recommendation редове",
+      tone: "ok",
+    },
+    {
+      key: "value",
+      label: "Ориентировъчна стойност",
+      value: supplier.displayRecommendedOrderValueTotal || formatMoney(sumLineValue(lines)),
+      note: supplier.budgetBand?.label || "бюджетен статус",
+      tone: supplier.budgetBand?.tone || "ok",
+    },
+    {
+      key: "stock",
+      label: "Наличностна стойност",
+      value: supplier.displayStockValueTotal || "0.00",
+      note: "read-only stock context",
+      tone: "muted",
+    },
+  ];
+}
+
+function buildSupplierDecisionSignals(supplier = {}) {
+  return [
+    {
+      key: "readiness",
+      title: supplier.decisionLabel || "Procurement решение",
+      tone: supplier.readiness?.tone || "ok",
+      value: supplier.readiness?.code || "ready",
+      note: supplier.decisionNextAction || "Провери доставчик, цена и срок преди документ.",
+    },
+    {
+      key: "budget",
+      title: supplier.budgetBand?.label || "Бюджет",
+      tone: supplier.budgetBand?.tone || "ok",
+      value: supplier.displayRecommendedOrderValueTotal || "0.00",
+      note: supplier.budgetBand?.note || "Само ориентир; няма автоматичен документ.",
+    },
+    {
+      key: "coverage",
+      title: "Складове / групи",
+      tone: "muted",
+      value: compactText(supplier.warehouseList),
+      note: compactText(supplier.groupList),
+    },
+  ];
+}
+
+function buildSupplierManualSteps(supplier = {}) {
+  if (supplier.criticalCount > 0) {
+    return [
+      { order: 1, tone: "danger", title: "Провери критичните редове", description: "Сравни проектна наличност, резервирано и входящо количество по всеки ред." },
+      { order: 2, tone: "warning", title: "Потвърди с управител", description: "Критичен supplier сигнал не трябва да създава документ без човешко решение." },
+      { order: 3, tone: "ok", title: "Подготви ръчна покупка", description: "След одобрение отвори purchase модул и въведи документа ръчно." },
+    ];
+  }
+
+  if (supplier.reorderLineCount > 0) {
+    return [
+      { order: 1, tone: "warning", title: "Провери цена и срок", description: "Сравни последна цена, бюджетен праг и очакван delivery срок." },
+      { order: 2, tone: "ok", title: "Групирай редовете", description: "Използвай recommendation lines като read-only списък за подготовка." },
+      { order: 3, tone: "muted", title: "Създай документ ръчно", description: "Procurement inspector не създава purchase документ автоматично." },
+    ];
+  }
+
+  return [
+    { order: 1, tone: "muted", title: "Само наблюдение", description: "Няма активна purchase препоръка за този доставчик в текущия snapshot." },
+    { order: 2, tone: "ok", title: "Следи следващ snapshot", description: "Върни се след нови движения, доставки или промяна на минимални количества." },
+  ];
+}
+
+function buildSupplierPeerLinks(supplier = {}, suppliers = []) {
+  return suppliers
+    .filter((candidate) => candidate.supplierKey !== supplier.supplierKey)
+    .slice(0, PROCUREMENT_POLICY.detailPeerSupplierLimit)
+    .map((candidate) => ({
+      supplierName: candidate.supplierName,
+      decisionLabel: candidate.decisionLabel,
+      value: candidate.displayRecommendedOrderValueTotal,
+      tone: candidate.readiness?.tone || "ok",
+      href: candidate.supplierDetailHref,
+    }));
+}
+
+function buildSupplierDetailInspector(supplier = null, suppliers = []) {
+  if (!supplier) {
+    return {
+      active: false,
+      missing: true,
+      title: "Supplier recommendation drilldown",
+      emptyText: "Избери доставчик от supplier cards или decision workbench, за да видиш detail inspector.",
+    };
+  }
+
+  const lines = (supplier.purchaseLines || []).map((line, index) => ({
+    ...line,
+    rowRank: index + 1,
+    tone: lineTone(line),
+    planningDetailHref: line.detailHref,
+    inspectorNote: line.riskLabel === "Критичен риск"
+      ? "първо провери нулева/отрицателна проектна наличност"
+      : "провери минимално количество, цена и срок преди purchase документ",
+  }));
+
+  return {
+    active: true,
+    missing: false,
+    title: "Supplier Recommendation Drilldown",
+    subtitle: "Детайлен read-only инспектор за доставчик преди ръчна purchase поръчка.",
+    supplier,
+    supplierName: supplier.supplierName,
+    supplierKey: supplier.supplierKey,
+    decisionLabel: supplier.decisionLabel,
+    nextAction: supplier.decisionNextAction,
+    tone: supplier.readiness?.tone || "ok",
+    metrics: buildSupplierDetailMetrics(supplier, lines),
+    decisionSignals: buildSupplierDecisionSignals(supplier),
+    recommendationLines: lines,
+    warehouseBreakdown: buildLineBreakdown(lines, "warehouseName", "Склад"),
+    groupBreakdown: buildLineBreakdown(lines, "groupName", "Група"),
+    manualSteps: buildSupplierManualSteps(supplier),
+    peerSuppliers: buildSupplierPeerLinks(supplier, suppliers),
+    inventorySupplierHref: supplier.supplierInventoryHref,
+    manualPurchaseHref: "/document/purchase/new/PURCHASE_ORDER",
+    apiHref: `/api/purchase-planning/suppliers/${encodeURIComponent(supplier.supplierKey || supplier.supplierName || "")}`,
+    guardrails: [
+      "Детайлният inspector е само за управленско решение",
+      "Няма автоматично създаване на purchase, delivery или supplier invoice документ",
+      "Няма stock posting, reversal, correction или journal mutation",
+      "Редовете са recommendation snapshot и се въвеждат ръчно при одобрение",
+    ],
+  };
+}
+
 function buildManagerInsights(summary = {}, purchaseLines = [], suppliers = []) {
   const topLine = purchaseLines[0] || null;
   const activeSupplierCount = suppliers.filter((supplier) => toNumber(supplier.reorderLineCount) > 0).length;
@@ -453,11 +656,12 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
     step: STEP_4_13,
     previousStep: supplierSnapshot.step || "4.12.3",
     moduleKey: "purchase-planning",
-    title: "Purchase Planning / Procurement Manager Dashboard Refinement",
+    title: "Purchase Planning / Supplier Recommendation Drilldown",
     healthLabel: STEP_4_13_HEALTH_LABEL,
     generatedAtIso: new Date().toISOString(),
     sourceName: supplierSnapshot.sourceName || inventorySnapshot.sourceName || "inventory-planning-service",
     uiPolishStep: "4.13.2",
+    detailInspectorStep: "4.13.3",
     activeLane,
     activeLaneLabel: laneLabel(activeLane),
     readOnly: true,
@@ -480,6 +684,8 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
     selectedSupplier,
     selectedSupplierName: selectedSupplier?.supplierName || "",
     selectedSupplierActive: Boolean(selectedSupplier),
+    detailInspector: buildSupplierDetailInspector(selectedSupplier, suppliers),
+    detailInspectorActive: Boolean(selectedSupplier),
     topPurchaseLines: purchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
     filteredTopPurchaseLines: filteredPurchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
     purchaseLines,
@@ -504,7 +710,7 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
   };
 }
 
-export { STEP_4_13, STEP_4_13_HEALTH_LABEL, STEP_4_13_2, STEP_4_13_2_HEALTH_LABEL };
+export { STEP_4_13, STEP_4_13_HEALTH_LABEL, STEP_4_13_2, STEP_4_13_2_HEALTH_LABEL, STEP_4_13_3, STEP_4_13_3_HEALTH_LABEL };
 
 export default {
   getPurchasePlanningDecisionCenter,

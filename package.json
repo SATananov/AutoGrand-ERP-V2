@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.45",
+  "version": "0.4.46",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.13.2 Purchase Planning UI Polish and Procurement Manager Dashboard Refinement",
+  "description": "AutoGrand ERP V2 Step 4.13.3 Purchase Planning Detail Inspector and Supplier Recommendation Drilldown",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -17,7 +17,8 @@
     "check:step4:12:4:1": "node scripts/step-4-12-4-1-shell-menu-cyrillic-encoding-smoke.cjs",
     "check:step4:13": "node scripts/step-4-13-purchase-planning-smoke.cjs",
     "check:step4:13:1": "node scripts/step-4-13-1-login-screen-polish-smoke.cjs",
-    "check:step4:13:2": "node scripts/step-4-13-2-purchase-planning-ui-polish-smoke.cjs"
+    "check:step4:13:2": "node scripts/step-4-13-2-purchase-planning-ui-polish-smoke.cjs",
+    "check:step4:13:3": "node scripts/step-4-13-3-purchase-planning-detail-inspector-smoke.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -111,8 +112,8 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.13.2",
-  "autograndHealthLabel": "4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement",
+  "autograndStep": "4.13.3",
+  "autograndHealthLabel": "4-13-3-purchase-planning-detail-inspector-supplier-recommendation-drilldown",
   "autogrand": {
     "version": "0.4.17",
     "step": "4.8.6",

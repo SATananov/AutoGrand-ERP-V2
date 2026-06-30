@@ -1,4 +1,4 @@
-﻿// AutoGrand ERP V2 - Step 4.13.2 Purchase Planning UI Polish / Procurement Manager Dashboard Refinement
+// AutoGrand ERP V2 - Step 4.13.3 Purchase Planning Detail Inspector / Supplier Recommendation Drilldown
 // Read-only procurement routes. No document creation or stock journal mutation.
 
 import express from "express";
@@ -18,8 +18,27 @@ router.get("/purchase-planning", async (req, res, next) => {
   try {
     const decisionCenter = await getPurchasePlanningDecisionCenter(routeOptions(req));
     res.render("purchase-planning", {
-      title: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё В· Procurement Manager Dashboard",
-      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё",
+      title: "Планиране на покупки · Supplier Recommendation Drilldown",
+      moduleTitle: "Планиране на покупки",
+      activeModule: "purchase-planning",
+      healthLabel: decisionCenter.healthLabel,
+      decisionCenter,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/purchase-planning/suppliers/:supplierKey", async (req, res, next) => {
+  try {
+    const decisionCenter = await getPurchasePlanningDecisionCenter({
+      ...routeOptions(req),
+      supplier: req.params.supplierKey,
+      inspectorMode: true,
+    });
+    res.render("purchase-planning", {
+      title: `${decisionCenter.selectedSupplierName || "Доставчик"} · Procurement Supplier Drilldown`,
+      moduleTitle: "Планиране на покупки",
       activeModule: "purchase-planning",
       healthLabel: decisionCenter.healthLabel,
       decisionCenter,
@@ -33,8 +52,8 @@ router.get("/procurement-decision-center", async (req, res, next) => {
   try {
     const decisionCenter = await getPurchasePlanningDecisionCenter(routeOptions(req));
     res.render("purchase-planning", {
-      title: "Procurement Decision Center В· Manager Dashboard",
-      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё",
+      title: "Procurement Decision Center · Supplier Recommendation Drilldown",
+      moduleTitle: "Планиране на покупки",
       activeModule: "purchase-planning",
       healthLabel: decisionCenter.healthLabel,
       decisionCenter,
@@ -53,6 +72,23 @@ router.get("/api/purchase-planning", async (req, res, next) => {
   }
 });
 
+router.get("/api/purchase-planning/suppliers/:supplierKey", async (req, res, next) => {
+  try {
+    const decisionCenter = await getPurchasePlanningDecisionCenter({
+      ...routeOptions(req),
+      supplier: req.params.supplierKey,
+      inspectorMode: true,
+    });
+    res.json({
+      ok: true,
+      decisionCenter,
+      detailInspector: decisionCenter.detailInspector,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/api/procurement-decision-center", async (req, res, next) => {
   try {
     const decisionCenter = await getPurchasePlanningDecisionCenter(routeOptions(req));
@@ -63,5 +99,3 @@ router.get("/api/procurement-decision-center", async (req, res, next) => {
 });
 
 export default router;
-
-
