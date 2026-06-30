@@ -1,30 +1,33 @@
-<section class="ag-step-413 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13">
-  <header class="module-hero ag-step-412__hero ag-step-413__hero">
+<section class="ag-step-413 ag-step-4132 ag-step-412 ag-step-4121 ag-step-4123 module-page" data-module="purchase-planning" data-step="4.13.2">
+  <header class="module-hero ag-step-412__hero ag-step-413__hero ag-step-4132__hero">
     <div>
-      <p class="module-kicker">Purchase Planning · Procurement Decision Center · Само анализ</p>
+      <p class="module-kicker">Purchase Planning · Procurement Manager Dashboard · Само анализ</p>
       <h1>Планиране на покупки</h1>
       <p class="module-lead">
-        Procurement decision center над supplier planning snapshot: групира критичните доставчици, бюджетните сигнали и редовете за ръчно purchase решение.
+        Мениджърски procurement dashboard над supplier planning snapshot: показва приоритети, бюджетен риск, готови доставчици и ръчни действия преди purchase документ.
       </p>
-      <div class="ag-step-4121__hero-meta">
+      <div class="ag-step-4121__hero-meta ag-step-4132__hero-meta">
         <span>Step: {{decisionCenter.step}}</span>
         <span>Health: {{decisionCenter.healthLabel}}</span>
-        <span>Източник: {{decisionCenter.sourceName}}</span>
+        <span>Филтър: {{decisionCenter.activeLaneLabel}}</span>
         <span>API: {{decisionCenter.apiHref}}</span>
       </div>
     </div>
-    <div class="ag-step-412__guard-card ag-step-413__guard-card">
+    <div class="ag-step-412__guard-card ag-step-413__guard-card ag-step-4132__guard-card">
       <strong>Read-only procurement</strong>
       <span>Няма автоматично създаване на purchase документ, няма stock posting и няма journal mutation.</span>
-      <a class="ag-step-4123__supplier-cta" href="{{decisionCenter.supplierPlanningHref}}">Supplier planning</a>
+      <div class="ag-step-4132__guard-actions">
+        <a class="ag-step-4123__supplier-cta" href="{{decisionCenter.supplierPlanningHref}}">Supplier planning</a>
+        <a class="ag-step-4132__ghost-link" href="{{decisionCenter.inventoryPlanningHref}}">Inventory dashboard</a>
+      </div>
     </div>
   </header>
 
-  <section class="ag-step-4121__command-strip ag-step-413__command-strip" aria-label="Procurement decision status">
+  <section class="ag-step-4121__command-strip ag-step-413__command-strip ag-step-4132__command-strip" aria-label="Procurement manager status">
     <div class="ag-step-4121__command-main">
       <span class="ag-step-4121__status-dot tone-{{decisionCenter.summary.statusTone}}"></span>
       <div>
-        <p class="module-kicker">Procurement status</p>
+        <p class="module-kicker">Manager status</p>
         <h2>{{decisionCenter.summary.statusLabel}}</h2>
         <p>{{decisionCenter.summary.nextAction}}</p>
       </div>
@@ -33,19 +36,47 @@
       <strong>{{decisionCenter.summary.budgetBand.label}}</strong>
       <span>{{decisionCenter.summary.budgetBand.note}}</span>
     </div>
-    <a class="ag-step-413__manual-purchase" href="{{decisionCenter.manualPurchaseHref}}">Ръчна purchase поръчка</a>
+    <a class="ag-step-413__manual-purchase ag-step-4132__manual-purchase" href="{{decisionCenter.manualPurchaseHref}}">Ръчна purchase поръчка</a>
   </section>
 
-  <section class="ag-step-412__summary-grid ag-step-4121__summary-grid ag-step-413__summary-grid" aria-label="Procurement KPI cards">
+  <section class="ag-step-4132__filter-bar" aria-label="Procurement manager filters">
+    <div>
+      <p class="module-kicker">Manager filters</p>
+      <h2>Фокус на таблото</h2>
+    </div>
+    <nav class="ag-step-4132__filter-chips" aria-label="Procurement lane filters">
+      {{#each decisionCenter.managerFilters}}
+        <a class="ag-step-4132__filter-chip tone-{{tone}} {{#if active}}is-active{{/if}}" href="{{href}}">
+          <strong>{{label}}</strong>
+          <span>{{count}}</span>
+          <small>{{note}}</small>
+        </a>
+      {{/each}}
+    </nav>
+  </section>
+
+  <section class="ag-step-4132__manager-grid" aria-label="Procurement manager dashboard panels">
+    {{#each decisionCenter.managerPanels}}
+      <article class="ag-step-4132__manager-card tone-{{tone}}">
+        <p class="module-kicker">{{kicker}}</p>
+        <h2>{{title}}</h2>
+        <strong>{{value}}</strong>
+        <span>{{note}}</span>
+        <a href="{{href}}">Отвори</a>
+      </article>
+    {{/each}}
+  </section>
+
+  <section class="ag-step-412__summary-grid ag-step-4121__summary-grid ag-step-413__summary-grid ag-step-4132__summary-grid" aria-label="Procurement KPI cards">
     <article class="ag-step-412__metric ag-step-4121__metric is-danger">
       <span>Спешни доставчици</span>
       <strong>{{decisionCenter.summary.urgentSuppliers}}</strong>
       <small>{{decisionCenter.summary.criticalSuppliers}} критични supplier сигнала</small>
     </article>
     <article class="ag-step-412__metric ag-step-4121__metric is-warning">
-      <span>Доставчици с покупка</span>
-      <strong>{{decisionCenter.summary.suppliersWithPurchase}}</strong>
-      <small>от {{decisionCenter.summary.supplierCount}} доставчици в snapshot</small>
+      <span>Бюджетен контрол</span>
+      <strong>{{decisionCenter.summary.budgetCheckSuppliers}}</strong>
+      <small>доставчици за cash/budget преглед</small>
     </article>
     <article class="ag-step-412__metric ag-step-4121__metric is-money">
       <span>Ориентировъчна стойност</span>
@@ -53,9 +84,9 @@
       <small>{{decisionCenter.summary.displayRecommendedQtyTotal}} общо предложено количество</small>
     </article>
     <article class="ag-step-412__metric ag-step-4121__metric">
-      <span>Purchase редове</span>
-      <strong>{{decisionCenter.summary.totalPurchaseLines}}</strong>
-      <small>редове за човешки преглед</small>
+      <span>Активен филтър</span>
+      <strong>{{decisionCenter.filteredSupplierCount}}</strong>
+      <small>{{decisionCenter.activeLaneLabel}}</small>
     </article>
     <article class="ag-step-412__metric ag-step-4121__metric is-muted">
       <span>Бюджетен праг</span>
@@ -64,7 +95,26 @@
     </article>
   </section>
 
-  <section class="ag-step-413__coverage-strip" aria-label="Procurement coverage">
+  <section class="ag-step-4132__mix-card" aria-label="Procurement recommendation mix">
+    <div class="module-card-header">
+      <div>
+        <p class="module-kicker">Recommendation mix</p>
+        <h2>Разпределение на supplier решенията</h2>
+      </div>
+      <span class="ag-step-412__readonly-badge">manager view</span>
+    </div>
+    <div class="ag-step-4132__mix-grid">
+      {{#each decisionCenter.recommendationMix}}
+        <article class="ag-step-4132__mix-item tone-{{tone}}">
+          <strong>{{label}}</strong>
+          <span>{{count}}</span>
+          <small>{{percent}} · {{note}}</small>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag-step-413__coverage-strip ag-step-4132__coverage-strip" aria-label="Procurement coverage">
     <article>
       <span>Складове</span>
       <strong>{{decisionCenter.warehouseCoverage}}</strong>
@@ -79,8 +129,18 @@
     </article>
   </section>
 
+  <section class="ag-step-4132__insight-strip" aria-label="Procurement manager insights">
+    {{#each decisionCenter.managerInsights}}
+      <article class="ag-step-4132__insight tone-{{tone}}">
+        <span>{{label}}</span>
+        <strong>{{value}}</strong>
+        <small>{{note}}</small>
+      </article>
+    {{/each}}
+  </section>
+
   {{#if decisionCenter.selectedSupplierActive}}
-    <section class="module-card ag-step-412__card ag-step-413__focus-card">
+    <section class="module-card ag-step-412__card ag-step-413__focus-card ag-step-4132__focus-card">
       <div class="module-card-header">
         <div>
           <p class="module-kicker">Selected supplier focus</p>
@@ -98,7 +158,32 @@
     </section>
   {{/if}}
 
-  <section class="ag-step-4121__lanes ag-step-413__lanes" aria-label="Procurement decision lanes">
+  <section class="module-card ag-step-412__card ag-step-4132__supplier-cards-card">
+    <div class="module-card-header">
+      <div>
+        <p class="module-kicker">Supplier cards</p>
+        <h2>Кратки карти за procurement решение</h2>
+        <p class="ag-step-4122__inline-note">Показват най-важните доставчици за управленски преглед. Не създават документ.</p>
+      </div>
+      <span class="ag-step-412__readonly-badge">top {{decisionCenter.policy.topSupplierCardLimit}}</span>
+    </div>
+    <div class="ag-step-4132__supplier-card-grid">
+      {{#each decisionCenter.supplierCards}}
+        <article class="ag-step-4132__supplier-card tone-{{readiness.tone}}">
+          <div>
+            <span>#{{cardRank}} · {{laneCode}}</span>
+            <h3>{{supplierName}}</h3>
+            <p>{{decisionLabel}}</p>
+          </div>
+          <strong>{{displayRecommendedOrderValueTotal}}</strong>
+          <small>{{metricLine}}</small>
+          <a href="{{supplierProcurementHref}}">{{actionLabel}}</a>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="ag-step-4121__lanes ag-step-413__lanes ag-step-4132__lanes" aria-label="Procurement decision lanes">
     {{#each decisionCenter.decisionLanes}}
       <article class="module-card ag-step-412__card ag-step-4121__lane ag-step-413__lane tone-{{tone}}">
         <div class="module-card-header">
@@ -125,62 +210,66 @@
     {{/each}}
   </section>
 
-  <section class="module-card ag-step-412__card ag-step-413__table-card">
+  <section class="module-card ag-step-412__card ag-step-413__table-card ag-step-4132__table-card">
     <div class="module-card-header">
       <div>
         <p class="module-kicker">Supplier decision workbench</p>
         <h2>Procurement решения по доставчици</h2>
-        <p class="ag-step-4122__inline-note">Таблицата е работен списък. Purchase документът се създава само ръчно след проверка.</p>
+        <p class="ag-step-4122__inline-note">Таблицата е филтриран работен списък. Purchase документът се създава само ръчно след проверка.</p>
       </div>
-      <span class="ag-step-412__readonly-badge">decision-support</span>
+      <span class="ag-step-412__readonly-badge">{{decisionCenter.activeLaneLabel}}</span>
     </div>
-    <div class="ag-step-412__table-wrap">
-      <table class="ag-step-412__table ag-step-413__decision-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Доставчик</th>
-            <th>Решение</th>
-            <th class="num">Редове</th>
-            <th class="num">Критични</th>
-            <th class="num">Количество</th>
-            <th class="num">Стойност</th>
-            <th>Бюджет</th>
-            <th>Инспектор</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each decisionCenter.suppliers}}
-            <tr class="procurement-{{readiness.tone}}">
-              <td class="num">{{decisionRank}}</td>
-              <td>
-                <a href="{{supplierProcurementHref}}"><strong>{{supplierName}}</strong></a>
-                <small>{{warehouseList}} · {{groupList}}</small>
-              </td>
-              <td>
-                <span class="ag-step-413__decision-pill tone-{{readiness.tone}}">{{decisionLabel}}</span>
-                <small>{{decisionNextAction}}</small>
-              </td>
-              <td class="num">{{reorderLineCount}}</td>
-              <td class="num">{{criticalCount}}</td>
-              <td class="num">{{displayRecommendedOrderQtyTotal}}</td>
-              <td class="num"><strong>{{displayRecommendedOrderValueTotal}}</strong></td>
-              <td>
-                <span class="ag-step-413__budget tone-{{budgetBand.tone}}">{{budgetBand.label}}</span>
-                <small>{{budgetBand.note}}</small>
-              </td>
-              <td>
-                <a class="ag-step-4122__detail-link" href="{{supplierInventoryHref}}">Supplier</a>
-                <small>inventory planning</small>
-              </td>
+    {{#if decisionCenter.filteredSuppliers.length}}
+      <div class="ag-step-412__table-wrap">
+        <table class="ag-step-412__table ag-step-413__decision-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Доставчик</th>
+              <th>Решение</th>
+              <th class="num">Редове</th>
+              <th class="num">Критични</th>
+              <th class="num">Количество</th>
+              <th class="num">Стойност</th>
+              <th>Бюджет</th>
+              <th>Инспектор</th>
             </tr>
-          {{/each}}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {{#each decisionCenter.filteredSuppliers}}
+              <tr class="procurement-{{readiness.tone}}">
+                <td class="num">{{decisionRank}}</td>
+                <td>
+                  <a href="{{supplierProcurementHref}}"><strong>{{supplierName}}</strong></a>
+                  <small>{{warehouseList}} · {{groupList}}</small>
+                </td>
+                <td>
+                  <span class="ag-step-413__decision-pill tone-{{readiness.tone}}">{{decisionLabel}}</span>
+                  <small>{{decisionNextAction}}</small>
+                </td>
+                <td class="num">{{reorderLineCount}}</td>
+                <td class="num">{{criticalCount}}</td>
+                <td class="num">{{displayRecommendedOrderQtyTotal}}</td>
+                <td class="num"><strong>{{displayRecommendedOrderValueTotal}}</strong></td>
+                <td>
+                  <span class="ag-step-413__budget tone-{{budgetBand.tone}}">{{budgetBand.label}}</span>
+                  <small>{{budgetBand.note}}</small>
+                </td>
+                <td>
+                  <a class="ag-step-4122__detail-link" href="{{supplierInventoryHref}}">Supplier</a>
+                  <small>inventory planning</small>
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="ag-step-412__empty">Няма доставчици за избрания мениджърски филтър.</p>
+    {{/if}}
   </section>
 
-  <section class="ag-step-4122__detail-grid ag-step-413__detail-grid">
+  <section class="ag-step-4122__detail-grid ag-step-413__detail-grid ag-step-4132__detail-grid">
     <article class="module-card ag-step-412__card ag-step-413__workflow-card">
       <div class="module-card-header">
         <div>
@@ -235,7 +324,7 @@
     </ul>
   </section>
 
-  <footer class="ag-step-412__footer-note ag-step-4121__footer-note ag-step-413__footer-note">
+  <footer class="ag-step-412__footer-note ag-step-4121__footer-note ag-step-413__footer-note ag-step-4132__footer-note">
     <strong>Guardrails:</strong>
     {{#each decisionCenter.guardrails}}
       <span>{{this}}</span>

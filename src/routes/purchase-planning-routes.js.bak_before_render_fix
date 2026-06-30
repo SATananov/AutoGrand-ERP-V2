@@ -1,4 +1,4 @@
-﻿// AutoGrand ERP V2 - Step 4.13.2 Purchase Planning UI Polish / Procurement Manager Dashboard Refinement
+// AutoGrand ERP V2 - Step 4.13.2 Purchase Planning UI Polish / Procurement Manager Dashboard Refinement
 // Read-only procurement routes. No document creation or stock journal mutation.
 
 import express from "express";
@@ -17,9 +17,9 @@ function routeOptions(req) {
 router.get("/purchase-planning", async (req, res, next) => {
   try {
     const decisionCenter = await getPurchasePlanningDecisionCenter(routeOptions(req));
-    res.render("purchase-planning", {
-      title: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё В· Procurement Manager Dashboard",
-      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё",
+    res.render("pages/purchase-planning", {
+      title: "Планиране на покупки · Procurement Manager Dashboard",
+      moduleTitle: "Планиране на покупки",
       activeModule: "purchase-planning",
       healthLabel: decisionCenter.healthLabel,
       decisionCenter,
@@ -32,9 +32,9 @@ router.get("/purchase-planning", async (req, res, next) => {
 router.get("/procurement-decision-center", async (req, res, next) => {
   try {
     const decisionCenter = await getPurchasePlanningDecisionCenter(routeOptions(req));
-    res.render("purchase-planning", {
-      title: "Procurement Decision Center В· Manager Dashboard",
-      moduleTitle: "РџР»Р°РЅРёСЂР°РЅРµ РЅР° РїРѕРєСѓРїРєРё",
+    res.render("pages/purchase-planning", {
+      title: "Procurement Decision Center · Manager Dashboard",
+      moduleTitle: "Планиране на покупки",
       activeModule: "purchase-planning",
       healthLabel: decisionCenter.healthLabel,
       decisionCenter,
@@ -63,5 +63,3 @@ router.get("/api/procurement-decision-center", async (req, res, next) => {
 });
 
 export default router;
-
-

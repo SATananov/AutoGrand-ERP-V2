@@ -9,12 +9,24 @@ const fail = (message) => {
 };
 const ok = (message) => console.log(`OK: ${message}`);
 
-const packageJson = JSON.parse(read('package.json'));
-if (packageJson.version !== '0.4.44') fail('package version must be 0.4.44');
-else ok('package version is 0.4.44');
+function semverAtLeast(version, minimum) {
+  const left = String(version || '').split('.').map((part) => Number(part));
+  const right = String(minimum || '').split('.').map((part) => Number(part));
+  for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+    const a = left[index] || 0;
+    const b = right[index] || 0;
+    if (a > b) return true;
+    if (a < b) return false;
+  }
+  return true;
+}
 
-if (packageJson.autograndStep !== '4.13.1') fail('autograndStep must be 4.13.1');
-else ok('autograndStep is 4.13.1');
+const packageJson = JSON.parse(read('package.json'));
+if (!semverAtLeast(packageJson.version, '0.4.44')) fail('package version must be >= 0.4.44');
+else ok(`package version is ${packageJson.version}`);
+
+if (!['4.13.1', '4.13.2'].includes(packageJson.autograndStep)) fail('autograndStep must remain compatible with Step 4.13.1 repair');
+else ok(`autograndStep is ${packageJson.autograndStep}`);
 
 const server = read('src/server.js');
 const loginView = read('views/pages/login.hbs');
@@ -34,8 +46,8 @@ else ok('login route has no visible encoding damage');
 if (!server.includes('UI_ENCODING_DAMAGE_PATTERN')) fail('server UI encoding guard is missing');
 else ok('server UI encoding guard is present');
 
-if (!server.includes("appVersion: 'v0.4.44'")) fail('server appVersion must be v0.4.44');
-else ok('server appVersion is v0.4.44');
+if (!server.includes("appVersion: 'v0.4.45'") && !server.includes("appVersion: 'v0.4.44'")) fail('server appVersion must remain synced after login repair');
+else ok('server appVersion is synced');
 
 if (!loginView.includes('/public/css/ag-login.css?v=4.13.1')) fail('isolated login stylesheet is not linked');
 else ok('isolated login stylesheet is linked');

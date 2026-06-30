@@ -143,7 +143,8 @@ const SCREEN_LABELS = {
   purchases: 'Доставки',
   stock: 'Складови наличности',
   warehouses: 'Складове',
-  'reference-map': 'Client Reference Map'
+  'reference-map': 'Client Reference Map',
+  'purchase-planning': 'Планиране на покупки'
 };
 
 function hasEncodingDamage(value = '') {
@@ -167,7 +168,7 @@ function baseViewData({ title, currentScreen = '', statusText = '' } = {}) {
 
   return {
     title: safeTitle,
-    appVersion: 'v0.4.44',
+    appVersion: 'v0.4.45',
     companyName: 'Автогранд ООД',
     userName: 'Няма вход',
     databaseName: 'Local SQLite',
@@ -409,7 +410,7 @@ app.get('/login', async (req, res) => {
     login: options,
     errorMessage: req.query?.error || '',
     returnTo: req.query?.returnTo || '/',
-    appVersion: 'v0.4.44'
+    appVersion: 'v0.4.45'
   });
 });
 
@@ -632,7 +633,7 @@ app.use('/', stockControlCenterRouter);
 app.use('/', stockControlDetailInspectorRoutes);
 // AutoGrand ERP V2 Step 4.12 Inventory Planning route mount
 app.use(inventoryPlanningRoutes);
-// AutoGrand ERP V2 Step 4.13 Purchase Planning route mount
+// AutoGrand ERP V2 Step 4.13.2 Purchase Planning route mount
 app.use(purchasePlanningRoutes);
 
 app.get('/screen/:screenId', async (req, res) => {
@@ -1142,7 +1143,7 @@ app.get('/health', (req, res) => {
   res.json({
     ok: true,
     app: 'autogrand-erp-v2',
-    step: '4-13-purchase-planning-procurement-decision-center-foundation'
+    step: '4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement'
   });
 });
 

@@ -1,4 +1,4 @@
-// AutoGrand ERP V2 - Step 4.13 Purchase Planning / Procurement Decision Center Foundation
+// AutoGrand ERP V2 - Step 4.13.2 Purchase Planning UI Polish / Procurement Manager Dashboard Refinement
 // Read-only procurement decision support over the existing Inventory Planning supplier recommendations.
 // Guardrail: no purchase document creation, no stock posting, no stock journal mutation, no auto-approval.
 
@@ -7,8 +7,10 @@ import {
   getInventoryPlanningSupplierRecommendations,
 } from "./inventory-planning-service.js";
 
-const STEP_4_13 = "4.13";
-const STEP_4_13_HEALTH_LABEL = "4-13-purchase-planning-procurement-decision-center-foundation";
+const STEP_4_13_2 = "4.13.2";
+const STEP_4_13_2_HEALTH_LABEL = "4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement";
+const STEP_4_13 = STEP_4_13_2;
+const STEP_4_13_HEALTH_LABEL = STEP_4_13_2_HEALTH_LABEL;
 
 const PROCUREMENT_POLICY = Object.freeze({
   budgetWarningLimit: 2500,
@@ -16,6 +18,7 @@ const PROCUREMENT_POLICY = Object.freeze({
   criticalSupplierLimit: 3,
   topDecisionLimit: 6,
   topLineLimit: 8,
+  topSupplierCardLimit: 6,
 });
 
 function toNumber(value, fallback = 0) {
@@ -278,6 +281,154 @@ function buildSupplierFocus(suppliers = [], selectedSupplier = "") {
   ) || null;
 }
 
+function supplierLaneCode(supplier = {}) {
+  if (supplier.readiness?.code === "urgent-review") return "urgent";
+  if (supplier.readiness?.code === "budget-check") return "budget";
+  if (supplier.readiness?.code === "ready-for-manual-order") return "ready";
+  return "monitor";
+}
+
+function normalizeLane(lane = "all") {
+  const code = String(lane || "all").trim().toLowerCase();
+  return ["all", "urgent", "budget", "ready", "monitor"].includes(code) ? code : "all";
+}
+
+function laneLabel(lane = "all") {
+  return {
+    all: "Всички доставчици",
+    urgent: "Спешен преглед",
+    budget: "Бюджетен контрол",
+    ready: "Готово за ръчно решение",
+    monitor: "Наблюдение",
+  }[normalizeLane(lane)] || "Всички доставчици";
+}
+
+function filterSuppliersByLane(suppliers = [], activeLane = "all") {
+  const lane = normalizeLane(activeLane);
+  if (lane === "all") return suppliers;
+  return suppliers.filter((supplier) => supplierLaneCode(supplier) === lane);
+}
+
+function pct(value, total) {
+  const base = toNumber(total);
+  if (base <= 0) return "0%";
+  return `${Math.round((toNumber(value) / base) * 100)}%`;
+}
+
+function buildManagerFilters(suppliers = [], activeLane = "all") {
+  const lane = normalizeLane(activeLane);
+  const counts = suppliers.reduce((acc, supplier) => {
+    acc[supplierLaneCode(supplier)] += 1;
+    return acc;
+  }, { urgent: 0, budget: 0, ready: 0, monitor: 0 });
+
+  return [
+    { key: "all", label: "Всички", tone: "ok", count: suppliers.length, note: "пълен procurement snapshot" },
+    { key: "urgent", label: "Спешни", tone: "danger", count: counts.urgent, note: "критичен риск" },
+    { key: "budget", label: "Бюджет", tone: "warning", count: counts.budget, note: "стойност за преглед" },
+    { key: "ready", label: "Готови", tone: "ok", count: counts.ready, note: "може ръчно решение" },
+    { key: "monitor", label: "Наблюдение", tone: "muted", count: counts.monitor, note: "без активна покупка" },
+  ].map((filter) => ({
+    ...filter,
+    active: filter.key === lane,
+    href: filter.key === "all" ? "/purchase-planning" : `/purchase-planning?lane=${filter.key}`,
+  }));
+}
+
+function buildRecommendationMix(summary = {}, suppliers = []) {
+  const total = Math.max(1, suppliers.length);
+  const laneCounts = suppliers.reduce((acc, supplier) => {
+    acc[supplierLaneCode(supplier)] += 1;
+    return acc;
+  }, { urgent: 0, budget: 0, ready: 0, monitor: 0 });
+
+  return [
+    { key: "urgent", label: "Спешни", tone: "danger", count: laneCounts.urgent, percent: pct(laneCounts.urgent, total), note: "първо действие" },
+    { key: "budget", label: "Бюджет", tone: "warning", count: laneCounts.budget, percent: pct(laneCounts.budget, total), note: "мениджърски контрол" },
+    { key: "ready", label: "Готови", tone: "ok", count: laneCounts.ready, percent: pct(laneCounts.ready, total), note: "ръчна поръчка" },
+    { key: "monitor", label: "Наблюдение", tone: "muted", count: laneCounts.monitor, percent: pct(laneCounts.monitor, total), note: "следи snapshot" },
+  ];
+}
+
+function buildManagerPanels(summary = {}, suppliers = []) {
+  const sortedByValue = [...suppliers].sort((a, b) => toNumber(b.recommendedOrderValueTotal) - toNumber(a.recommendedOrderValueTotal));
+  const topSupplier = sortedByValue[0] || null;
+
+  return [
+    {
+      key: "priority",
+      tone: summary.urgentSuppliers > 0 ? "danger" : "ok",
+      kicker: "Приоритет",
+      title: summary.urgentSuppliers > 0 ? "Започни от критичните доставчици" : "Няма критичен supplier блокер",
+      value: String(summary.urgentSuppliers || 0),
+      note: "доставчици за незабавен преглед",
+      href: "/purchase-planning?lane=urgent",
+    },
+    {
+      key: "budget",
+      tone: summary.budgetBand?.tone || "ok",
+      kicker: "Бюджет",
+      title: summary.budgetBand?.label || "В нормален праг",
+      value: summary.displayRecommendedValueTotal,
+      note: "ориентировъчна стойност за ръчен purchase преглед",
+      href: "/purchase-planning?lane=budget",
+    },
+    {
+      key: "supplier",
+      tone: topSupplier?.readiness?.tone || "muted",
+      kicker: "Top supplier",
+      title: topSupplier?.supplierName || "Няма активен доставчик",
+      value: topSupplier?.displayRecommendedOrderValueTotal || "0.00",
+      note: topSupplier?.decisionLabel || "няма активна покупка",
+      href: topSupplier?.supplierProcurementHref || "/purchase-planning",
+    },
+    {
+      key: "manual",
+      tone: "ok",
+      kicker: "Workflow",
+      title: "Само ръчно решение",
+      value: String(summary.totalPurchaseLines || 0),
+      note: "редове за човешко потвърждение — без auto document",
+      href: "/document/purchase/new/PURCHASE_ORDER",
+    },
+  ];
+}
+
+function buildSupplierCards(suppliers = []) {
+  return suppliers.slice(0, PROCUREMENT_POLICY.topSupplierCardLimit).map((supplier, index) => ({
+    ...supplier,
+    cardRank: index + 1,
+    laneCode: supplierLaneCode(supplier),
+    metricLine: `${supplier.reorderLineCount || 0} реда · ${supplier.criticalCount || 0} критични · ${supplier.displayRecommendedOrderValueTotal}`,
+    actionLabel: supplier.readiness?.code === "monitor" ? "Следи" : "Отвори решение",
+  }));
+}
+
+function buildManagerInsights(summary = {}, purchaseLines = [], suppliers = []) {
+  const topLine = purchaseLines[0] || null;
+  const activeSupplierCount = suppliers.filter((supplier) => toNumber(supplier.reorderLineCount) > 0).length;
+  return [
+    {
+      tone: summary.statusTone || "ok",
+      label: "Decision focus",
+      value: summary.statusLabel,
+      note: summary.nextAction,
+    },
+    {
+      tone: "warning",
+      label: "Supplier coverage",
+      value: `${activeSupplierCount}/${summary.supplierCount || suppliers.length}`,
+      note: "доставчици с активни purchase редове в текущия snapshot",
+    },
+    {
+      tone: topLine?.supplierPriority === "critical" ? "danger" : "ok",
+      label: "First line",
+      value: topLine ? `${topLine.itemCode} · ${topLine.supplierName}` : "Няма активен ред",
+      note: topLine ? `${topLine.warehouseName} · ${topLine.displayRecommendedOrderQty} · ${topLine.displayRecommendedOrderValue}` : "няма активни reorder редове",
+    },
+  ];
+}
+
 export async function getPurchasePlanningDecisionCenter(options = {}) {
   const [inventorySnapshot, supplierSnapshot] = await Promise.all([
     getInventoryPlanningSnapshot({ viewMode: options.viewMode }),
@@ -294,15 +445,21 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
   const purchaseLines = flattenPurchaseLines(suppliers);
   const summary = buildProcurementSummary(supplierSnapshot, inventorySnapshot, suppliers);
   const selectedSupplier = buildSupplierFocus(suppliers, options.supplier);
+  const activeLane = normalizeLane(options.lane);
+  const filteredSuppliers = filterSuppliersByLane(suppliers, activeLane);
+  const filteredPurchaseLines = flattenPurchaseLines(filteredSuppliers);
 
   return {
     step: STEP_4_13,
     previousStep: supplierSnapshot.step || "4.12.3",
     moduleKey: "purchase-planning",
-    title: "Purchase Planning / Procurement Decision Center Foundation",
+    title: "Purchase Planning / Procurement Manager Dashboard Refinement",
     healthLabel: STEP_4_13_HEALTH_LABEL,
     generatedAtIso: new Date().toISOString(),
     sourceName: supplierSnapshot.sourceName || inventorySnapshot.sourceName || "inventory-planning-service",
+    uiPolishStep: "4.13.2",
+    activeLane,
+    activeLaneLabel: laneLabel(activeLane),
     readOnly: true,
     policy: {
       ...PROCUREMENT_POLICY,
@@ -311,11 +468,20 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
     },
     summary,
     decisionLanes: buildDecisionLanes(suppliers),
+    managerFilters: buildManagerFilters(suppliers, activeLane),
+    managerPanels: buildManagerPanels(summary, suppliers),
+    recommendationMix: buildRecommendationMix(summary, suppliers),
+    managerInsights: buildManagerInsights(summary, purchaseLines, suppliers),
+    supplierCards: buildSupplierCards(suppliers),
     suppliers,
+    filteredSuppliers,
+    filteredSupplierCount: filteredSuppliers.length,
+    filteredPurchaseLines,
     selectedSupplier,
     selectedSupplierName: selectedSupplier?.supplierName || "",
     selectedSupplierActive: Boolean(selectedSupplier),
     topPurchaseLines: purchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
+    filteredTopPurchaseLines: filteredPurchaseLines.slice(0, PROCUREMENT_POLICY.topLineLimit),
     purchaseLines,
     warehouseCoverage: uniqueList(purchaseLines.map((line) => line.warehouseName)).join(", ") || "няма активни редове",
     groupCoverage: uniqueList(purchaseLines.map((line) => line.groupName)).join(", ") || "няма активни редове",
@@ -338,7 +504,7 @@ export async function getPurchasePlanningDecisionCenter(options = {}) {
   };
 }
 
-export { STEP_4_13, STEP_4_13_HEALTH_LABEL };
+export { STEP_4_13, STEP_4_13_HEALTH_LABEL, STEP_4_13_2, STEP_4_13_2_HEALTH_LABEL };
 
 export default {
   getPurchasePlanningDecisionCenter,

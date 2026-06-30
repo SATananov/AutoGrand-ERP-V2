@@ -10809,3 +10809,322 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.13 Purchase Planning Procurement Decision Center END */
+
+/* AutoGrand ERP V2 Step 4.13.2 Purchase Planning UI Polish Procurement Manager Dashboard START */
+.ag-step-4132 {
+  --ag-procurement-green: #0f6749;
+  --ag-procurement-ink: #123b2c;
+  --ag-procurement-soft: rgba(238, 248, 242, 0.96);
+}
+
+.ag-step-4132__hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 94% 8%, rgba(18, 103, 75, 0.14), transparent 32%),
+    linear-gradient(135deg, rgba(251, 253, 250, 0.98), rgba(235, 248, 240, 0.92));
+}
+
+.ag-step-4132__hero::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  bottom: -48px;
+  width: 170px;
+  height: 170px;
+  border: 22px solid rgba(18, 103, 75, 0.07);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.ag-step-4132__hero-meta span {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(18, 103, 75, 0.14);
+}
+
+.ag-step-4132__guard-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(238, 248, 242, 0.96));
+}
+
+.ag-step-4132__guard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ag-step-4132__ghost-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(18, 103, 75, 0.18);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #0b5d40;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.ag-step-4132__command-strip {
+  border: 1px solid rgba(18, 103, 75, 0.15);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 28px rgba(8, 51, 37, 0.07);
+}
+
+.ag-step-4132__filter-bar,
+.ag-step-4132__mix-card,
+.ag-step-4132__supplier-cards-card {
+  border: 1px solid rgba(18, 103, 75, 0.15);
+  border-radius: 18px;
+  padding: 15px;
+  background: rgba(248, 252, 249, 0.96);
+  box-shadow: 0 10px 22px rgba(8, 51, 37, 0.06);
+}
+
+.ag-step-4132__filter-bar {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.ag-step-4132__filter-bar h2,
+.ag-step-4132__manager-card h2,
+.ag-step-4132__mix-card h2,
+.ag-step-4132__supplier-cards-card h2 {
+  margin: 2px 0 0;
+  color: var(--ag-procurement-ink);
+}
+
+.ag-step-4132__filter-chips {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.ag-step-4132__filter-chip {
+  display: grid;
+  gap: 3px;
+  min-height: 74px;
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 15px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--ag-procurement-ink);
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.ag-step-4132__filter-chip:hover,
+.ag-step-4132__filter-chip.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(18, 103, 75, 0.34);
+  box-shadow: 0 10px 18px rgba(8, 51, 37, 0.1);
+}
+
+.ag-step-4132__filter-chip.is-active {
+  background: linear-gradient(180deg, rgba(238, 248, 242, 0.98), rgba(255, 255, 255, 0.9));
+}
+
+.ag-step-4132__filter-chip span {
+  font-size: 1.35rem;
+  font-weight: 950;
+  color: #0b5d40;
+}
+
+.ag-step-4132__filter-chip small,
+.ag-step-4132__manager-card span,
+.ag-step-4132__manager-card a,
+.ag-step-4132__mix-item small,
+.ag-step-4132__insight small,
+.ag-step-4132__supplier-card small {
+  color: rgba(15, 58, 45, 0.68);
+}
+
+.ag-step-4132__filter-chip.tone-danger span,
+.ag-step-4132__manager-card.tone-danger strong,
+.ag-step-4132__mix-item.tone-danger span,
+.ag-step-4132__insight.tone-danger strong {
+  color: #9b2d1d;
+}
+
+.ag-step-4132__filter-chip.tone-warning span,
+.ag-step-4132__manager-card.tone-warning strong,
+.ag-step-4132__mix-item.tone-warning span,
+.ag-step-4132__insight.tone-warning strong {
+  color: #87540d;
+}
+
+.ag-step-4132__manager-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ag-step-4132__manager-card,
+.ag-step-4132__insight,
+.ag-step-4132__supplier-card,
+.ag-step-4132__mix-item {
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 18px rgba(8, 51, 37, 0.05);
+}
+
+.ag-step-4132__manager-card {
+  display: grid;
+  gap: 7px;
+  padding: 15px;
+  border-top: 4px solid rgba(18, 103, 75, 0.48);
+}
+
+.ag-step-4132__manager-card.tone-danger,
+.ag-step-4132__supplier-card.tone-danger {
+  border-top-color: rgba(179, 48, 48, 0.62);
+  background: rgba(255, 246, 244, 0.94);
+}
+
+.ag-step-4132__manager-card.tone-warning,
+.ag-step-4132__supplier-card.tone-warning {
+  border-top-color: rgba(176, 115, 22, 0.62);
+  background: rgba(255, 250, 235, 0.94);
+}
+
+.ag-step-4132__manager-card.tone-muted,
+.ag-step-4132__supplier-card.tone-muted {
+  border-top-color: rgba(88, 113, 101, 0.36);
+  background: rgba(247, 249, 248, 0.96);
+}
+
+.ag-step-4132__manager-card strong {
+  font-size: 1.45rem;
+  color: #0b5d40;
+}
+
+.ag-step-4132__manager-card a,
+.ag-step-4132__supplier-card a {
+  width: fit-content;
+  border: 1px solid rgba(18, 103, 75, 0.16);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #0b5d40;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.ag-step-4132__summary-grid {
+  align-items: stretch;
+}
+
+.ag-step-4132__mix-grid,
+.ag-step-4132__supplier-card-grid,
+.ag-step-4132__insight-strip {
+  display: grid;
+  gap: 12px;
+}
+
+.ag-step-4132__mix-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.ag-step-4132__mix-item {
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+}
+
+.ag-step-4132__mix-item span {
+  font-size: 1.25rem;
+  font-weight: 950;
+  color: #0b5d40;
+}
+
+.ag-step-4132__insight-strip {
+  grid-template-columns: 1.2fr 0.8fr 1fr;
+}
+
+.ag-step-4132__insight {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+}
+
+.ag-step-4132__insight span {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(15, 58, 45, 0.62);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.ag-step-4132__insight strong {
+  color: var(--ag-procurement-ink);
+}
+
+.ag-step-4132__supplier-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.ag-step-4132__supplier-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-top: 4px solid rgba(18, 103, 75, 0.48);
+}
+
+.ag-step-4132__supplier-card h3,
+.ag-step-4132__supplier-card p {
+  margin: 0;
+}
+
+.ag-step-4132__supplier-card span {
+  color: rgba(15, 58, 45, 0.62);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ag-step-4132__supplier-card strong {
+  color: #0b5d40;
+  font-size: 1.25rem;
+}
+
+.ag-step-4132__table-card .ag-step-412__empty {
+  margin-top: 12px;
+}
+
+@media (max-width: 1180px) {
+  .ag-step-4132__filter-bar,
+  .ag-step-4132__insight-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4132__filter-chips,
+  .ag-step-4132__manager-grid,
+  .ag-step-4132__mix-grid,
+  .ag-step-4132__supplier-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .ag-step-4132__filter-chips,
+  .ag-step-4132__manager-grid,
+  .ag-step-4132__mix-grid,
+  .ag-step-4132__supplier-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-step-4132__manager-card,
+  .ag-step-4132__filter-chip,
+  .ag-step-4132__supplier-card {
+    min-height: auto;
+  }
+}
+/* AutoGrand ERP V2 Step 4.13.2 Purchase Planning UI Polish Procurement Manager Dashboard END */

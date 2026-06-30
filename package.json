@@ -1,9 +1,9 @@
 {
   "name": "autogrand-erp-v2",
-  "version": "0.4.44",
+  "version": "0.4.45",
   "private": true,
   "type": "module",
-  "description": "AutoGrand ERP V2 Step 4.13.1 Login Screen Polish and Browser Title Encoding Repair",
+  "description": "AutoGrand ERP V2 Step 4.13.2 Purchase Planning UI Polish and Procurement Manager Dashboard Refinement",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -16,7 +16,8 @@
     "check:step4:12:4": "node scripts/step-4-12-4-inventory-planning-final-qa-smoke.cjs",
     "check:step4:12:4:1": "node scripts/step-4-12-4-1-shell-menu-cyrillic-encoding-smoke.cjs",
     "check:step4:13": "node scripts/step-4-13-purchase-planning-smoke.cjs",
-    "check:step4:13:1": "node scripts/step-4-13-1-login-screen-polish-smoke.cjs"
+    "check:step4:13:1": "node scripts/step-4-13-1-login-screen-polish-smoke.cjs",
+    "check:step4:13:2": "node scripts/step-4-13-2-purchase-planning-ui-polish-smoke.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -110,8 +111,8 @@
     "Global Grid Column Preferences",
     "grid-column-preferences"
   ],
-  "autograndStep": "4.13.1",
-  "autograndHealthLabel": "4-13-1-login-screen-polish-browser-title-encoding-repair",
+  "autograndStep": "4.13.2",
+  "autograndHealthLabel": "4-13-2-purchase-planning-ui-polish-procurement-manager-dashboard-refinement",
   "autogrand": {
     "version": "0.4.17",
     "step": "4.8.6",
