@@ -302,7 +302,7 @@
 /*
 AutoGrand compatibility markers for legacy checker:
 - Step 4.4 grid preferences version label
-- appVersion: 'v0.4.8'
+- appVersion: 'v0.4.42'
 - 0.4.8
 - Централен склад
 - Регионален склад Стара Загора
