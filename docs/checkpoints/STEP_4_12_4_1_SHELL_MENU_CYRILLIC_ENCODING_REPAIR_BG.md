@@ -1,18 +1,14 @@
 # Checkpoint — Step 4.12.4.1 Shell Menu Cyrillic Encoding Repair
 
-Статус: repair стъпка за лявото ERP меню.
+Status: ready to apply.
 
-Очаквани проверки:
+Version: `0.4.41`
+
+Checks:
 
 ```powershell
 npm run check
 node scripts/step-4-12-4-1-shell-menu-cyrillic-encoding-smoke.cjs
 ```
 
-Очакван резултат:
-
-```text
-OK: Step 4.12.4.1 shell menu Cyrillic encoding smoke markers passed.
-```
-
-След успешен commit/push и clean export този checkpoint затваря encoding repair-а върху вече затворения Inventory Planning блок.
+This is a shell/menu encoding repair only. It does not change stock posting, reversals, corrections, stock movement journal logic, or POSTED document locks.
