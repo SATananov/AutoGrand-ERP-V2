@@ -10427,3 +10427,132 @@ button.ag-stock-closure-action {
   }
 }
 /* AutoGrand ERP V2 Step 4.12.2 Inventory Planning Detail Inspector END */
+
+/* AutoGrand ERP V2 Step 4.12.3 Inventory Planning Supplier Purchase View START */
+.ag-step-4123__supplier-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(18, 103, 75, 0.28);
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(232, 247, 239, 0.98), rgba(210, 239, 224, 0.94));
+  color: #0b5d40;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(8, 51, 37, 0.08);
+}
+
+.ag-step-4123__supplier-cta:hover {
+  border-color: rgba(18, 103, 75, 0.54);
+  background: linear-gradient(180deg, rgba(214, 244, 228, 1), rgba(193, 230, 212, 0.98));
+}
+
+.ag-step-4123__supplier-hero {
+  border-bottom: 3px solid rgba(18, 103, 75, 0.2);
+}
+
+.ag-step-4123__supplier-guard {
+  gap: 10px;
+}
+
+.ag-step-4123__supplier-strip,
+.ag-step-4123__supplier-preview,
+.ag-step-4123__supplier-table-card {
+  margin-top: 14px;
+}
+
+.ag-step-4123__supplier-kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ag-step-4123__supplier-metric {
+  border-color: rgba(176, 115, 22, 0.24);
+}
+
+.ag-step-4123__supplier-preview-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ag-step-4123__supplier-preview-list li {
+  border: 1px solid rgba(18, 103, 75, 0.14);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(248, 252, 249, 0.96);
+  display: grid;
+  gap: 4px;
+}
+
+.ag-step-4123__supplier-preview-list a,
+.ag-step-4123__supplier-lanes a {
+  color: #0b5d40;
+  text-decoration: none;
+}
+
+.ag-step-4123__supplier-preview-list a:hover,
+.ag-step-4123__supplier-lanes a:hover {
+  text-decoration: underline;
+}
+
+.ag-step-4123__supplier-table td small,
+.ag-step-4123__supplier-preview-list small {
+  display: block;
+  color: rgba(15, 58, 45, 0.68);
+  margin-top: 3px;
+}
+
+.ag-step-4123__supplier-priority {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-weight: 900;
+  font-size: 0.82rem;
+  border: 1px solid rgba(18, 103, 75, 0.18);
+  background: rgba(232, 247, 239, 0.94);
+  color: #0b5d40;
+}
+
+.ag-step-4123__supplier-priority.tone-critical {
+  background: rgba(255, 235, 231, 0.96);
+  border-color: rgba(180, 63, 40, 0.24);
+  color: #9b2d1d;
+}
+
+.ag-step-4123__supplier-priority.tone-reorder,
+.ag-step-4123__supplier-priority.tone-watch {
+  background: rgba(255, 246, 224, 0.96);
+  border-color: rgba(176, 115, 22, 0.24);
+  color: #87540d;
+}
+
+.ag-step-4123__supplier-priority.tone-slow {
+  background: rgba(241, 244, 242, 0.96);
+  border-color: rgba(88, 113, 101, 0.2);
+  color: #40554a;
+}
+
+.ag-step-4123__supplier-manual-card {
+  border-left: 4px solid rgba(18, 103, 75, 0.42);
+}
+
+@media (max-width: 980px) {
+  .ag-step-4123__supplier-kpis,
+  .ag-step-4123__supplier-preview-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .ag-step-4123__supplier-kpis,
+  .ag-step-4123__supplier-preview-list {
+    grid-template-columns: 1fr;
+  }
+}
+/* AutoGrand ERP V2 Step 4.12.3 Inventory Planning Supplier Purchase View END */

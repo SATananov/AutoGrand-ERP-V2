@@ -1,14 +1,15 @@
-<section class="ag-step-412 ag-step-4121 ag-step-4122 module-page" data-module="inventory-planning" data-step="4.12.2">
+<section class="ag-step-412 ag-step-4121 ag-step-4122 ag-step-4123 module-page" data-module="inventory-planning" data-step="4.12.3">
   <header class="module-hero ag-step-412__hero ag-step-4121__hero">
     <div>
-      <p class="module-kicker">Планиране · Мениджърски изглед · Detail inspector · Само анализ</p>
+      <p class="module-kicker">Планиране · Мениджърски изглед · Detail inspector · Supplier planning · Само анализ</p>
       <h1>Планиране на наличности</h1>
       <p class="module-lead">
-        Мениджърски dashboard с drilldown към артикул: наличност по обекти, движения, причина за reorder и ръчна препоръка.
+        Мениджърски dashboard с drilldown към артикул и доставчик: reorder нужди, purchase препоръки и ръчно planning решение.
       </p>
       <div class="ag-step-4121__hero-meta">
         <span>Snapshot: {{snapshot.step}}</span>
         <span>Inspector: {{snapshot.detailInspectorVersion}}</span>
+        <span>Supplier: {{snapshot.supplierPlanningVersion}}</span>
         <span>Източник: {{snapshot.sourceName}}</span>
         <span>Филтър: {{snapshot.viewMode}}</span>
       </div>
@@ -32,6 +33,7 @@
       <strong>Правило</strong>
       <span>{{snapshot.managerSnapshot.safetyNote}}</span>
     </div>
+    <a class="ag-step-4123__supplier-cta" href="/inventory-planning/suppliers">Доставчици и purchase препоръки</a>
   </section>
 
   <section class="ag-step-412__summary-grid ag-step-4121__summary-grid" aria-label="KPI cards">
@@ -64,6 +66,11 @@
       <span>Stock value</span>
       <strong>{{snapshot.summary.displayTotalStockValue}}</strong>
       <small>ориентировъчна текуща стойност</small>
+    </article>
+    <article class="ag-step-412__metric ag-step-4121__metric is-warning ag-step-4123__supplier-metric">
+      <span>Доставчици</span>
+      <strong>{{snapshot.supplierSummary.suppliersWithPurchase}} / {{snapshot.supplierSummary.supplierCount}}</strong>
+      <small>с purchase препоръки / общо в snapshot</small>
     </article>
   </section>
 
@@ -204,6 +211,27 @@
         {{/each}}
       </ul>
     </article>
+  </section>
+
+
+  <section class="module-card ag-step-412__card ag-step-4123__supplier-preview">
+    <div class="module-card-header">
+      <div>
+        <p class="module-kicker">Supplier purchase planning</p>
+        <h2>Препоръки по доставчици</h2>
+        <p class="ag-step-4122__inline-note">Групира reorder нуждите по доставчик, без автоматично създаване на purchase документи.</p>
+      </div>
+      <a class="ag-step-4123__supplier-cta" href="/inventory-planning/suppliers">Отвори изглед</a>
+    </div>
+    <ul class="ag-step-4123__supplier-preview-list">
+      {{#each snapshot.managerSupplierSnapshot.topSuppliers}}
+        <li>
+          <a href="{{supplierHref}}"><strong>{{supplierName}}</strong></a>
+          <span>{{priorityLabel}} · {{manualActionLabel}}</span>
+          <small>стойност за планиране {{displayRecommendedOrderValueTotal}}</small>
+        </li>
+      {{/each}}
+    </ul>
   </section>
 
   <footer class="ag-step-412__footer-note ag-step-4121__footer-note">

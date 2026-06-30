@@ -1,7 +1,7 @@
-<section class="ag-step-412 ag-step-4121 ag-step-4122 module-page" data-module="inventory-planning-detail" data-step="4.12.2">
+<section class="ag-step-412 ag-step-4121 ag-step-4122 module-page" data-module="inventory-planning-detail" data-step="4.12.3">
   <header class="module-hero ag-step-412__hero ag-step-4122__detail-hero">
     <div>
-      <p class="module-kicker">Inventory Planning · Detail inspector · Само анализ</p>
+      <p class="module-kicker">Inventory Planning · Detail inspector · Supplier planning · Само анализ</p>
       <h1>{{detail.item.itemCode}} · {{detail.item.itemName}}</h1>
       <p class="module-lead">
         Item planning drilldown за наличност по обекти, последни движения, причина за reorder и ръчна мениджърска препоръка.
@@ -16,6 +16,7 @@
       <strong>Read-only detail</strong>
       <span>Няма автоматични документи. Няма редакция на stock journal. POSTED документите остават locked.</span>
       <a class="ag-step-4122__back" href="{{detail.backHref}}">← Назад към планиране</a>
+      <a class="ag-step-4122__back" href="/inventory-planning/suppliers/{{detail.item.supplierName}}">Доставчик</a>
     </div>
   </header>
 
